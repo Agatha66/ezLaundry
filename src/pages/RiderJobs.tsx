@@ -167,19 +167,13 @@ export function RiderJobs() {
     }
   };
 
-  // Compress image if larger than 10MB using canvas
-  const compressImage = (dataUrl: string, maxSizeMB: number = 10): Promise<string> => {
+  // Compress image to fit Firestore's 1MB per-field limit
+  // Base64 has ~33% overhead, so we target 0.7MB to stay safely under 1MB
+  const MAX_IMAGE_SIZE_MB = 0.7;
+  const compressImage = (dataUrl: string, maxSizeMB: number = MAX_IMAGE_SIZE_MB): Promise<string> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
-        // Check if compression is needed
-        const sizeInMB = (dataUrl.length * 3) / 4 / 1024 / 1024;
-        if (sizeInMB <= maxSizeMB) {
-          resolve(dataUrl);
-          return;
-        }
-
-        // Calculate scale factor to reduce file size
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         if (!ctx) {
@@ -187,43 +181,53 @@ export function RiderJobs() {
           return;
         }
 
-        // Start with original dimensions
         let { width, height } = img;
-        const targetRatio = maxSizeMB / sizeInMB;
-        // Reduce dimensions proportionally (area ~ size, so sqrt for each dimension)
-        const scale = Math.sqrt(targetRatio) * 0.9; // 0.9 factor for safety margin
-        width = Math.floor(width * scale);
-        height = Math.floor(height * scale);
-
-        // Minimum dimensions to prevent too small images
-        width = Math.max(width, 800);
-        height = Math.max(height, 600);
+        // Start with a max dimension cap for very large images
+        const maxDim = 1600;
+        if (width > maxDim || height > maxDim) {
+          const scale = maxDim / Math.max(width, height);
+          width = Math.floor(width * scale);
+          height = Math.floor(height * scale);
+        }
 
         canvas.width = width;
         canvas.height = height;
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Try different quality levels until under target size
-        let quality = 0.9;
-        let result = canvas.toDataURL('image/jpeg', quality);
-        let resultSizeMB = (result.length * 3) / 4 / 1024 / 1024;
+        // Binary search for the best quality that fits under the limit
+        let low = 0.05;
+        let high = 0.92;
+        let bestResult = canvas.toDataURL('image/jpeg', 0.05);
 
-        while (resultSizeMB > maxSizeMB && quality > 0.1) {
-          quality -= 0.1;
-          result = canvas.toDataURL('image/jpeg', quality);
-          resultSizeMB = (result.length * 3) / 4 / 1024 / 1024;
+        while (high - low > 0.02) {
+          const mid = (low + high) / 2;
+          const result = canvas.toDataURL('image/jpeg', mid);
+          const sizeMB = result.length / 1024 / 1024;
+
+          if (sizeMB <= maxSizeMB) {
+            bestResult = result;
+            low = mid;
+          } else {
+            high = mid;
+          }
         }
 
-        // If still too large, reduce dimensions further
+        // If still too large at best quality, shrink dimensions
+        let resultSizeMB = bestResult.length / 1024 / 1024;
         if (resultSizeMB > maxSizeMB) {
-          const furtherScale = Math.sqrt(maxSizeMB / resultSizeMB) * 0.9;
-          canvas.width = Math.floor(width * furtherScale);
-          canvas.height = Math.floor(height * furtherScale);
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          result = canvas.toDataURL('image/jpeg', 0.7);
+          let scale = 0.85;
+          while (resultSizeMB > maxSizeMB && (width * scale > 200 || height * scale > 200)) {
+            canvas.width = Math.floor(width * scale);
+            canvas.height = Math.floor(height * scale);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            bestResult = canvas.toDataURL('image/jpeg', 0.7);
+            resultSizeMB = bestResult.length / 1024 / 1024;
+            scale *= 0.85;
+          }
         }
 
-        resolve(result);
+        console.log(`[Image] Compressed to ${(bestResult.length / 1024 / 1024).toFixed(2)}MB (${canvas.width}x${canvas.height})`);
+        resolve(bestResult);
       };
       img.onerror = () => reject(new Error('Failed to load image'));
       img.src = dataUrl;
@@ -240,28 +244,35 @@ export function RiderJobs() {
       return;
     }
 
+    // Validate file size (browser allows up to 50MB before read fails)
+    if (file.size > 50 * 1024 * 1024) {
+      setError('Image too large. Maximum 50MB.');
+      return;
+    }
+
+    setCompressing(true);
     const reader = new FileReader();
     reader.onloadend = async () => {
       try {
         const originalDataUrl = reader.result as string;
-        const originalSizeMB = (originalDataUrl.length * 3) / 4 / 1024 / 1024;
+        const originalSizeMB = originalDataUrl.length / 1024 / 1024;
+        console.log(`[Image] Original: ${originalSizeMB.toFixed(1)}MB`);
 
-        if (originalSizeMB > 10) {
-          setCompressing(true);
-          console.log(`[Image] Compressing ${originalSizeMB.toFixed(1)}MB image...`);
-          const compressed = await compressImage(originalDataUrl, 9.5); // Target 9.5MB for safety
-          const compressedSizeMB = (compressed.length * 3) / 4 / 1024 / 1024;
-          console.log(`[Image] Compressed to ${compressedSizeMB.toFixed(1)}MB`);
-          setDeliveryPhoto(compressed);
-          setCompressing(false);
-        } else {
-          setDeliveryPhoto(originalDataUrl);
-        }
+        // Always compress to ensure we stay under Firestore 1MB limit
+        const compressed = await compressImage(originalDataUrl, MAX_IMAGE_SIZE_MB);
+        const compressedSizeMB = compressed.length / 1024 / 1024;
+        console.log(`[Image] Final: ${compressedSizeMB.toFixed(2)}MB`);
+        setDeliveryPhoto(compressed);
       } catch (err) {
         console.error('Failed to process image:', err);
-        setError('Failed to process image. Please try again.');
+        setError('Failed to process image. Please try a smaller image.');
+      } finally {
         setCompressing(false);
       }
+    };
+    reader.onerror = () => {
+      setCompressing(false);
+      setError('Failed to read image file');
     };
     reader.readAsDataURL(file);
 
