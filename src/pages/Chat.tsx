@@ -177,7 +177,9 @@ export function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef   = useRef<HTMLDivElement>(null);
   const prevLenRef     = useRef(0);
-  const unreadIdxRef   = useRef<number>(-1); // index of first unread msg
+  const unreadSnapshotRef = useRef(0); 
+  const [showDivider, setShowDivider] = useState(false);
+  const [unreadSnapshot, setUnreadSnapshot] = useState(0);
 
   /* ── load chat & order ── */
   useEffect(() => {
@@ -192,6 +194,14 @@ export function ChatPage() {
         if (!c && o?.riderId) {
           c = await chatService.createChat(orderId, o.customerId, o.customerName, o.riderId, o.riderName || 'Rider');
         }
+
+        if (c && userData) {
+          const count = userData.role === 'customer'
+            ? (c.unreadCountCustomer || 0)
+            : (c.unreadCountRider || 0);
+          unreadSnapshotRef.current = count;
+        }
+        
         setChat(c || null);
       } catch (e) { setErr('Failed to load chat'); }
       finally { setLoad(false); }
@@ -199,12 +209,18 @@ export function ChatPage() {
   }, [orderId, userData]);
 
   /* ── subscribe to messages ── */
-  useEffect(() => {
-    if (!chat) return;
-    if (userData) chatService.markAsRead(chat.id, userData.role, userData.uid).catch(() => {});
-    const unsub = chatService.subscribeToMessages(chat.id, (m) => setMsg(m));
-    return () => unsub();
-  }, [chat, userData]);
+ useEffect(() => {
+  if (!chat || !userData) return;
+
+  // Use the ref value captured during load
+  const count = unreadSnapshotRef.current;
+  setUnreadSnapshot(count);
+  if (count > 0) setShowDivider(true);
+
+  chatService.markAsRead(chat.id, userData.role, userData.uid).catch(() => {});
+  const unsub = chatService.subscribeToMessages(chat.id, (m) => setMsg(m));
+  return () => unsub();
+}, [chat?.id]);
 
   /* ── subscribe to order updates (LOCAL STATE ONLY — no system messages) ── */
   useEffect(() => {
@@ -233,17 +249,20 @@ export function ChatPage() {
     prevLenRef.current = messages.length;
   }, [messages, userData?.uid]);
 
-  /* ── find first unread index ── */
+  /* ── hide divider on scroll or after timeout ── */
   useEffect(() => {
-    if (!userData) return;
-    const idx = messages.findIndex(m => m.senderId !== userData.uid && !m.read);
-    unreadIdxRef.current = idx;
-  }, [messages, userData]);
+    if (!showDivider) return;
+    const timer = setTimeout(() => setShowDivider(false), 5000);
+    const handleScroll = () => setShowDivider(false);
+    const el = containerRef.current;
+    el?.addEventListener('scroll', handleScroll, { once: true });
+    return () => { clearTimeout(timer); el?.removeEventListener('scroll', handleScroll); };
+  }, [showDivider]);
 
   /* ── clear "just navigated" after first scroll ── */
   useEffect(() => {
     if (!loading && justNavigated) {
-      const t = setTimeout(() => setJustNavigated(false), 1000);
+      const t = setTimeout(() => setJustNavigated(false), 800);
       return () => clearTimeout(t);
     }
   }, [loading, justNavigated]);
@@ -277,18 +296,26 @@ export function ChatPage() {
   const grouped = useMemo(() => {
     const groups: { type: 'day' | 'msg'; value?: string; message?: ChatMessage; isUnread?: boolean }[] = [];
     let lastDay = '';
-    messages.forEach((m, i) => {
+    let dividerPlaced = false;
+
+    messages.forEach((m, index) => {
       const day = formatDayDivider(m.createdAt);
       if (day && day !== lastDay) {
         groups.push({ type: 'day', value: day });
         lastDay = day;
       }
-      // Mark first unread message with a flag
-      const isFirstUnread = i === unreadIdxRef.current && i >= 0 && m.senderId !== userData?.uid && !justNavigated;
+      // Show unread divider before the first unread message from the other person
+      const isFirstUnread =
+        showDivider &&
+        !dividerPlaced &&
+        m.senderId !== userData?.uid &&
+        index >= messages.length - unreadSnapshot;
+
+      if (isFirstUnread) dividerPlaced = true;
       groups.push({ type: 'msg', message: m, isUnread: isFirstUnread });
     });
     return groups;
-  }, [messages, userData?.uid, justNavigated]);
+  }, [messages, userData?.uid, showDivider, unreadSnapshot]);
 
   if (loading) return (
     <div className="min-h-screen bg-[#F5F7F9] flex items-center justify-center">
