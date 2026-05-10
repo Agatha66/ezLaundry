@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { 
   Package, 
   MapPin, 
@@ -14,7 +14,8 @@ import {
   Hash,
   ArrowRight,
   X,
-  MessageCircle
+  MessageCircle,
+  ImageIcon
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,37 +28,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRiderOrders, usePendingOrders } from '@/hooks/useOrders';
 import { orderService, statusLabels, statusFlow } from '@/services/orderService';
 import type { Order, OrderStatus } from '@/types';
-import { convertTimestamp } from '@/services/orderService';
-
-// Safe date helpers
-const safeDate = (value: any): Date => new Date(convertTimestamp(value) || Date.now());
-
-const formatDate = (value: any, options?: Intl.DateTimeFormatOptions): string => {
-  try {
-    const date = safeDate(value);
-    if (isNaN(date.getTime())) return 'N/A';
-    return date.toLocaleDateString('en-MY', options);
-  } catch {
-    return 'N/A';
-  }
-};
-
-const formatDateTime = (value: any): string => {
-  try {
-    const date = safeDate(value);
-    if (isNaN(date.getTime())) return 'N/A';
-    return date.toLocaleString('en-MY', {
-      day: 'numeric', month: 'short', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
-    });
-  } catch {
-    return 'N/A';
-  }
-};
 
 export function RiderJobs() {
-  const location = useLocation();
-  const defaultTab = (location.state as { activeTab?: string })?.activeTab || 'available';
   const { userData } = useAuth();
   const { activeOrders, completedOrders, refresh: refreshRiderOrders } = useRiderOrders(userData?.uid);
   const { orders: pendingOrders, refresh: refreshPendingOrders } = usePendingOrders();
@@ -77,7 +49,9 @@ export function RiderJobs() {
   
   // Delivery photo state
   const [deliveryPhoto, setDeliveryPhoto] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [compressing, setCompressing] = useState(false);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const handleAcceptOrder = async (order: Order) => {
     if (!userData) {
@@ -193,15 +167,106 @@ export function RiderJobs() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setDeliveryPhoto(reader.result as string);
+  // Compress image if larger than 10MB using canvas
+  const compressImage = (dataUrl: string, maxSizeMB: number = 10): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        // Check if compression is needed
+        const sizeInMB = (dataUrl.length * 3) / 4 / 1024 / 1024;
+        if (sizeInMB <= maxSizeMB) {
+          resolve(dataUrl);
+          return;
+        }
+
+        // Calculate scale factor to reduce file size
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(dataUrl);
+          return;
+        }
+
+        // Start with original dimensions
+        let { width, height } = img;
+        const targetRatio = maxSizeMB / sizeInMB;
+        // Reduce dimensions proportionally (area ~ size, so sqrt for each dimension)
+        const scale = Math.sqrt(targetRatio) * 0.9; // 0.9 factor for safety margin
+        width = Math.floor(width * scale);
+        height = Math.floor(height * scale);
+
+        // Minimum dimensions to prevent too small images
+        width = Math.max(width, 800);
+        height = Math.max(height, 600);
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Try different quality levels until under target size
+        let quality = 0.9;
+        let result = canvas.toDataURL('image/jpeg', quality);
+        let resultSizeMB = (result.length * 3) / 4 / 1024 / 1024;
+
+        while (resultSizeMB > maxSizeMB && quality > 0.1) {
+          quality -= 0.1;
+          result = canvas.toDataURL('image/jpeg', quality);
+          resultSizeMB = (result.length * 3) / 4 / 1024 / 1024;
+        }
+
+        // If still too large, reduce dimensions further
+        if (resultSizeMB > maxSizeMB) {
+          const furtherScale = Math.sqrt(maxSizeMB / resultSizeMB) * 0.9;
+          canvas.width = Math.floor(width * furtherScale);
+          canvas.height = Math.floor(height * furtherScale);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          result = canvas.toDataURL('image/jpeg', 0.7);
+        }
+
+        resolve(result);
       };
-      reader.readAsDataURL(file);
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = dataUrl;
+    });
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file');
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      try {
+        const originalDataUrl = reader.result as string;
+        const originalSizeMB = (originalDataUrl.length * 3) / 4 / 1024 / 1024;
+
+        if (originalSizeMB > 10) {
+          setCompressing(true);
+          console.log(`[Image] Compressing ${originalSizeMB.toFixed(1)}MB image...`);
+          const compressed = await compressImage(originalDataUrl, 9.5); // Target 9.5MB for safety
+          const compressedSizeMB = (compressed.length * 3) / 4 / 1024 / 1024;
+          console.log(`[Image] Compressed to ${compressedSizeMB.toFixed(1)}MB`);
+          setDeliveryPhoto(compressed);
+          setCompressing(false);
+        } else {
+          setDeliveryPhoto(originalDataUrl);
+        }
+      } catch (err) {
+        console.error('Failed to process image:', err);
+        setError('Failed to process image. Please try again.');
+        setCompressing(false);
+      }
+    };
+    reader.readAsDataURL(file);
+
+    // Reset input so the same file can be selected again
+    e.target.value = '';
   };
 
   const openOrderDetail = (order: Order) => {
@@ -257,7 +322,7 @@ export function RiderJobs() {
         )}
 
         {/* Tabs */}
-        <Tabs defaultValue={defaultTab} className="w-full">
+        <Tabs defaultValue="available" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="available">
               Available ({pendingOrders.length})
@@ -290,9 +355,7 @@ export function RiderJobs() {
           </TabsContent>
 
           <TabsContent value="completed">
-            <CompletedOrdersList 
-              orders={completedOrders}
-              onViewDetail={openOrderDetail} />
+            <CompletedOrdersList orders={completedOrders} />
           </TabsContent>
         </Tabs>
       </div>
@@ -331,7 +394,9 @@ export function RiderJobs() {
         onFileChange={handleFileChange}
         onSubmit={handleDeliverySubmit}
         updatingStatus={updatingStatus}
-        fileInputRef={fileInputRef}
+        compressing={compressing}
+        cameraInputRef={cameraInputRef}
+        galleryInputRef={galleryInputRef}
         onClearPhoto={() => setDeliveryPhoto(null)}
       />
     </div>
@@ -381,7 +446,7 @@ function AvailableOrdersList({
               <div className="flex items-center gap-4 mt-2 text-sm text-[#4A6375]">
                 <span className="flex items-center gap-1">
                   <Clock className="w-4 h-4" />
-                  {formatDate(order.pickupDate)}
+                  {new Date(order.pickupDate).toLocaleDateString()}
                 </span>
                 <span className="flex items-center gap-1">
                   <Package className="w-4 h-4" />
@@ -595,93 +660,51 @@ function MyJobsList({
 }
 
 // Completed Orders List
-function CompletedOrdersList({ 
-  orders,
-  onViewDetail 
-}: { 
-  orders: Order[];
-  onViewDetail: (order: Order) => void;
-}) {
-  const navigate = useNavigate();
-
+function CompletedOrdersList({ orders }: { orders: Order[] }) {
   if (orders.length === 0) {
     return (
       <div className="text-center py-12 bg-white rounded-xl">
         <CheckCircle2 className="w-12 h-12 text-[#D8E5EF] mx-auto mb-4" />
         <p className="text-[#4A6375]">No completed orders yet</p>
-        <p className="text-sm text-[#4A6375] mt-1">Finish some jobs to see them here!</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      {orders.map((order) => {
-        const statusInfo = statusLabels[order.status];
-        const canChat = order.riderId && ['completed', 'delivered'].includes(order.status);
-
-        return (
-          <motion.div
-            key={order.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-xl p-5 shadow-sm"
-          >
-            {/* Header: Status + Order ID */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Badge className={statusInfo.color}>
-                  <span className="mr-1">{statusInfo.icon}</span>
-                  {statusInfo.label}
-                </Badge>
-                <span className="text-xs text-[#4A6375]">#{order.id.slice(-4)}</span>
+      {orders.map((order) => (
+        <motion.div
+          key={order.id}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-xl p-5 shadow-sm opacity-75"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <CheckCircle2 className="w-5 h-5 text-green-600" />
               </div>
-              <p className="text-sm font-medium text-[#1188E9]">
-                RM{order.deliveryFee}
+              <div>
+                <p className="font-medium text-[#092635]">{order.customerName}</p>
+                <p className="text-sm text-[#4A6375]">
+                  {order.customerAddress.area} • {order.weight || order.estimatedWeight}kg
+                </p>
+                {order.actualItemCount && (
+                  <p className="text-xs text-green-600">
+                    ✓ {order.actualItemCount} items delivered
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="font-semibold text-[#092635]">RM{order.deliveryFee}</p>
+              <p className="text-xs text-[#4A6375]">
+                {order.completedAt && new Date(order.completedAt).toLocaleDateString()}
               </p>
             </div>
-
-            {/* Customer Info */}
-            <div className="mb-3">
-              <p className="font-semibold text-[#092635]">{order.customerName}</p>
-              <p className="text-sm text-[#4A6375]">
-                {order.customerAddress.building}, {order.customerAddress.area}
-              </p>
-            </div>
-
-            {/* Completed Date */}
-            <div className="flex items-center gap-2 text-sm text-[#4A6375] mb-3">
-              <Clock className="w-4 h-4" />
-              <span>
-                Completed: {formatDateTime(order.completedAt)}
-              </span>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-2 pt-3 border-t border-[#F5F7F9]">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => onViewDetail(order)}
-                className="flex-1 border-[#D8E5EF] hover:bg-[#E6F4FF] hover:text-[#1188E9]"
-              >
-                Details
-              </Button>
-              {canChat && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => navigate(`/chat/${order.id}`)}
-                  className="flex-1 border-[#D8E5EF] text-[#1188E9] hover:bg-[#E6F4FF]"
-                >
-                  <MessageCircle className="w-4 h-4 mr-1" />
-                  Chat
-                </Button>
-              )}
-            </div>
-          </motion.div>
-        );
-      })}
+          </div>
+        </motion.div>
+      ))}
     </div>
   );
 }
@@ -793,7 +816,7 @@ function OrderDetailDialog({
                   <div>
                     <p className="text-sm text-[#092635]">{statusLabels[item.status].label}</p>
                     <p className="text-xs text-[#4A6375]">
-                      {formatDateTime(item.timestamp)}
+                      {new Date(item.timestamp).toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -861,7 +884,7 @@ function PickupDialog({
             <Package className="w-5 h-5 text-[#1188E9]" />
             Record Pickup
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm text-[#4A6375]">
             Verify the actual item count and add any pickup notes.
           </DialogDescription>
         </DialogHeader>
@@ -965,7 +988,9 @@ function DeliveryDialog({
   onFileChange,
   onSubmit,
   updatingStatus,
-  fileInputRef,
+  compressing,
+  cameraInputRef,
+  galleryInputRef,
   onClearPhoto,
 }: {
   order: Order | null;
@@ -975,7 +1000,9 @@ function DeliveryDialog({
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: () => void;
   updatingStatus: boolean;
-  fileInputRef: React.RefObject<HTMLInputElement | null>;
+  compressing: boolean;
+  cameraInputRef: React.RefObject<HTMLInputElement | null>;
+  galleryInputRef: React.RefObject<HTMLInputElement | null>;
   onClearPhoto: () => void;
 }) {
   if (!order) return null;
@@ -988,7 +1015,7 @@ function DeliveryDialog({
             <CheckCircle2 className="w-5 h-5 text-green-600" />
             Record Delivery
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm text-[#4A6375]">
             Take a delivery photo as proof and confirm delivery.
           </DialogDescription>
         </DialogHeader>
@@ -1010,19 +1037,36 @@ function DeliveryDialog({
               Delivery Photo (Optional)
             </Label>
             <p className="text-sm text-[#4A6375] mb-3">
-              Take a photo of the delivered laundry for proof
+              Take a photo or choose from gallery for proof
             </p>
             
+            {/* Camera input - opens camera on mobile */}
             <input
               type="file"
-              ref={fileInputRef}
+              ref={cameraInputRef}
               onChange={onFileChange}
               accept="image/*"
               capture="environment"
               className="hidden"
             />
+            {/* Gallery input - opens file picker without capture */}
+            <input
+              type="file"
+              ref={galleryInputRef}
+              onChange={onFileChange}
+              accept="image/*"
+              className="hidden"
+            />
 
-            {deliveryPhoto ? (
+            {compressing ? (
+              <div className="w-full h-48 border-2 border-dashed border-[#1188E9] rounded-xl flex flex-col items-center justify-center gap-3 bg-[#E6F4FF]">
+                <Loader2 className="w-8 h-8 text-[#1188E9] animate-spin" />
+                <div className="text-center">
+                  <p className="text-[#092635] font-medium">Compressing image...</p>
+                  <p className="text-sm text-[#4A6375]">Large images are auto-compressed</p>
+                </div>
+              </div>
+            ) : deliveryPhoto ? (
               <div className="relative">
                 <img
                   src={deliveryPhoto}
@@ -1037,18 +1081,32 @@ function DeliveryDialog({
                 </button>
               </div>
             ) : (
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full h-48 border-2 border-dashed border-[#D8E5EF] rounded-xl flex flex-col items-center justify-center gap-3 hover:border-[#1188E9] hover:bg-[#E6F4FF] transition-colors"
-              >
-                <div className="w-16 h-16 bg-[#E6F4FF] rounded-full flex items-center justify-center">
-                  <Camera className="w-8 h-8 text-[#1188E9]" />
-                </div>
-                <div className="text-center">
-                  <p className="text-[#092635] font-medium">Take Photo</p>
-                  <p className="text-sm text-[#4A6375]">Tap to capture delivery photo</p>
-                </div>
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => cameraInputRef.current?.click()}
+                  className="flex-1 h-40 border-2 border-dashed border-[#D8E5EF] rounded-xl flex flex-col items-center justify-center gap-2 hover:border-[#1188E9] hover:bg-[#E6F4FF] transition-colors"
+                >
+                  <div className="w-12 h-12 bg-[#E6F4FF] rounded-full flex items-center justify-center">
+                    <Camera className="w-6 h-6 text-[#1188E9]" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[#092635] font-medium text-sm">Camera</p>
+                    <p className="text-xs text-[#4A6375]">Take photo</p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => galleryInputRef.current?.click()}
+                  className="flex-1 h-40 border-2 border-dashed border-[#D8E5EF] rounded-xl flex flex-col items-center justify-center gap-2 hover:border-[#1188E9] hover:bg-[#E6F4FF] transition-colors"
+                >
+                  <div className="w-12 h-12 bg-[#E6F4FF] rounded-full flex items-center justify-center">
+                    <ImageIcon className="w-6 h-6 text-[#1188E9]" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[#092635] font-medium text-sm">Gallery</p>
+                    <p className="text-xs text-[#4A6375]">Choose photo</p>
+                  </div>
+                </button>
+              </div>
             )}
           </div>
 

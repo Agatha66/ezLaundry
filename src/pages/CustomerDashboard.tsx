@@ -202,7 +202,7 @@ function OrdersList({ orders, loading, emptyMessage }: { orders: Order[], loadin
 
 function OrderCard({ order }: { order: Order }) {
   const navigate = useNavigate();
-  const statusInfo = statusLabels[order.status];
+  const statusInfo = statusLabels[order.status];                    
   const serviceNames: Record<string, string> = {
     'wash-fold': 'Wash & Fold',
     'wash-iron': 'Wash & Iron',
