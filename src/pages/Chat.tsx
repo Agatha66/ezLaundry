@@ -98,40 +98,57 @@ export function ChatList() {
           </div>
         ) : (
           <div className="space-y-2">
-            {chats.map((c) => (
-              <motion.div
-                key={c.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                onClick={() => navigate(`/chat/${c.orderId}`)}
-                className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md cursor-pointer"
-              >
-                <div className="flex items-center gap-4">
-                  <Avatar className="w-12 h-12 bg-[#1188E9]">
-                    <AvatarFallback className="bg-[#1188E9] text-white">
-                      {otherName(c).charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-[#092635]">{otherName(c)}</h3>
-                      {c.lastMessageAt && (
-                        <span className="text-xs text-[#4A6375]">{formatTime(c.lastMessageAt)}</span>
+            {chats.map((c) => {
+              const hasUnread = unread(c) > 0;
+              return (
+                <motion.div
+                  key={c.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  onClick={() => navigate(`/chat/${c.orderId}`)}
+                  className={`rounded-xl p-4 shadow-sm hover:shadow-md cursor-pointer transition-colors ${
+                    hasUnread ? 'bg-[#E6F4FF] border border-[#1188E9]/20' : 'bg-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <Avatar className="w-12 h-12 bg-[#1188E9]">
+                        <AvatarFallback className="bg-[#1188E9] text-white">
+                          {otherName(c).charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      {/* Online / unread indicator dot */}
+                      {hasUnread && (
+                        <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 border-2 border-white rounded-full" />
                       )}
                     </div>
-                    <p className="text-sm text-[#4A6375] truncate">Order #{c.orderId.slice(-4)}</p>
-                    {c.lastMessage && (
-                      <p className="text-sm text-[#4A6375] truncate mt-1">{c.lastMessage}</p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <h3 className={`${hasUnread ? 'font-bold text-[#092635]' : 'font-semibold text-[#092635]'}`}>
+                          {otherName(c)}
+                        </h3>
+                        {c.lastMessageAt && (
+                          <span className={`text-xs ${hasUnread ? 'text-[#1188E9] font-medium' : 'text-[#4A6375]'}`}>
+                            {formatTime(c.lastMessageAt)}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-[#4A6375] truncate">Order #{c.orderId.slice(-4)}</p>
+                      {c.lastMessage && (
+                        <p className={`text-sm truncate mt-1 ${hasUnread ? 'text-[#092635] font-medium' : 'text-[#4A6375]'}`}>
+                          {c.lastMessage}
+                        </p>
+                      )}
+                    </div>
+                    {hasUnread && (
+                      <span className="bg-red-500 text-white text-xs font-bold rounded-full min-w-[22px] h-[22px] flex items-center justify-center px-1 flex-shrink-0">
+                        {unread(c)}
+                      </span>
                     )}
                   </div>
-                  {unread(c) > 0 && (
-                    <span className="bg-[#1188E9] text-white text-xs rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0">
-                      {unread(c)}
-                    </span>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </main>
