@@ -36,19 +36,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       unsubscribe = authService.onAuthStateChanged(async (user) => {
         setCurrentUser(user as AuthUser);
-        
+
         if (user) {
-          try {
-            const data = await authService.getUserData(user.uid);
-            setUserData(data);
-          } catch (err) {
-            console.error('Error fetching user data:', err);
-            setUserData(null);
+          // Retry getUserData up to 3 times (Firestore may lag after registration)
+          let data = null;
+          for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+              data = await authService.getUserData(user.uid);
+              if (data) break;
+            } catch (err) {
+              console.log(`[Auth] getUserData attempt ${attempt} failed, retrying...`);
+            }
+            if (attempt < 3) await new Promise(r => setTimeout(r, 500));
           }
+          // Only set if we got data (register() may have already set it)
+          if (data) setUserData(data);
         } else {
           setUserData(null);
         }
-        
+
         setLoading(false);
       });
     } catch (err) {
@@ -66,7 +72,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async (email: string, password: string, displayName: string, role: UserRole = 'customer', additionalData?: { phone?: string; address?: Address }) => {
-    await authService.register(email, password, displayName, role, additionalData);
+    const newUser = await authService.register(email, password, displayName, role, additionalData);
+    // Immediately set userData so ProtectedRoute doesn't redirect to login
+    // while waiting for the auth state listener to catch up
+    setUserData(newUser);
   };
 
   const logout = async () => {

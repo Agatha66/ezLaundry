@@ -1,26 +1,16 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Shirt, ArrowLeft, User, Bike, Shield } from 'lucide-react';
+import { Eye, EyeOff, Shirt, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { authService } from '@/services/authService';
-import { useAuth } from '@/contexts/AuthContext';
-import type { UserRole } from '@/types';
-
-const roleOptions: { value: UserRole; label: string; icon: React.ElementType; description: string }[] = [
-  { value: 'customer', label: 'Customer', icon: User, description: 'Book laundry services' },
-  { value: 'rider', label: 'Rider', icon: Bike, description: 'Pickup & deliver laundry' },
-  { value: 'admin', label: 'Admin', icon: Shield, description: 'Manage operations' },
-];
 
 export function Login() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedRole, setSelectedRole] = useState<UserRole>('customer');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -31,31 +21,40 @@ export function Login() {
     setLoading(true);
 
     try {
+      // Step 1: Firebase Auth login
       const user = await authService.login(email, password);
-      
-      // Get user data to check actual role
-      const userData = await authService.getUserData(user.uid);
-      
+
+      // Step 2: Fetch user profile from Firestore
+      let userData;
+      try {
+        userData = await authService.getUserData(user.uid);
+      } catch {
+        setError('Could not load your profile. Please try again.');
+        setLoading(false);
+        return;
+      }
+
       if (!userData) {
-        setError('User data not found. Please contact support.');
-        await logout();
+        setError('Account profile not found. Please register first.');
         setLoading(false);
         return;
       }
-      
-      // Validate that selected role matches actual role
-      if (userData.role !== selectedRole) {
-        setError(`This account is registered as a ${userData.role}. Please select the correct role.`);
-        await logout();
-        setLoading(false);
-        return;
-      }
-      
-      // Redirect based on role
+
+      // Step 3: Success — redirect to dashboard
       navigate('/dashboard');
-    } catch (err) {
-      setError('Invalid email or password. Please try again.');
-    } finally {
+    } catch (err: any) {
+      const code = err.code || '';
+      if (code === 'auth/user-not-found' || code === 'auth/wrong-password') {
+        setError('Invalid email or password.');
+      } else if (code === 'auth/invalid-credential') {
+        setError('Invalid email or password.');
+      } else if (code === 'auth/too-many-requests') {
+        setError('Too many failed attempts. Please try again later.');
+      } else if (code === 'auth/network-request-failed') {
+        setError('Network error. Check your internet connection.');
+      } else {
+        setError('Login failed. Please try again.');
+      }
       setLoading(false);
     }
   };
@@ -90,38 +89,6 @@ export function Login() {
             <p className="text-[#4A6375] mt-1">Sign in to your ezLaundry account</p>
           </div>
 
-          {/* Role Selection */}
-          <div className="mb-6">
-            <Label className="text-[#092635] font-medium mb-3 block">I am a:</Label>
-            <div className="grid grid-cols-3 gap-2">
-              {roleOptions.map((role) => (
-                <button
-                  key={role.value}
-                  type="button"
-                  onClick={() => setSelectedRole(role.value)}
-                  className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-300 ${
-                    selectedRole === role.value
-                      ? 'border-[#1188E9] bg-[#E6F4FF]'
-                      : 'border-[#D8E5EF] hover:border-[#1188E9]/50'
-                  }`}
-                >
-                  <role.icon
-                    className={`w-5 h-5 ${
-                      selectedRole === role.value ? 'text-[#1188E9]' : 'text-[#4A6375]'
-                    }`}
-                  />
-                  <span
-                    className={`text-xs font-medium ${
-                      selectedRole === role.value ? 'text-[#1188E9]' : 'text-[#4A6375]'
-                    }`}
-                  >
-                    {role.label}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -135,6 +102,7 @@ export function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                autoComplete="email"
                 className="mt-1.5 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
               />
             </div>
@@ -151,6 +119,7 @@ export function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  autoComplete="current-password"
                   className="h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9] pr-10"
                 />
                 <button

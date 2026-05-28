@@ -5,7 +5,7 @@ import { Eye, EyeOff, Shirt, ArrowLeft, User, Bike, Shield, Check, MapPin } from
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { authService } from '@/services/authService';
+import { useAuth } from '@/contexts/AuthContext';
 import type { UserRole, Address } from '@/types';
 
 const roleOptions: { value: UserRole; label: string; icon: React.ElementType; description: string }[] = [
@@ -16,6 +16,7 @@ const roleOptions: { value: UserRole; label: string; icon: React.ElementType; de
 
 export function Register() {
   const navigate = useNavigate();
+  const { register } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     fullName: '',
@@ -110,7 +111,7 @@ export function Register() {
         additionalData.address = address;
       }
 
-      await authService.register(
+      await register(
         formData.email,
         formData.password,
         formData.fullName,
@@ -118,17 +119,8 @@ export function Register() {
         additionalData
       );
 
-      // Redirect based on role
-      switch (selectedRole) {
-        case 'admin':
-          navigate('/admin');
-          break;
-        case 'rider':
-          navigate('/rider');
-          break;
-        default:
-          navigate('/customer');
-      }
+      // Registration successful — go to dashboard
+      navigate('/dashboard');
     } catch (err: any) {
       if (err.code === 'auth/email-already-in-use') {
         setError('Email already registered. Please sign in instead.');
