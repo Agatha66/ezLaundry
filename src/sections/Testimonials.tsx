@@ -1,111 +1,46 @@
 import { motion } from 'framer-motion';
 import { Quote, Star } from 'lucide-react';
 import { useTestimonials } from '@/hooks/useContent';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { SectionHeader, revealChild, revealParent } from './SectionHeader';
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.12,
-    },
-  },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0, 0, 0.2, 1] as const },
-  },
-};
+const GRADIENTS = ['from-amber-300 to-pink-400', 'from-sky-400 to-indigo-500', 'from-emerald-400 to-teal-500'];
 
 export function Testimonials() {
   const { testimonials, loading } = useTestimonials();
 
   return (
-    <section className="py-20 lg:py-28 bg-[#F5F7F9]">
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.6, ease: [0, 0, 0.2, 1] as const }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-semibold text-[#092635] font-['Poppins']">
-            What Customers Say
-          </h2>
-          <p className="mt-4 text-lg text-[#4A6375]">
-            Early feedback from our pilot users
-          </p>
-        </motion.div>
+    <section className="relative overflow-hidden bg-navy py-20 lg:py-28">
+      <div className="pointer-events-none absolute -left-32 top-0 h-96 w-96 rounded-full bg-primary/30 blur-3xl" />
+      <div className="pointer-events-none absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-teal/30 blur-3xl" />
+      <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <SectionHeader dark eyebrow="Loved by customers" title="Don't take our word for it" subtitle="Early feedback from our pilot users." />
 
-        {/* Testimonials Grid */}
         {loading ? (
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="bg-white rounded-2xl p-8 h-64 animate-pulse"
-              />
-            ))}
-          </div>
+          <div className="grid gap-5 md:grid-cols-3">{[1, 2, 3].map(i => <div key={i} className="h-64 animate-pulse rounded-3xl bg-white/5" />)}</div>
         ) : (
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-100px' }}
-            className="grid md:grid-cols-3 gap-6 lg:gap-8"
-          >
-            {testimonials.map((testimonial) => (
-              <motion.div
-                key={testimonial.id}
-                variants={cardVariants}
-                whileHover={{ y: -4, transition: { duration: 0.3 } }}
-                className="bg-white rounded-2xl p-8 hover:shadow-lg transition-shadow duration-300 relative"
+          <motion.div variants={revealParent} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-80px' }} className="grid gap-5 md:grid-cols-3">
+            {testimonials.map((t, i) => (
+              <motion.figure
+                key={t.id}
+                variants={revealChild}
+                whileHover={{ y: -6 }}
+                className={`relative rounded-3xl border border-white/10 bg-white/[0.06] p-7 backdrop-blur ${i === 1 ? 'md:translate-y-6' : ''}`}
               >
-                {/* Quote Icon */}
-                <div className="absolute top-6 right-6">
-                  <Quote className="w-8 h-8 text-[#E6F4FF]" />
+                <Quote className="absolute right-6 top-6 h-8 w-8 text-white/10" />
+                <div className="flex gap-0.5">
+                  {Array.from({ length: t.rating }, (_, k) => <Star key={k} className="h-4 w-4 fill-amber-400 text-amber-400" />)}
                 </div>
-
-                {/* Rating */}
-                <div className="flex gap-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="w-4 h-4 fill-[#1188E9] text-[#1188E9]"
-                    />
-                  ))}
-                </div>
-
-                {/* Quote */}
-                <p className="text-[#4A6375] leading-relaxed mb-6">
-                  &ldquo;{testimonial.quote}&rdquo;
-                </p>
-
-                {/* Author */}
-                <div className="flex items-center gap-4">
-                  <Avatar className="w-12 h-12 bg-[#1188E9]">
-                    <AvatarFallback className="bg-[#1188E9] text-white font-semibold">
-                      {testimonial.name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
+                <blockquote className="mt-4 leading-relaxed text-white/85">“{t.quote}”</blockquote>
+                <figcaption className="mt-6 flex items-center gap-3">
+                  <span className={`grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br font-semibold text-white ${GRADIENTS[i % GRADIENTS.length]}`}>
+                    {t.name.split(' ').map(n => n[0]).join('')}
+                  </span>
                   <div>
-                    <p className="font-semibold text-[#092635]">
-                      {testimonial.name}
-                    </p>
-                    <p className="text-sm text-[#4A6375]">
-                      {testimonial.location}
-                    </p>
+                    <p className="font-semibold text-white">{t.name}</p>
+                    <p className="text-sm text-white/60">{t.location}</p>
                   </div>
-                </div>
-              </motion.div>
+                </figcaption>
+              </motion.figure>
             ))}
           </motion.div>
         )}

@@ -1,114 +1,57 @@
 import { motion } from 'framer-motion';
 import { Calendar, Package, Sparkles, Truck } from 'lucide-react';
+import { REVEAL_EASE, SectionHeader, revealChild, revealParent } from './SectionHeader';
 
 const steps = [
-  {
-    id: 1,
-    icon: Calendar,
-    title: 'Book a Pickup',
-    description: 'Schedule via app or web. Choose your preferred pickup window.',
-  },
-  {
-    id: 2,
-    icon: Package,
-    title: 'We Collect',
-    description: 'Rider picks up from your door or designated drop zone. Photo proof captured.',
-  },
-  {
-    id: 3,
-    icon: Sparkles,
-    title: 'Professional Clean',
-    description: 'Your laundry is processed by vetted partners with quality checks.',
-  },
-  {
-    id: 4,
-    icon: Truck,
-    title: 'Fresh Delivery',
-    description: 'Clean laundry returned to your door within 48 hours.',
-  },
+  { icon: Calendar, title: 'Book a pickup', description: 'Pick a service, a day and a time slot. It takes under a minute.', tint: 'from-sky-400 to-primary' },
+  { icon: Package, title: 'We collect', description: 'A rider picks up from your door and verifies your item count.', tint: 'from-primary to-indigo-500' },
+  { icon: Sparkles, title: 'Professional clean', description: 'Washed, dried and folded or pressed by vetted partners.', tint: 'from-teal to-emerald-500' },
+  { icon: Truck, title: 'Fresh delivery', description: 'Back at your door within 48 hours, with photo proof.', tint: 'from-amber-400 to-orange-500' },
 ];
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-    },
-  },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0, 0, 0.2, 1] as const },
-  },
-};
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-20 lg:py-28 bg-white">
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.6, ease: [0, 0, 0.2, 1] as const }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-semibold text-[#092635] font-['Poppins']">
-            How ezLaundry Works
-          </h2>
-          <p className="mt-4 text-lg text-[#4A6375]">
-            Four simple steps to fresh laundry
-          </p>
-        </motion.div>
+    <section id="how-it-works" className="scroll-mt-24 bg-white py-20 lg:py-28">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <SectionHeader eyebrow="How it works" title="Fresh laundry in four easy steps" subtitle="No laundromat trips. No waiting around." />
 
-        {/* Steps Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-100px' }}
-          className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8"
-        >
-          {steps.map((step, index) => (
-            <motion.div
-              key={step.id}
-              variants={cardVariants}
-              whileHover={{ y: -4, transition: { duration: 0.3 } }}
-              className="relative bg-white border border-[#D8E5EF] rounded-2xl p-6 lg:p-8 hover:shadow-lg transition-shadow duration-300"
-            >
-              {/* Step Number */}
-              <div className="absolute -top-3 -left-3 w-8 h-8 bg-[#1188E9] text-white rounded-full flex items-center justify-center text-sm font-semibold">
-                {step.id}
-              </div>
+        <div className="relative">
+          {/* Connector line that draws itself on scroll (desktop) */}
+          <svg className="absolute left-[12%] right-[12%] top-10 hidden h-1 w-[76%] lg:block" viewBox="0 0 100 2" preserveAspectRatio="none" aria-hidden>
+            <line x1="0" y1="1" x2="100" y2="1" stroke="hsl(var(--border))" strokeWidth="2" strokeDasharray="2 2" vectorEffect="non-scaling-stroke" />
+            <motion.line
+              x1="0" y1="1" x2="100" y2="1"
+              stroke="hsl(var(--primary))" strokeWidth="2" vectorEffect="non-scaling-stroke"
+              initial={{ pathLength: 0 }}
+              whileInView={{ pathLength: 1 }}
+              viewport={{ once: true, margin: '-120px' }}
+              transition={{ duration: 1.4, ease: REVEAL_EASE, delay: 0.3 }}
+            />
+          </svg>
 
-              {/* Icon */}
-              <div className="w-14 h-14 bg-[#E6F4FF] rounded-xl flex items-center justify-center mb-5">
-                <step.icon className="w-7 h-7 text-[#1188E9]" />
-              </div>
-
-              {/* Content */}
-              <h3 className="text-xl font-semibold text-[#092635] mb-3 font-['Poppins']">
-                {step.title}
-              </h3>
-              <p className="text-[#4A6375] text-sm leading-relaxed">
-                {step.description}
-              </p>
-
-              {/* Connector Line (hidden on last item and mobile) */}
-              {index < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-1/2 -right-4 w-8 h-0.5 bg-[#D8E5EF]">
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-[#1188E9] rounded-full" />
-                </div>
-              )}
-            </motion.div>
-          ))}
-        </motion.div>
+          <motion.ol
+            variants={revealParent}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-80px' }}
+            className="relative grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6"
+          >
+            {steps.map((s, i) => (
+              <motion.li key={s.title} variants={revealChild} className="group relative text-center">
+                <motion.div
+                  whileHover={{ y: -6, rotate: -3 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 18 }}
+                  className={`relative mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-gradient-to-br ${s.tint} text-white shadow-lg`}
+                >
+                  <s.icon className="h-8 w-8" />
+                  <span className="absolute -right-2 -top-2 grid h-7 w-7 place-items-center rounded-full border-4 border-white bg-navy text-xs font-bold text-white">{i + 1}</span>
+                </motion.div>
+                <h3 className="mt-5 font-poppins text-lg font-semibold text-foreground">{s.title}</h3>
+                <p className="mx-auto mt-2 max-w-[240px] text-sm leading-relaxed text-muted-foreground">{s.description}</p>
+              </motion.li>
+            ))}
+          </motion.ol>
+        </div>
       </div>
     </section>
   );

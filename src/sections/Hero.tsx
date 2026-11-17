@@ -1,194 +1,174 @@
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { ArrowRight, BadgeCheck, Check, Clock, Star, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Truck, Clock, BadgeCheck } from 'lucide-react';
+import { REVEAL_EASE } from './SectionHeader';
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.2,
-    },
-  },
-};
+const parent = { hidden: {}, visible: { transition: { staggerChildren: 0.12, delayChildren: 0.15 } } };
+const child = { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: REVEAL_EASE } } };
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0, 0, 0.2, 1] as const },
-  },
-};
+const STEPS = ['Rider assigned', 'Laundry collected', 'Washing', 'Out for delivery'];
 
-const floatAnimation = {
-  y: [0, -10, 0],
-  transition: {
-    duration: 3,
-    repeat: Infinity,
-    ease: [0.4, 0, 0.2, 1] as const,
-  },
-};
-
-export function Hero() {
-  const scrollToSection = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
+/** A phone showing the live tracker, the app's signature screen. */
+function PhoneMock() {
   return (
-    <section className="relative min-h-screen pt-20 overflow-hidden bg-gradient-to-br from-white via-white to-[#E6F4FF]">
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Text Content */}
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="text-center lg:text-left"
-          >
-            <motion.h1
-              variants={itemVariants}
-              className="text-4xl sm:text-5xl lg:text-[52px] font-semibold text-[#092635] leading-tight font-['Poppins']"
-            >
-              Laundry Made Simple.{" "}
-              <span className="text-[#1188E9]">Pickup, Clean, Deliver.</span>
-            </motion.h1>
+    <div className="relative mx-auto w-[280px] sm:w-[300px]">
+      <div className="rounded-[44px] border-[10px] border-navy bg-background p-3 shadow-2xl shadow-primary/30">
+        <div className="mx-auto mb-3 h-5 w-24 rounded-full bg-navy" />
+        <p className="px-1 text-[11px] text-muted-foreground">Good morning ☀️</p>
+        <p className="px-1 font-poppins text-lg font-semibold text-foreground">Hi, Aina 👋</p>
 
-            <motion.p
-              variants={itemVariants}
-              className="mt-6 text-lg text-[#4A6375] leading-relaxed max-w-xl mx-auto lg:mx-0"
-            >
-              Door-to-door laundry service for busy urban Malaysians. We pick up
-              your laundry and return it fresh within 48 hours.
-            </motion.p>
+        <div className="relative mt-3 overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-[#0B5FA8] to-navy p-4 text-white">
+          <span className="absolute -right-10 -top-12 h-32 w-32 rounded-full bg-white/10" />
+          <div className="relative flex items-center justify-between">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-0.5 text-[10px] font-semibold">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              </span>
+              Live · #J8A2
+            </span>
+            <motion.span className="text-xl" animate={{ y: [0, -3, 0] }} transition={{ duration: 1.6, repeat: Infinity }}>🛵</motion.span>
+          </div>
+          <p className="relative mt-2 font-poppins text-base font-semibold">Rider on the way</p>
+          <p className="relative text-[11px] text-white/75">Wash & Fold · 6 kg · 10–11 AM</p>
+          <div className="relative mt-3 h-1.5 overflow-hidden rounded-full bg-white/20">
+            <motion.div className="h-full rounded-full bg-gradient-to-r from-sky-300 to-white" initial={{ width: '8%' }} animate={{ width: ['8%', '38%', '38%'] }} transition={{ duration: 3, repeat: Infinity, repeatDelay: 1, ease: REVEAL_EASE }} />
+          </div>
+        </div>
 
-            <motion.div
-              variants={itemVariants}
-              className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
-            >
-              <Button
-                onClick={() => scrollToSection('#cta')}
-                className="bg-[#1188E9] hover:bg-[#092635] text-white rounded-full px-8 py-6 text-base font-medium transition-all duration-400 hover:-translate-y-0.5"
-              >
-                Book Your First Pickup
-              </Button>
-              <Button
-                onClick={() => scrollToSection('#how-it-works')}
-                variant="outline"
-                className="border-2 border-[#1188E9] text-[#1188E9] hover:bg-[#1188E9] hover:text-white rounded-full px-8 py-6 text-base font-medium transition-all duration-400"
-              >
-                See How It Works
-              </Button>
+        <div className="mt-3 space-y-2.5 rounded-3xl border border-border bg-card p-4">
+          {STEPS.map((s, i) => (
+            <motion.div key={s} className="flex items-center gap-2.5" initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.9 + i * 0.15 }}>
+              <span className={`grid h-6 w-6 place-items-center rounded-full text-[10px] ${i < 1 ? 'bg-primary text-white' : i === 1 ? 'border-2 border-primary bg-card' : 'border-2 border-border bg-muted'}`}>
+                {i < 1 ? <Check className="h-3 w-3" strokeWidth={3} /> : i === 1 ? <span className="h-2 w-2 animate-pulse rounded-full bg-primary" /> : ''}
+              </span>
+              <span className={`text-xs ${i <= 1 ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>{s}</span>
             </motion.div>
+          ))}
+        </div>
 
-            {/* Trust Badges */}
-            <motion.div
-              variants={itemVariants}
-              className="mt-10 flex flex-wrap gap-6 justify-center lg:justify-start"
-            >
-              <div className="flex items-center gap-2 text-[#4A6375]">
-                <Truck className="w-5 h-5 text-[#1188E9]" />
-                <span className="text-sm font-medium">Free Delivery</span>
-              </div>
-              <div className="flex items-center gap-2 text-[#4A6375]">
-                <Clock className="w-5 h-5 text-[#1188E9]" />
-                <span className="text-sm font-medium">48hr Turnaround</span>
-              </div>
-              <div className="flex items-center gap-2 text-[#4A6375]">
-                <BadgeCheck className="w-5 h-5 text-[#1188E9]" />
-                <span className="text-sm font-medium">No Hidden Fees</span>
-              </div>
-            </motion.div>
-          </motion.div>
-
-          {/* Hero Image */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.4, ease: [0, 0, 0.2, 1] }}
-            className="relative flex justify-center lg:justify-end"
-          >
-            <motion.div
-              animate={floatAnimation}
-              className="relative"
-            >
-              {/* Main Illustration */}
-              <div className="relative w-full max-w-[500px]">
-                <svg
-                  viewBox="0 0 500 400"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-full h-auto"
-                >
-                  {/* Background Circle */}
-                  <circle cx="250" cy="200" r="180" fill="#E6F4FF" />
-                  
-                  {/* Scooter */}
-                  <g transform="translate(100, 150)">
-                    {/* Scooter Body */}
-                    <ellipse cx="150" cy="180" rx="80" ry="20" fill="#1188E9" />
-                    <rect x="80" y="140" width="140" height="40" rx="10" fill="#0C2C40" />
-                    
-                    {/* Wheels */}
-                    <circle cx="100" cy="200" r="25" fill="#092635" />
-                    <circle cx="100" cy="200" r="15" fill="#D8E5EF" />
-                    <circle cx="200" cy="200" r="25" fill="#092635" />
-                    <circle cx="200" cy="200" r="15" fill="#D8E5EF" />
-                    
-                    {/* Handlebars */}
-                    <path d="M140 140 L140 80 L180 60" stroke="#092635" strokeWidth="8" strokeLinecap="round" />
-                    <line x1="160" y1="60" x2="200" y2="60" stroke="#092635" strokeWidth="8" strokeLinecap="round" />
-                    
-                    {/* Seat */}
-                    <rect x="90" y="130" width="60" height="15" rx="5" fill="#1A7A7E" />
-                    
-                    {/* Laundry Bags */}
-                    <rect x="110" y="80" width="50" height="60" rx="8" fill="#FFFFFF" stroke="#1188E9" strokeWidth="3" />
-                    <rect x="115" y="75" width="40" height="10" rx="3" fill="#1188E9" />
-                    <circle cx="135" cy="110" r="12" fill="#E6F4FF" />
-                    <path d="M128 110 L132 115 L142 105" stroke="#1188E9" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                    
-                    {/* Second Bag */}
-                    <rect x="170" y="90" width="45" height="55" rx="8" fill="#FFFFFF" stroke="#1A7A7E" strokeWidth="3" />
-                    <rect x="174" y="85" width="37" height="10" rx="3" fill="#1A7A7E" />
-                    <circle cx="192" cy="118" r="10" fill="#E6F4FF" />
-                    <path d="M186 118 L190 123 L198 113" stroke="#1A7A7E" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                  </g>
-                  
-                  {/* Decorative Elements */}
-                  <circle cx="80" cy="100" r="15" fill="#1188E9" opacity="0.3" />
-                  <circle cx="420" cy="150" r="20" fill="#1A7A7E" opacity="0.2" />
-                  <circle cx="400" cy="280" r="12" fill="#1188E9" opacity="0.25" />
-                  
-                  {/* Speed Lines */}
-                  <line x1="50" y1="200" x2="20" y2="200" stroke="#1188E9" strokeWidth="3" strokeLinecap="round" opacity="0.5" />
-                  <line x1="45" y1="220" x2="15" y2="220" stroke="#1188E9" strokeWidth="2" strokeLinecap="round" opacity="0.4" />
-                  <line x1="55" y1="180" x2="25" y2="180" stroke="#1188E9" strokeWidth="2" strokeLinecap="round" opacity="0.3" />
-                </svg>
-              </div>
-            </motion.div>
-          </motion.div>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <div className="rounded-2xl border border-border bg-card p-3">
+            <p className="font-poppins text-lg font-semibold text-foreground">RM237</p>
+            <p className="text-[10px] text-muted-foreground">Total spent</p>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-3">
+            <p className="font-poppins text-lg font-semibold text-foreground">247</p>
+            <p className="text-[10px] text-muted-foreground">ezPoints</p>
+          </div>
         </div>
       </div>
 
-      {/* Bottom Wave */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg
-          viewBox="0 0 1440 80"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-auto"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0 80V40C240 80 480 0 720 0C960 0 1200 80 1440 40V80H0Z"
-            fill="white"
-          />
-        </svg>
+      {/* Floating chips */}
+      <motion.div
+        initial={{ opacity: 0, x: -30, y: 10 }}
+        animate={{ opacity: 1, x: 0, y: [0, -8, 0] }}
+        transition={{ opacity: { delay: 1.2 }, x: { delay: 1.2, duration: 0.6 }, y: { delay: 1.8, duration: 4, repeat: Infinity, ease: 'easeInOut' } }}
+        className="absolute -left-8 top-28 hidden items-center gap-2 rounded-2xl border border-border bg-white/90 px-3 py-2.5 shadow-xl backdrop-blur sm:flex lg:-left-20"
+      >
+        <span className="grid h-8 w-8 place-items-center rounded-xl bg-emerald-500/15 text-emerald-600"><Check className="h-4 w-4" strokeWidth={3} /></span>
+        <div>
+          <p className="text-xs font-semibold text-foreground">Delivered!</p>
+          <p className="text-[10px] text-muted-foreground">Photo proof attached</p>
+        </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, x: 30 }}
+        animate={{ opacity: 1, x: 0, y: [0, 8, 0] }}
+        transition={{ opacity: { delay: 1.5 }, x: { delay: 1.5, duration: 0.6 }, y: { delay: 2.1, duration: 4.5, repeat: Infinity, ease: 'easeInOut' } }}
+        className="absolute -right-6 bottom-36 hidden rounded-2xl border border-border bg-white/90 px-3 py-2.5 shadow-xl backdrop-blur sm:block lg:-right-16"
+      >
+        <div className="flex gap-0.5">{[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />)}</div>
+        <p className="mt-1 text-[11px] font-semibold text-foreground">“Super fast, thank you!”</p>
+      </motion.div>
+    </div>
+  );
+}
+
+export function Hero() {
+  return (
+    <section className="relative overflow-hidden pb-20 pt-32 lg:pb-28 lg:pt-40">
+      {/* Background: soft blobs + grid */}
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,#F3F8FD_0%,#FFFFFF_70%)]" />
+      <motion.div
+        className="pointer-events-none absolute -right-40 -top-40 -z-10 h-[520px] w-[520px] rounded-full bg-primary/20 blur-3xl"
+        animate={{ scale: [1, 1.08, 1] }}
+        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="pointer-events-none absolute -left-40 top-40 -z-10 h-[420px] w-[420px] rounded-full bg-teal/15 blur-3xl"
+        animate={{ scale: [1.05, 1, 1.05] }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_1px_1px,hsl(var(--border))_1px,transparent_0)] [background-size:28px_28px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
+
+      <div className="mx-auto grid max-w-6xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:gap-10 lg:px-8">
+        <motion.div variants={parent} initial="hidden" animate="visible" className="text-center lg:text-left">
+          <motion.span variants={child} className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-white/70 px-3 py-1.5 text-xs font-semibold text-primary shadow-sm backdrop-blur">
+            <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] text-white">NEW</span>
+            Now serving Damansara Perdana & PJ
+          </motion.span>
+
+          <motion.h1 variants={child} className="mt-6 font-poppins text-[40px] font-semibold leading-[1.08] tracking-tight text-foreground sm:text-6xl lg:text-[64px]">
+            Laundry day,{' '}
+            <span className="relative whitespace-nowrap">
+              <span className="bg-gradient-to-r from-primary to-teal bg-clip-text text-transparent">done for you.</span>
+              <motion.svg viewBox="0 0 300 12" className="absolute -bottom-2 left-0 h-3 w-full" preserveAspectRatio="none" aria-hidden>
+                <motion.path d="M2 9 C 80 2, 220 2, 298 8" fill="none" stroke="hsl(var(--primary))" strokeWidth="4" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.9, duration: 0.8, ease: REVEAL_EASE }} />
+              </motion.svg>
+            </span>
+          </motion.h1>
+
+          <motion.p variants={child} className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground lg:mx-0">
+            Schedule a pickup in 60 seconds. We collect from your door, wash it with care and bring it back fresh within 48 hours, and you can track every step live.
+          </motion.p>
+
+          <motion.div variants={child} className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
+            <Button asChild size="lg" className="group h-12 rounded-2xl px-7 text-base shadow-lg shadow-primary/30">
+              <Link to="/register">
+                Book your first pickup <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => document.querySelector('#how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+              className="h-12 rounded-2xl border-border bg-white/70 px-7 text-base backdrop-blur hover:bg-white"
+            >
+              See how it works
+            </Button>
+          </motion.div>
+
+          <motion.div variants={child} className="mt-10 flex flex-wrap justify-center gap-x-6 gap-y-3 text-sm text-muted-foreground lg:justify-start">
+            {[
+              { icon: Truck, label: 'Free pickup & delivery' },
+              { icon: Clock, label: '48-hour turnaround' },
+              { icon: BadgeCheck, label: 'Photo proof every step' },
+            ].map(b => (
+              <span key={b.label} className="flex items-center gap-2"><b.icon className="h-4 w-4 text-primary" /> {b.label}</span>
+            ))}
+          </motion.div>
+
+          <motion.div variants={child} className="mt-8 flex items-center justify-center gap-3 lg:justify-start">
+            <div className="flex -space-x-2">
+              {['from-amber-300 to-pink-400', 'from-sky-400 to-indigo-500', 'from-emerald-400 to-teal-500', 'from-violet-400 to-fuchsia-500'].map((g, i) => (
+                <span key={g} className={`grid h-9 w-9 place-items-center rounded-full border-2 border-white bg-gradient-to-br text-xs font-semibold text-white ${g}`}>{['S', 'A', 'M', 'D'][i]}</span>
+              ))}
+            </div>
+            <div className="text-left text-sm">
+              <div className="flex items-center gap-1 font-semibold text-foreground">
+                <Star className="h-4 w-4 fill-amber-400 text-amber-400" /> 4.9 rating
+              </div>
+              <p className="text-xs text-muted-foreground">from our pilot customers</p>
+            </div>
+          </motion.div>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 40, rotate: 2 }} animate={{ opacity: 1, y: 0, rotate: 0 }} transition={{ duration: 0.9, delay: 0.3, ease: REVEAL_EASE }}>
+          <PhoneMock />
+        </motion.div>
       </div>
     </section>
   );

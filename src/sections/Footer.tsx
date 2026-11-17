@@ -1,5 +1,6 @@
+import { Logo } from './Navbar';
 import { motion } from 'framer-motion';
-import { Shirt, Facebook, Instagram, MessageCircle } from 'lucide-react';
+import { Facebook, Instagram, MessageCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 const quickLinks = [
@@ -29,7 +30,7 @@ export function Footer() {
 
   return (
     <footer className="bg-[#092635] pt-16 lg:pt-20 pb-8">
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -39,14 +40,7 @@ export function Footer() {
         >
           {/* Brand Column */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <a href="#" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-[#1188E9] rounded-full flex items-center justify-center">
-                <Shirt className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-semibold text-white font-['Poppins']">
-                ezLaundry
-              </span>
-            </a>
+            <a href="#" className="mb-4 inline-block"><Logo light /></a>
             <p className="text-white/70 text-sm leading-relaxed mb-6">
               Laundry made simple for busy urban Malaysians. Door-to-door pickup
               and delivery service.

@@ -41,7 +41,7 @@ function LandingPage() {
   return (
     <>
       <Navbar />
-      <main>
+      <main className="overflow-x-clip">
         <Hero />
         <HowItWorks />
         <Services />

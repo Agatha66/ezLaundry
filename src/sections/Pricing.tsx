@@ -1,3 +1,4 @@
+import { SectionHeader } from './SectionHeader';
 import { motion } from 'framer-motion';
 import { Check, Star } from 'lucide-react';
 import { usePricing } from '@/hooks/useContent';
@@ -33,23 +34,9 @@ export function Pricing() {
   };
 
   return (
-    <section id="pricing" className="py-20 lg:py-28 bg-white">
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.6, ease: [0, 0, 0.2, 1] as const }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-semibold text-[#092635] font-['Poppins']">
-            Simple, Transparent Pricing
-          </h2>
-          <p className="mt-4 text-lg text-[#4A6375]">
-            No hidden fees. Pay for what you use.
-          </p>
-        </motion.div>
+    <section id="pricing" className="scroll-mt-24 py-20 lg:py-28 bg-[#F5F8FB]">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SectionHeader eyebrow="Pricing" title="Simple, transparent pricing" subtitle="No hidden fees. Pay only for what you use." />
 
         {/* Pricing Table */}
         {loading ? (
@@ -60,12 +47,12 @@ export function Pricing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-[#F5F7F9] rounded-2xl overflow-hidden mb-16"
+            className="mb-12 overflow-hidden rounded-3xl border border-border bg-white shadow-sm"
           >
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-[#092635]">
+                  <tr className="bg-navy">
                     <th className="text-left text-white font-semibold py-4 px-6">
                       Service
                     </th>
@@ -81,7 +68,7 @@ export function Pricing() {
                   {pricing.map((item, index) => (
                     <tr
                       key={index}
-                      className="border-b border-[#D8E5EF] last:border-b-0 hover:bg-white transition-colors"
+                      className="border-b border-[#D8E5EF] last:border-b-0 transition-colors hover:bg-primary/[0.04]"
                     >
                       <td className="py-4 px-6 text-[#092635] font-medium">
                         {item.service}
@@ -113,16 +100,16 @@ export function Pricing() {
               key={pass.id}
               variants={itemVariants}
               whileHover={{ y: -4, transition: { duration: 0.3 } }}
-              className={`relative rounded-2xl p-8 ${
+              className={`relative rounded-3xl p-8 transition-shadow ${
                 index === 1
-                  ? 'bg-gradient-to-br from-[#1188E9] to-[#1A7A7E] text-white'
-                  : 'bg-white border border-[#D8E5EF]'
+                  ? 'bg-gradient-to-br from-primary via-[#0B5FA8] to-teal text-white shadow-2xl shadow-primary/30 md:-translate-y-3'
+                  : 'bg-white border border-border shadow-sm hover:shadow-xl'
               }`}
             >
               {/* Popular Badge */}
               {index === 1 && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="bg-[#092635] text-white text-xs font-semibold px-4 py-1 rounded-full flex items-center gap-1">
+                  <span className="bg-amber-400 text-navy text-xs font-semibold px-4 py-1 rounded-full shadow-md flex items-center gap-1">
                     <Star className="w-3 h-3" />
                     Most Popular
                   </span>
@@ -179,10 +166,10 @@ export function Pricing() {
               {/* CTA Button */}
               <Button
                 onClick={scrollToCTA}
-                className={`w-full rounded-full py-5 transition-all duration-300 ${
+                className={`w-full h-12 rounded-xl transition-all duration-300 ${
                   index === 1
-                    ? 'bg-white text-[#1188E9] hover:bg-[#092635] hover:text-white'
-                    : 'bg-[#1188E9] text-white hover:bg-[#092635]'
+                    ? 'bg-white text-primary hover:bg-white/90'
+                    : 'bg-primary text-white hover:bg-primary/90'
                 }`}
               >
                 Get Started

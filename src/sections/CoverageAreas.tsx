@@ -1,3 +1,4 @@
+import { SectionHeader } from './SectionHeader';
 import { motion } from 'framer-motion';
 import { Check, MapPin, Clock } from 'lucide-react';
 import { useCoverageAreas } from '@/hooks/useContent';
@@ -29,8 +30,8 @@ export function CoverageAreas() {
   const comingSoonAreas = areas.filter((area) => area.status === 'coming-soon');
 
   return (
-    <section id="coverage" className="py-20 lg:py-28 bg-[#E6F4FF]">
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="coverage" className="scroll-mt-24 py-20 lg:py-28 bg-white">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Text Content */}
           <motion.div
@@ -39,12 +40,7 @@ export function CoverageAreas() {
             viewport={{ once: true, margin: '-100px' }}
             transition={{ duration: 0.6, ease: [0, 0, 0.2, 1] }}
           >
-            <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-semibold text-[#092635] font-['Poppins'] mb-4">
-              Currently Serving
-            </h2>
-            <p className="text-lg text-[#4A6375] mb-8">
-              Starting in Damansara Perdana, expanding across PJ
-            </p>
+            <SectionHeader align="left" className="mb-8 lg:mb-8" eyebrow="Coverage" title="Where we deliver" subtitle="Starting in Damansara Perdana, expanding across PJ and KL." />
 
             {loading ? (
               <div className="space-y-4">
@@ -69,7 +65,7 @@ export function CoverageAreas() {
                     <motion.div
                       key={area.id}
                       variants={itemVariants}
-                      className="flex items-center gap-3 bg-white rounded-lg px-4 py-3 shadow-sm"
+                      className="flex items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3 shadow-sm transition-colors hover:border-primary/40"
                     >
                       <div className="w-8 h-8 bg-[#1188E9]/10 rounded-full flex items-center justify-center">
                         <MapPin className="w-4 h-4 text-[#1188E9]" />
@@ -95,7 +91,7 @@ export function CoverageAreas() {
                     <motion.div
                       key={area.id}
                       variants={itemVariants}
-                      className="flex items-center gap-3 bg-white/60 rounded-lg px-4 py-3"
+                      className="flex items-center gap-3 rounded-2xl border border-dashed border-border bg-[#F8FAFC] px-4 py-3"
                     >
                       <div className="w-8 h-8 bg-[#4A6375]/10 rounded-full flex items-center justify-center">
                         <Clock className="w-4 h-4 text-[#4A6375]" />
@@ -116,7 +112,7 @@ export function CoverageAreas() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="mt-8 p-4 bg-[#092635] rounded-xl"
+              className="mt-8 rounded-2xl bg-navy p-4"
             >
               <p className="text-white/90 text-sm">
                 <span className="font-semibold text-[#1188E9]">Pilot Program:</span>{' '}
@@ -143,7 +139,7 @@ export function CoverageAreas() {
               >
                 {/* Background */}
                 <rect width="400" height="400" rx="20" fill="white" />
-                
+
                 {/* Map Grid Lines */}
                 <g stroke="#E6F4FF" strokeWidth="1">
                   {[...Array(9)].map((_, i) => (

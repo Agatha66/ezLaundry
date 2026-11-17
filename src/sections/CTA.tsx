@@ -1,92 +1,39 @@
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { ArrowRight, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Apple, Play } from 'lucide-react';
+import { REVEAL_EASE } from './SectionHeader';
 
 export function CTA() {
   return (
-    <section id="cta" className="py-20 lg:py-28 bg-[#092635] relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <svg
-          viewBox="0 0 400 400"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full"
-          preserveAspectRatio="none"
-        >
-          <pattern
-            id="grid"
-            width="40"
-            height="40"
-            patternUnits="userSpaceOnUse"
-          >
-            <circle cx="20" cy="20" r="1" fill="#1188E9" />
-          </pattern>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-      </div>
+    <section id="cta" className="scroll-mt-24 bg-white px-4 py-20 sm:px-6 lg:py-28">
+      <motion.div
+        initial={{ opacity: 0, y: 40, scale: 0.97 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, margin: '-80px' }}
+        transition={{ duration: 0.7, ease: REVEAL_EASE }}
+        className="relative mx-auto max-w-5xl overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary via-[#0B5FA8] to-teal px-6 py-14 text-center text-white shadow-2xl shadow-primary/30 sm:px-12 sm:py-20"
+      >
+        <motion.span className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-white/10" animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 8, repeat: Infinity }} />
+        <motion.span className="pointer-events-none absolute -bottom-24 -right-16 h-80 w-80 rounded-full bg-white/10" animate={{ scale: [1.1, 1, 1.1] }} transition={{ duration: 9, repeat: Infinity }} />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.15)_1px,transparent_0)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]" />
 
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#1188E9]/20 via-transparent to-[#1A7A7E]/20" />
-
-      <div className="max-w-[800px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.6, ease: [0, 0, 0.2, 1] as const }}
-          className="text-center"
-        >
-          <h2 className="text-3xl sm:text-4xl lg:text-[48px] font-semibold text-white font-['Poppins'] leading-tight">
-            Ready for Hassle-Free Laundry?
-          </h2>
-          <p className="mt-6 text-lg text-white/80 max-w-xl mx-auto">
-            Join our pilot in Damansara Perdana. First pickup free for early
-            adopters.
-          </p>
-
-          {/* CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
-          >
-            <Button
-              className="bg-white text-[#1188E9] hover:bg-[#1188E9] hover:text-white rounded-full px-8 py-6 text-base font-medium transition-all duration-400"
-            >
-              Book Your First Pickup
+        <div className="relative">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold backdrop-blur">
+            <Gift className="h-3.5 w-3.5" /> First pickup free for early adopters
+          </span>
+          <h2 className="mx-auto mt-5 max-w-2xl font-poppins text-3xl font-semibold leading-tight sm:text-5xl">Ready to never do laundry again?</h2>
+          <p className="mx-auto mt-4 max-w-xl text-lg text-white/80">Join the pilot in Damansara Perdana and get your weekends back.</p>
+          <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+            <Button asChild size="lg" className="group h-12 rounded-2xl bg-white px-7 text-base text-primary shadow-lg hover:bg-white/90">
+              <Link to="/register">Create free account <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></Link>
             </Button>
-            <Button
-              variant="outline"
-              className="border-2 border-white/30 text-white hover:bg-white/10 rounded-full px-8 py-6 text-base font-medium transition-all duration-400"
-            >
-              <Apple className="w-5 h-5 mr-2" />
-              Download App
+            <Button asChild size="lg" variant="outline" className="h-12 rounded-2xl border-white/30 bg-white/10 px-7 text-base text-white backdrop-blur hover:bg-white/20 hover:text-white">
+              <Link to="/login">I already have an account</Link>
             </Button>
-          </motion.div>
-
-          {/* App Store Badges */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="mt-8 flex items-center justify-center gap-4 text-white/60 text-sm"
-          >
-            <span className="flex items-center gap-2">
-              <Apple className="w-4 h-4" />
-              iOS
-            </span>
-            <span className="w-1 h-1 bg-white/40 rounded-full" />
-            <span className="flex items-center gap-2">
-              <Play className="w-4 h-4" />
-              Android
-            </span>
-          </motion.div>
-        </motion.div>
-      </div>
+          </div>
+        </div>
+      </motion.div>
     </section>
   );
 }
