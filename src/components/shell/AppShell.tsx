@@ -61,7 +61,7 @@ export function AppShell() {
               whileHover={{ rotate: 90 }}
               whileTap={{ scale: 0.9 }}
               transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              className="fixed bottom-[calc(max(0.75rem,env(safe-area-inset-bottom))+5rem)] right-5 z-40 grid h-14 w-14 place-items-center rounded-2xl bg-primary text-white shadow-xl shadow-primary/40 lg:hidden"
+              className="fixed bottom-[calc(max(0.75rem,env(safe-area-inset-bottom))+5rem)] right-5 z-40 grid h-14 w-14 place-items-center rounded-2xl bg-primary text-white shadow-[0_4px_12px_-2px_hsl(var(--primary)/0.35)] ring-1 ring-white/10 lg:hidden"
             >
               <Plus className="h-6 w-6" />
             </motion.button>
