@@ -56,10 +56,10 @@ export function OrdersBar({ data, height = 220 }: { data: DayPoint[]; height?: n
   );
 }
 
-export function StatusPie({ data, height = 220 }: { data: { label: string; count: number }[]; height?: number }) {
+export function StatusPie({ data, height = 220, stacked = false }: { data: { label: string; count: number }[]; height?: number; stacked?: boolean }) {
   const total = data.reduce((s, d) => s + d.count, 0);
   return (
-    <div className="flex flex-col items-center gap-4 sm:flex-row">
+    <div className={`flex flex-col items-center gap-4 ${stacked ? "" : "sm:flex-row"}`}>
       <div className="relative w-full max-w-[220px]" style={{ height }}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>

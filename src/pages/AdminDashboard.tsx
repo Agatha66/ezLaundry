@@ -73,7 +73,7 @@ export function AdminDashboard() {
             </div>
             <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
               <h2 className="mb-4 font-semibold text-foreground">Orders by status</h2>
-              {breakdown.length ? <StatusPie data={breakdown} height={180} /> : <p className="text-sm text-muted-foreground">No orders yet.</p>}
+              {breakdown.length ? <StatusPie data={breakdown} height={170} stacked /> : <p className="text-sm text-muted-foreground">No orders yet.</p>}
             </div>
           </StaggerItem>
 
