@@ -53,6 +53,7 @@ export function useRiderOrders(riderId: string | undefined) {
   const [cancelledOrders, setCancelledOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const isFirstLoad = useRef(true);
 
   const fetchOrders = useCallback(async () => {
     if (!riderId) {
@@ -64,7 +65,7 @@ export function useRiderOrders(riderId: string | undefined) {
     }
 
     try {
-      setLoading(true);
+      if (isFirstLoad.current) setLoading(true);
       const allOrders = await orderService.getRiderOrders(riderId);
       
       const active = allOrders.filter(o => 
@@ -87,6 +88,7 @@ export function useRiderOrders(riderId: string | undefined) {
       setError(err as Error);
     } finally {
       setLoading(false);
+      isFirstLoad.current = false;
     }
   }, [riderId]);
 

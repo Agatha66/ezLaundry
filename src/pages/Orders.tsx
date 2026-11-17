@@ -18,10 +18,14 @@ import { useCustomerOrders } from '@/hooks/useOrders';
 import { CreateOrderDialog } from '@/components/CreateOrderDialog';
 import { orderService, statusLabels } from '@/services/orderService';
 import type { Order } from '@/types';
+import { toast } from 'sonner';
+import { useConfirm } from '@/components/ConfirmDialog';
+
 
 function OrderCard({ order }: { order: Order }) {
   const navigate = useNavigate();
   const [cancelling, setCancelling] = useState(false);
+  const confirm = useConfirm();
     const statusInfo = statusLabels[order.status];
     const serviceNames: Record<string, string> = {
       'wash-fold': 'Wash & Fold',
@@ -32,13 +36,14 @@ function OrderCard({ order }: { order: Order }) {
     const canCancel = ['pending', 'accepted'].includes(order.status);
 
     const handleCancel = async () => {
-      if (!window.confirm('Are you sure you want to cancel this order?')) return;
+      const ok = await confirm({ title: 'Cancel this order?', description: `Order ${order.id} will be cancelled. This can't be undone.`, confirmText: 'Cancel order', cancelText: 'Keep order', destructive: true });
+      if (!ok) return;
       setCancelling(true);
       try {
         await orderService.cancelOrder(order.id, order.customerId);
-        alert('Order cancelled successfully');
+        toast.success('Order cancelled');
       } catch (e) {
-        alert('Failed to cancel order');
+        toast.error('Could not cancel the order. Please try again.');
       } finally {
         setCancelling(false);
       }

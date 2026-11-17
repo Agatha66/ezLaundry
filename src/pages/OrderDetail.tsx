@@ -1,3 +1,5 @@
+import { toast } from 'sonner';
+import { useConfirm } from '@/components/ConfirmDialog';
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -29,17 +31,21 @@ export function OrderDetail() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
+  const confirm = useConfirm();
 
   const handleCancel = async () => {
     if (!order || !userData) return;
-    if (!window.confirm('Are you sure you want to cancel this order?')) return;
+    const ok = await confirm({ title: 'Cancel this order?', description: `Order ${order.id} will be cancelled. This can't be undone.`, confirmText: 'Cancel order', cancelText: 'Keep order', destructive: true });
+    if (!ok) return;
     setCancelling(true);
     try {
       await orderService.cancelOrder(order.id, order.customerId);
       const updated = await orderService.getOrder(order.id);
       setOrder(updated);
+      toast.success('Order cancelled');
     } catch (e) {
       console.error('Failed to cancel order:', e);
+      toast.error('Could not cancel the order. Please try again.');
     } finally {
       setCancelling(false);
     }

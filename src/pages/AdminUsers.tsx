@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -67,9 +68,10 @@ export function AdminUsers() {
       }
       
       setUserToDelete(null);
+      toast.success(`${userToDelete.displayName ?? 'User'} deleted`);
     } catch (error) {
       console.error('Error deleting user:', error);
-      alert('Failed to delete user. Please try again.');
+      toast.error('Failed to delete user. Please try again.');
     } finally {
       setDeleting(false);
     }
