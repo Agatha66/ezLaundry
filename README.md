@@ -19,7 +19,7 @@ ezLaundry is a responsive web app for **mobile and desktop** with three roles: *
 - **Rate your rider**: stars, quick tags and a comment after each delivery.
 - **ezPoints loyalty**: 1 point per RM spent plus 5 per review, with Bronze, Silver and Gold tiers.
 - **Notifications bell**: every status change of your orders, with unread badges.
-- **In-app chat** with your rider for each order. Every status change is posted into the chat automatically, and the rider's delivery photo and payment confirmation show up there too.
+- **In-app chat** with your rider for each order. Every status change is posted into the chat automatically, and the rider's delivery photo shows up there too.
 
 ### For riders
 - **Job board**: accept available pickups. Cards animate out of the list as soon as you accept.
@@ -48,11 +48,11 @@ ezLaundry is a responsive web app for **mobile and desktop** with three roles: *
 **Live order tracker (dark mode)**
 ![Order tracker in dark mode](docs/screenshots/desktop-tracker-dark.jpg)
 
-**Order chat: status updates, delivery photo and payment**
+**Order chat: status updates and delivery photo**
 
 | Mobile | Desktop |
 |---|---|
-| ![Chat on mobile showing the delivery photo and payment message](docs/screenshots/mobile-chat-delivered.jpg) | ![Chat on desktop showing every status update from pickup to delivery](docs/screenshots/desktop-chat.jpg) |
+| ![Chat on mobile showing the delivery photo](docs/screenshots/mobile-chat-delivered.jpg) | ![Chat on desktop showing every status update from pickup to delivery](docs/screenshots/desktop-chat.jpg) |
 
 **Rider home**
 ![Rider dashboard](docs/screenshots/desktop-rider.jpg)

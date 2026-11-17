@@ -338,12 +338,6 @@ export const orderService = {
     } else {
       await updateDoc(doc(db, ORDERS_COLLECTION, orderId), { paymentStatus: 'paid', paymentReceivedAt, updatedAt: serverTimestamp() });
     }
-    try {
-      const chat = await chatService.getChatByOrderId(orderId);
-      if (chat) await chatService.sendSystemMessage(chat.id, `Payment received · RM${order.totalAmount}`);
-    } catch (e) {
-      console.error('[Order] Failed to send payment message:', e);
-    }
   },
 
   // Cancel order (customer only, before pickup)
