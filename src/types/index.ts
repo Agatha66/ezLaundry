@@ -6,8 +6,23 @@ export interface User {
   displayName?: string;
   phone?: string;
   address?: Address;
+  /** Saved addresses (optional; older users only have `address`). */
+  addresses?: SavedAddress[];
   role: UserRole;
   createdAt: Date;
+}
+
+export type SavedAddress = Address & {
+  id: string;
+  label: string;
+  isDefault: boolean;
+};
+
+export interface OrderRating {
+  stars: 1 | 2 | 3 | 4 | 5;
+  tags: string[];
+  comment?: string;
+  createdAt: string;
 }
 
 export interface Address {
@@ -60,6 +75,8 @@ export interface Order {
   totalAmount: number;
   paymentStatus: 'pending' | 'paid';
   paymentMethod?: 'cash' | 'card' | 'ewallet';
+  paymentReceivedAt?: string;
+  rating?: OrderRating;
   createdAt: Date;
   updatedAt: Date;
   completedAt?: Date;
