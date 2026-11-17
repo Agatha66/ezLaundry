@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: is authenticated
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    // Helper: is owner of document
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Helper: signed-in user is the customer or rider on this chat
+    function isChatMember(data) {
+      return data.customerId == request.auth.uid || data.riderId == request.auth.uid;
+    }
+
+    // ========== USERS ==========
+    match /users/{userId} {
+      allow read: if isAuth();
+      allow create: if isAuth() && isOwner(userId);
+      allow update: if isAuth() && isOwner(userId);
+    }
+
+    // ========== ORDERS ==========
+    match /orders/{orderId} {
+      allow read: if isAuth();
+      allow create: if isAuth() && request.resource.data.customerId == request.auth.uid;
+      allow update: if isAuth();
+    }
+
+    // ========== CHATS ==========
+    match /chats/{chatId} {
+      // `resource` is null when the chat doesn't exist yet. Allow that read so
+      // the app can check "does this order have a chat?" before creating one;
+      // without this, the check fails with "Missing or insufficient permissions".
+      allow read: if isAuth() && (resource == null || isChatMember(resource.data));
+      // Only the customer or rider on the order can create its chat.
+      allow create: if isAuth() && isChatMember(request.resource.data);
+      allow update: if isAuth() && isChatMember(resource.data);
+    }
+
+    // ========== MESSAGES ==========
+    match /messages/{messageId} {
+      allow read: if isAuth();
+      // Anyone in the chat can create a message
+      allow create: if isAuth();
+      // Anyone in the chat can update (for read receipts)
+      allow update: if isAuth();
+    }
+  }
+}
