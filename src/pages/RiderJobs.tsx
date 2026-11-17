@@ -355,8 +355,7 @@ export function RiderJobs() {
       {loading ? (
         <ListSkeleton rows={3} />
       ) : (
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div key={tab} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.2 }}>
+          <motion.div key={tab} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.18, ease: 'easeOut' }}>
             {tab === 'available' && (
               <AvailableOrdersList orders={pendingOrders} onAccept={handleAcceptOrder} acceptingOrder={acceptingOrder} />
             )}
@@ -374,7 +373,6 @@ export function RiderJobs() {
             )}
             {tab === 'completed' && <CompletedOrdersList orders={completedOrders} />}
           </motion.div>
-        </AnimatePresence>
       )}
 
       {/* Order Detail Dialog */}
@@ -446,7 +444,6 @@ function AvailableOrdersList({
       {orders.map((order) => (
         <motion.div
           key={order.id}
-          layout
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, x: 60, transition: { duration: 0.25 } }}
@@ -611,7 +608,6 @@ function MyJobsList({
         return (
           <motion.div
             key={order.id}
-            layout
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, x: 60, transition: { duration: 0.25 } }}
@@ -725,7 +721,6 @@ function CompletedOrdersList({ orders }: { orders: Order[] }) {
       {orders.map((order) => (
         <motion.div
           key={order.id}
-          layout
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, x: 60, transition: { duration: 0.25 } }}

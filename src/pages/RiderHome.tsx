@@ -126,12 +126,11 @@ export function RiderHome() {
                 <p className="text-sm text-muted-foreground">All caught up. New pickups will appear here.</p>
               </div>
             ) : (
-              <motion.div layout className="space-y-3">
+              <div className="space-y-3">
                 <AnimatePresence initial={false}>
                   {pendingOrders.slice(0, 5).map((o, i) => (
                     <motion.div
                       key={o.id}
-                      layout
                       initial={{ opacity: 0, y: 14 }}
                       animate={{ opacity: 1, y: 0, transition: { delay: i * 0.05 } }}
                       exit={{ opacity: 0, x: 60, transition: { duration: 0.25 } }}
@@ -156,7 +155,7 @@ export function RiderHome() {
                     </motion.div>
                   ))}
                 </AnimatePresence>
-              </motion.div>
+              </div>
             )}
           </section>
         </div>

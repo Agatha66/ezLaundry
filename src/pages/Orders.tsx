@@ -53,13 +53,12 @@ export function Orders() {
       {loading ? (
         <ListSkeleton rows={4} />
       ) : (
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
+        // Fade the new tab in place; no exit-then-enter gap, so the height never collapses.
+        <motion.div
             key={filter}
-            initial={{ opacity: 0, x: 12 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -12 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.18, ease: 'easeOut' }}
           >
             {list.length === 0 ? (
               <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-14 text-center">
@@ -72,24 +71,17 @@ export function Orders() {
                 )}
               </div>
             ) : (
-              <motion.div layout className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-3 md:grid-cols-2">
                 <AnimatePresence initial={false}>
-                  {list.map((o, i) => (
-                    <motion.div
-                      key={o.id}
-                      layout
-                      initial={{ opacity: 0, y: 14 }}
-                      animate={{ opacity: 1, y: 0, transition: { delay: Math.min(i, 10) * 0.04 } }}
-                      exit={{ opacity: 0, scale: 0.96 }}
-                    >
+                  {list.map(o => (
+                    <motion.div key={o.id} exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.2 } }}>
                       <OrderCard order={o} onRate={setRating} />
                     </motion.div>
                   ))}
                 </AnimatePresence>
-              </motion.div>
+              </div>
             )}
-          </motion.div>
-        </AnimatePresence>
+        </motion.div>
       )}
 
       <RateRiderModal order={rating} onOpenChange={o => !o && setRating(null)} onRated={refresh} />
