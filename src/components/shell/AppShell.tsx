@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { Suspense, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useOutlet } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
@@ -11,6 +11,14 @@ import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
 import { ShellContext } from './ShellContext';
 import { activeNavPath, type ShellRole } from './navItems';
+
+function PageLoading() {
+  return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    </div>
+  );
+}
 
 /** Keeps the outgoing page rendered while it animates out. */
 function AnimatedOutlet() {
@@ -43,7 +51,10 @@ export function AppShell() {
           <div className="mx-auto w-full max-w-6xl">
             <AnimatePresence mode="wait" initial={false}>
               <PageTransition key={location.pathname}>
-                <AnimatedOutlet />
+                {/* Lazy pages load here, so the sidebar and bottom nav never unmount */}
+                <Suspense fallback={<PageLoading />}>
+                  <AnimatedOutlet />
+                </Suspense>
               </PageTransition>
             </AnimatePresence>
           </div>
