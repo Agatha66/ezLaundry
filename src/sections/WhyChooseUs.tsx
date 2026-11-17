@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Camera, Clock, Home, MapPin, Smartphone, Star } from 'lucide-react';
-import { SectionHeader, revealChild, revealParent } from './SectionHeader';
+import { SectionHeader } from './SectionHeader';
+import { revealChild, revealParent } from './reveal';
 
 const TRACK = ['Rider assigned', 'Collected', 'Washing', 'Delivered'];
 

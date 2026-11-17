@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
 import { Quote, Star } from 'lucide-react';
 import { useTestimonials } from '@/hooks/useContent';
-import { SectionHeader, revealChild, revealParent } from './SectionHeader';
+import { SectionHeader } from './SectionHeader';
+import { revealChild, revealParent } from './reveal';
 
 const GRADIENTS = ['from-amber-300 to-pink-400', 'from-sky-400 to-indigo-500', 'from-emerald-400 to-teal-500'];
 

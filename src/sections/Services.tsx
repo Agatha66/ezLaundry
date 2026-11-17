@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Check } from 'lucide-react';
 import { useServices } from '@/hooks/useContent';
-import { SectionHeader, revealChild, revealParent } from './SectionHeader';
+import { SectionHeader } from './SectionHeader';
+import { revealChild, revealParent } from './reveal';
 
 const STYLE: Record<string, { emoji: string; tint: string; perks: string[] }> = {
   shirt: { emoji: '👕', tint: 'from-sky-400/20 to-primary/10', perks: ['Sorted by colour', 'Tumble dried', 'Neatly folded'] },

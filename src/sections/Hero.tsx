@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, BadgeCheck, Check, Clock, Star, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { REVEAL_EASE } from './SectionHeader';
+import { REVEAL_EASE } from './reveal';
 
 const parent = { hidden: {}, visible: { transition: { staggerChildren: 0.12, delayChildren: 0.15 } } };
 const child = { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: REVEAL_EASE } } };

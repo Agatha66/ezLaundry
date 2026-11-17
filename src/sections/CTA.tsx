@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { REVEAL_EASE } from './SectionHeader';
+import { REVEAL_EASE } from './reveal';
 
 export function CTA() {
   return (

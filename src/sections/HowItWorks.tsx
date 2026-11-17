@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Calendar, Package, Sparkles, Truck } from 'lucide-react';
-import { REVEAL_EASE, SectionHeader, revealChild, revealParent } from './SectionHeader';
+import { SectionHeader } from './SectionHeader';
+import { REVEAL_EASE, revealChild, revealParent } from './reveal';
 
 const steps = [
   { icon: Calendar, title: 'Book a pickup', description: 'Pick a service, a day and a time slot. It takes under a minute.', tint: 'from-sky-400 to-primary' },

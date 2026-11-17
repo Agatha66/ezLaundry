@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-export const REVEAL_EASE = [0.22, 1, 0.36, 1] as const;
+import { REVEAL_EASE } from './reveal';
 
 /** Eyebrow chip + title + subtitle, revealed on scroll. */
 export function SectionHeader({
@@ -43,13 +43,3 @@ export function SectionHeader({
     </motion.div>
   );
 }
-
-/** Stagger container/item variants for scroll reveals. */
-export const revealParent = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.09 } },
-};
-export const revealChild = {
-  hidden: { opacity: 0, y: 28 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: REVEAL_EASE } },
-};
