@@ -8,9 +8,34 @@ const isDemoMode = import.meta.env.VITE_FIREBASE_API_KEY === 'demo-key' ||
 const CHATS_COLLECTION = 'chats';
 const MESSAGES_COLLECTION = 'messages';
 
-// Mock chat storage for demo mode
-const mockChatsStore = new Map<string, Chat>();
-const mockMessagesStore = new Map<string, ChatMessage[]>();
+// Mock chat storage for demo mode, saved to localStorage so it survives reloads
+class PersistedMap<V> extends Map<string, V> {
+  private readonly storageKey: string;
+  constructor(storageKey: string) {
+    super();
+    this.storageKey = storageKey;
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) for (const [k, v] of JSON.parse(raw) as [string, V][]) super.set(k, v);
+    } catch {
+      /* storage unavailable: start empty */
+    }
+  }
+  set(key: string, value: V): this {
+    super.set(key, value);
+    this.persist();
+    return this;
+  }
+  persist() {
+    try {
+      localStorage.setItem(this.storageKey, JSON.stringify([...this.entries()]));
+    } catch {
+      /* storage unavailable: keep in memory */
+    }
+  }
+}
+const mockChatsStore = new PersistedMap<Chat>('ezl-demo-chats');
+const mockMessagesStore = new PersistedMap<ChatMessage[]>('ezl-demo-messages');
 
 export const chatService = {
   // Create a chat for an order
@@ -295,6 +320,7 @@ export const chatService = {
             msg.read = true;
           }
         });
+        mockMessagesStore.persist();
       }
       return;
     }
