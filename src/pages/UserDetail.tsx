@@ -1,10 +1,8 @@
+import { TopBar } from '@/components/shell/TopBar';
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  ArrowLeft, 
-  User, 
-  Bike,
+import {
   Mail,
   Phone,
   MapPin,
@@ -43,12 +41,12 @@ export function UserDetail() {
       ]);
 
       setUser(userData);
-      
+
       // Filter orders for this user
-      const userOrders = allOrders.filter(o => 
+      const userOrders = allOrders.filter(o =>
         o.customerId === userId || o.riderId === userId
       );
-      setOrders(userOrders.sort((a, b) => 
+      setOrders(userOrders.sort((a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       ));
     } catch (error) {
@@ -60,7 +58,7 @@ export function UserDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-[60vh] flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
@@ -68,11 +66,11 @@ export function UserDetail() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
           <p className="text-muted-foreground">User not found</p>
-          <Button 
-            onClick={() => navigate('/users')} 
+          <Button
+            onClick={() => navigate('/users')}
             className="mt-4 bg-primary"
           >
             Go Back
@@ -95,37 +93,12 @@ export function UserDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div>
       {/* Header */}
-      <header className="bg-card shadow-sm sticky top-0 z-40">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/users')}
-                className="text-muted-foreground"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <h1 className="text-xl font-semibold text-foreground font-['Poppins']">
-                {user.role === 'rider' ? 'Rider Details' : 'Customer Details'}
-              </h1>
-            </div>
-            <Badge className={user.role === 'rider' ? 'bg-teal' : 'bg-primary'}>
-              {user.role === 'rider' ? (
-                <><Bike className="w-3 h-3 mr-1" /> Rider</>
-              ) : (
-                <><User className="w-3 h-3 mr-1" /> Customer</>
-              )}
-            </Badge>
-          </div>
-        </div>
-      </header>
+      <TopBar back="/users" title={user.displayName || 'User'} subtitle={user.role === 'rider' ? 'Rider details' : 'Customer details'} />
 
       {/* Content */}
-      <main className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
+      <div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -157,7 +130,7 @@ export function UserDetail() {
                 </div>
               </div>
             </div>
-            
+
             {user.address && (
               <div className="mt-4 pt-4 border-t border-background">
                 <p className="text-sm text-muted-foreground flex items-start gap-2">
@@ -169,7 +142,7 @@ export function UserDetail() {
                 </p>
               </div>
             )}
-            
+
             <div className="mt-4 pt-4 border-t border-background">
               <p className="text-sm text-muted-foreground">
                 <Calendar className="w-4 h-4 inline mr-2" />
@@ -223,7 +196,7 @@ export function UserDetail() {
               <div className="space-y-3">
                 {orders.map((order) => {
                   const statusInfo = statusLabels[order.status];
-                  
+
                   return (
                     <motion.div
                       key={order.id}
@@ -273,7 +246,7 @@ export function UserDetail() {
             )}
           </div>
         </motion.div>
-      </main>
+      </div>
     </div>
   );
 }

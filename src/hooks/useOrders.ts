@@ -113,7 +113,6 @@ export function usePendingOrders() {
 
   const fetchOrders = useCallback(async () => {
     try {
-      setLoading(true);
       const data = await orderService.getPendingOrders();
       setOrders(data);
       setError(null);
@@ -187,7 +186,6 @@ export function useAllOrders() {
 
   const fetchOrders = useCallback(async () => {
     try {
-      setLoading(true);
       const data = await orderService.getAllOrders();
       setOrders(data);
       setError(null);

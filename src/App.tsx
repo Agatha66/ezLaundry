@@ -114,7 +114,7 @@ function AppRoutes() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/orders" element={<RoleOnly roles={['customer']}><Orders /></RoleOnly>} />
           <Route path="/chats" element={<RoleOnly roles={['customer', 'rider']}><ChatList /></RoleOnly>} />
-          <Route path="/order/:orderId" element={<RoleOnly roles={['customer', 'rider']}><OrderDetail /></RoleOnly>} />
+          <Route path="/order/:orderId" element={<RoleOnly roles={['customer', 'rider', 'admin']}><OrderDetail /></RoleOnly>} />
           <Route path="/jobs" element={<RoleOnly roles={['rider']}><RiderJobs /></RoleOnly>} />
           <Route path="/users" element={<RoleOnly roles={['admin']}><AdminUsers /></RoleOnly>} />
           <Route path="/user/:userId" element={<RoleOnly roles={['admin']}><UserDetail /></RoleOnly>} />

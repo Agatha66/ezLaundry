@@ -1,10 +1,12 @@
+import { TopBar } from '@/components/shell/TopBar';
+import { ListSkeleton } from '@/components/Skeletons';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  ArrowLeft, 
-  Send, 
-  Package, 
+import {
+  ArrowLeft,
+  Send,
+  Package,
   Phone,
   Check,
   CheckCheck,
@@ -70,20 +72,16 @@ export function ChatList() {
   const unread = (c: Chat) => (userData?.role === 'customer' ? c.unreadCountCustomer : c.unreadCountRider) || 0;
 
   if (loading) return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <Loader2 className="w-8 h-8 animate-spin text-primary" />
-    </div>
+    <>
+      <TopBar title="Messages" />
+      <ListSkeleton rows={4} />
+    </>
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="bg-card shadow-sm sticky top-0 z-50">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-foreground">Messages</h1>
-          <span className="text-sm text-muted-foreground">{chats.length} conversations</span>
-        </div>
-      </header>
-      <main className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-4 pb-24">
+    <div>
+      <TopBar title="Messages" subtitle={`${chats.length} conversation${chats.length === 1 ? '' : 's'}`} />
+      <div>
         {chats.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -103,11 +101,13 @@ export function ChatList() {
               return (
                 <motion.div
                   key={c.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0, transition: { delay: Math.min(chats.indexOf(c), 10) * 0.04 } }}
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => navigate(`/chat/${c.orderId}`)}
                   className={`rounded-xl p-4 shadow-sm hover:shadow-md cursor-pointer transition-colors ${
-                    hasUnread ? 'bg-primary/10 border border-primary/20' : 'bg-card'
+                    hasUnread ? 'bg-primary/10 border border-primary/20' : 'bg-card border border-border'
                   }`}
                 >
                   <div className="flex items-center gap-4">
@@ -151,7 +151,7 @@ export function ChatList() {
             })}
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }
@@ -177,7 +177,7 @@ export function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef   = useRef<HTMLDivElement>(null);
   const prevLenRef     = useRef(0);
-  const unreadSnapshotRef = useRef(0); 
+  const unreadSnapshotRef = useRef(0);
   const [showDivider, setShowDivider] = useState(false);
   const [unreadSnapshot, setUnreadSnapshot] = useState(0);
 
@@ -201,7 +201,7 @@ export function ChatPage() {
             : (c.unreadCountRider || 0);
           unreadSnapshotRef.current = count;
         }
-        
+
         setChat(c || null);
       } catch (e) { setErr('Failed to load chat'); }
       finally { setLoad(false); }
@@ -334,10 +334,10 @@ export function ChatPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#E8EDF2] flex flex-col">
+    <div className="min-h-screen bg-muted flex flex-col">
       {/* ══ Header ══ */}
       <header className="bg-card shadow-sm sticky top-0 z-50 h-16 flex-shrink-0">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" onClick={() => navigate('/chats')} className="text-muted-foreground">
               <ArrowLeft className="w-5 h-5" />
@@ -368,7 +368,7 @@ export function ChatPage() {
       {/* ══ Sticky Order Status Banner ══ */}
       {order && (
         <div className="bg-card border-b border-border sticky top-16 z-40">
-          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className={`w-2.5 h-2.5 rounded-full ${order.status === 'completed' ? 'bg-green-500' : order.status === 'cancelled' ? 'bg-red-500' : 'bg-primary'}`} />
               <Package className="w-4 h-4 text-muted-foreground" />
@@ -385,8 +385,8 @@ export function ChatPage() {
       )}
 
       {/* ══ Messages (darker background) ══ */}
-      <main ref={containerRef} className="flex-1 overflow-y-auto bg-[#E8EDF2]">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-4 pb-36">
+      <main ref={containerRef} className="flex-1 overflow-y-auto bg-muted">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 pb-36">
           {messages.length === 0 ? (
             <div className="text-center py-12">
               <div className="w-16 h-16 bg-border rounded-full flex items-center justify-center mx-auto mb-4">
@@ -401,9 +401,9 @@ export function ChatPage() {
                 if (item.type === 'day') {
                   return (
                     <div key={`day-${idx}`} className="flex items-center gap-3 my-4">
-                      <div className="flex-1 h-px bg-[#CBD5E1]" />
-                      <span className="text-xs text-[#64748B] font-medium">{item.value}</span>
-                      <div className="flex-1 h-px bg-[#CBD5E1]" />
+                      <div className="flex-1 h-px bg-border" />
+                      <span className="text-xs text-muted-foreground font-medium">{item.value}</span>
+                      <div className="flex-1 h-px bg-border" />
                     </div>
                   );
                 }
@@ -414,9 +414,9 @@ export function ChatPage() {
                 if (m.senderRole === 'system' && !m.imageUrl) {
                   return (
                     <div key={m.id} className="flex justify-center my-3">
-                      <div className="flex items-center gap-2 bg-[#CBD5E1]/60 px-4 py-2 rounded-full">
-                        <Info className="w-3.5 h-3.5 text-[#475569]" />
-                        <span className="text-xs text-[#475569] font-medium">{m.content}</span>
+                      <div className="flex items-center gap-2 bg-border/70 px-4 py-2 rounded-full">
+                        <Info className="w-3.5 h-3.5 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground font-medium">{m.content}</span>
                       </div>
                     </div>
                   );
@@ -455,7 +455,7 @@ export function ChatPage() {
                         <div className={`px-3.5 py-2 rounded-2xl ${
                           isMine
                             ? 'bg-primary text-white rounded-br-md'
-                            : 'bg-card text-foreground rounded-bl-md shadow-sm border border-[#E2E8F0]'
+                            : 'bg-card text-foreground rounded-bl-md shadow-sm border border-border'
                         }`}>
                           {/* ── image message ── */}
                           {m.imageUrl && (
@@ -475,7 +475,7 @@ export function ChatPage() {
                             <p className="text-sm leading-relaxed whitespace-pre-wrap">{m.content}</p>
                           )}
                           <div className={`flex items-center gap-1 mt-1 ${isMine ? 'justify-end' : ''}`}>
-                            <span className={`text-[11px] ${isMine ? 'text-white/60' : 'text-[#94A3B8]'}`}>
+                            <span className={`text-[11px] ${isMine ? 'text-white/60' : 'text-muted-foreground'}`}>
                               {formatTime(m.createdAt)}
                             </span>
                             {/* ── read / sent indicator ── */}
@@ -499,7 +499,7 @@ export function ChatPage() {
 
       {/* ══ Input ══ */}
       <footer className="bg-card border-t border-border fixed bottom-0 left-0 right-0 z-40">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center gap-3">
             <Input
               value={text}

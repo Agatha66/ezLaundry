@@ -1,14 +1,19 @@
 import { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { toast } from 'sonner';
+import { TopBar } from '@/components/shell/TopBar';
+import { SegmentedTabs } from '@/components/SegmentedTabs';
+import { ListSkeleton } from '@/components/Skeletons';
+import { CountUp } from '@/components/motion';
+import { Wallet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Package, 
-  MapPin, 
-  Clock, 
-  CheckCircle2, 
+import {
+  Package,
+  MapPin,
+  Clock,
+  CheckCircle2,
   Phone,
   Loader2,
-  AlertCircle,
   Camera,
   FileText,
   Hash,
@@ -22,7 +27,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRiderOrders, usePendingOrders } from '@/hooks/useOrders';
@@ -31,22 +35,39 @@ import type { Order, OrderStatus } from '@/types';
 
 export function RiderJobs() {
   const { userData } = useAuth();
-  const { activeOrders, completedOrders, refresh: refreshRiderOrders } = useRiderOrders(userData?.uid);
-  const { orders: pendingOrders, refresh: refreshPendingOrders } = usePendingOrders();
-  
+  const { activeOrders, completedOrders, loading: loadingMine, refresh: refreshRiderOrders } = useRiderOrders(userData?.uid);
+  const { orders: pendingOrders, loading: loadingPending, refresh: refreshPendingOrders } = usePendingOrders();
+  const [tab, setTab] = useState<'available' | 'active' | 'completed'>('available');
+  const [payingOrder, setPayingOrder] = useState<string | null>(null);
+
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isOrderDetailOpen, setIsOrderDetailOpen] = useState(false);
   const [isPickupDialogOpen, setIsPickupDialogOpen] = useState(false);
   const [isDeliveryDialogOpen, setIsDeliveryDialogOpen] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [acceptingOrder, setAcceptingOrder] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  
+  // Feedback goes to toasts
+  const setError = (m: string | null) => { if (m) toast.error(m); };
+  const setSuccess = (m: string | null) => { if (m) toast.success(m); };
+
+  const handleMarkPaid = async (order: Order) => {
+    if (!userData) return;
+    setPayingOrder(order.id);
+    try {
+      await orderService.markPaymentReceived(order.id, userData.uid);
+      await refreshRiderOrders();
+      toast.success(`Payment of RM${order.totalAmount} recorded`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not record payment');
+    } finally {
+      setPayingOrder(null);
+    }
+  };
+
   // Pickup form state
   const [actualItemCount, setActualItemCount] = useState<number>(0);
   const [pickupNotes, setPickupNotes] = useState('');
-  
+
   // Delivery photo state
   const [deliveryPhoto, setDeliveryPhoto] = useState<string | null>(null);
   const [compressing, setCompressing] = useState(false);
@@ -58,10 +79,10 @@ export function RiderJobs() {
       setError('Please log in to accept orders');
       return;
     }
-    
+
     setAcceptingOrder(order.id);
     setError(null);
-    
+
     try {
       await orderService.acceptOrder(
         order.id,
@@ -69,7 +90,7 @@ export function RiderJobs() {
         userData.displayName || 'Rider',
         userData.phone || ''
       );
-      
+
       setSuccess(`Order ${order.id} accepted successfully!`);
       await refreshPendingOrders();
       await refreshRiderOrders();
@@ -84,19 +105,19 @@ export function RiderJobs() {
 
   const handleUpdateStatus = async (orderId: string, newStatus: OrderStatus) => {
     if (!userData) return;
-    
+
     setUpdatingStatus(true);
     setError(null);
-    
+
     try {
       await orderService.updateStatus(orderId, newStatus, userData.uid);
       await refreshRiderOrders();
-      
+
       if (selectedOrder?.id === orderId) {
         const updated = await orderService.getOrder(orderId);
         setSelectedOrder(updated);
       }
-      
+
       setSuccess(`Status updated to ${statusLabels[newStatus].label}`);
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
@@ -109,10 +130,10 @@ export function RiderJobs() {
 
   const handlePickupSubmit = async () => {
     if (!selectedOrder) return;
-    
+
     setUpdatingStatus(true);
     setError(null);
-    
+
     try {
       await orderService.recordPickup(
         selectedOrder.id,
@@ -120,11 +141,11 @@ export function RiderJobs() {
         actualItemCount,
         pickupNotes
       );
-      
+
       await refreshRiderOrders();
       const updated = await orderService.getOrder(selectedOrder.id);
       setSelectedOrder(updated);
-      
+
       setIsPickupDialogOpen(false);
       setActualItemCount(0);
       setPickupNotes('');
@@ -140,21 +161,21 @@ export function RiderJobs() {
 
   const handleDeliverySubmit = async () => {
     if (!selectedOrder) return;
-    
+
     setUpdatingStatus(true);
     setError(null);
-    
+
     try {
       await orderService.recordDelivery(
         selectedOrder.id,
         userData!.uid,
         deliveryPhoto || undefined
       );
-      
+
       await refreshRiderOrders();
       const updated = await orderService.getOrder(selectedOrder.id);
       setSelectedOrder(updated);
-      
+
       setIsDeliveryDialogOpen(false);
       setDeliveryPhoto(null);
       setSuccess('Delivery recorded successfully!');
@@ -298,78 +319,63 @@ export function RiderJobs() {
     setIsDeliveryDialogOpen(true);
   };
 
+  const todayEarnings = completedOrders
+    .filter(o => new Date(o.completedAt || o.updatedAt).toDateString() === new Date().toDateString())
+    .reduce((sum, o) => sum + (Number(o.deliveryFee) || 0), 0);
+  const loading = tab === 'available' ? loadingPending : loadingMine;
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-foreground font-['Poppins']">My Jobs</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your deliveries and pickups
-          </p>
-        </div>
+    <>
+      <TopBar title="Jobs" subtitle="Pickups, washes and deliveries" />
 
-        {/* Error/Success Messages */}
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3"
-          >
-            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-            <p className="text-red-700">{error}</p>
-          </motion.div>
-        )}
-        
-        {success && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3"
-          >
-            <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-            <p className="text-green-700">{success}</p>
-          </motion.div>
-        )}
-
-        {/* Tabs */}
-        <Tabs defaultValue="available" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="available">
-              Available ({pendingOrders.length})
-            </TabsTrigger>
-            <TabsTrigger value="active">
-              My Jobs ({activeOrders.length})
-            </TabsTrigger>
-            <TabsTrigger value="completed">
-              Completed ({completedOrders.length})
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="available">
-            <AvailableOrdersList 
-              orders={pendingOrders} 
-              onAccept={handleAcceptOrder}
-              acceptingOrder={acceptingOrder}
-            />
-          </TabsContent>
-
-          <TabsContent value="active">
-            <MyJobsList 
-              orders={activeOrders}
-              onUpdateStatus={handleUpdateStatus}
-              onViewDetail={openOrderDetail}
-              onPickup={openPickupDialog}
-              onDeliver={openDeliveryDialog}
-              updatingStatus={updatingStatus}
-            />
-          </TabsContent>
-
-          <TabsContent value="completed">
-            <CompletedOrdersList orders={completedOrders} />
-          </TabsContent>
-        </Tabs>
+      <div className="mb-5 grid grid-cols-3 gap-3">
+        {[
+          { label: 'Available', value: pendingOrders.length, tint: 'text-amber-500' },
+          { label: 'In progress', value: activeOrders.length, tint: 'text-primary' },
+          { label: 'Earned today', value: todayEarnings, prefix: 'RM', tint: 'text-emerald-500' },
+        ].map(s => (
+          <div key={s.label} className="rounded-2xl border border-border bg-card p-3 shadow-sm sm:p-4">
+            <CountUp value={s.value} prefix={s.prefix} className={`block font-poppins text-xl font-semibold sm:text-2xl ${s.tint}`} />
+            <p className="text-[11px] text-muted-foreground sm:text-xs">{s.label}</p>
+          </div>
+        ))}
       </div>
+
+      <SegmentedTabs
+        value={tab}
+        onChange={setTab}
+        className="mb-5"
+        items={[
+          { value: 'available', label: 'Available', count: pendingOrders.length },
+          { value: 'active', label: 'My jobs', count: activeOrders.length },
+          { value: 'completed', label: 'Done', count: completedOrders.length },
+        ]}
+      />
+
+      {loading ? (
+        <ListSkeleton rows={3} />
+      ) : (
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div key={tab} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.2 }}>
+            {tab === 'available' && (
+              <AvailableOrdersList orders={pendingOrders} onAccept={handleAcceptOrder} acceptingOrder={acceptingOrder} />
+            )}
+            {tab === 'active' && (
+              <MyJobsList
+                orders={activeOrders}
+                onUpdateStatus={handleUpdateStatus}
+                onViewDetail={openOrderDetail}
+                onPickup={openPickupDialog}
+                onDeliver={openDeliveryDialog}
+                onMarkPaid={handleMarkPaid}
+                payingOrder={payingOrder}
+                updatingStatus={updatingStatus}
+              />
+            )}
+            {tab === 'completed' && <CompletedOrdersList orders={completedOrders} />}
+          </motion.div>
+        </AnimatePresence>
+      )}
 
       {/* Order Detail Dialog */}
       <OrderDetailDialog
@@ -410,23 +416,23 @@ export function RiderJobs() {
         galleryInputRef={galleryInputRef}
         onClearPhoto={() => setDeliveryPhoto(null)}
       />
-    </div>
+    </>
   );
 }
 
 // Available Orders List
-function AvailableOrdersList({ 
-  orders, 
+function AvailableOrdersList({
+  orders,
   onAccept,
   acceptingOrder
-}: { 
-  orders: Order[]; 
+}: {
+  orders: Order[];
   onAccept: (order: Order) => void;
   acceptingOrder: string | null;
 }) {
   if (orders.length === 0) {
     return (
-      <div className="text-center py-12 bg-card rounded-xl">
+      <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-14 text-center">
         <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-4" />
         <p className="text-muted-foreground">No available orders right now</p>
         <p className="text-sm text-muted-foreground mt-1">Check back soon!</p>
@@ -435,13 +441,16 @@ function AvailableOrdersList({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="grid gap-3 lg:grid-cols-2">
+      <AnimatePresence initial={false}>
       {orders.map((order) => (
         <motion.div
           key={order.id}
-          initial={{ opacity: 0, y: 10 }}
+          layout
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-card rounded-xl p-5 shadow-sm"
+          exit={{ opacity: 0, x: 60, transition: { duration: 0.25 } }}
+          className="rounded-2xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5"
         >
           <div className="flex items-start justify-between">
             <div className="flex-1">
@@ -493,31 +502,36 @@ function AvailableOrdersList({
           </div>
         </motion.div>
       ))}
+      </AnimatePresence>
     </div>
   );
 }
 
 // My Jobs List
-function MyJobsList({ 
-  orders, 
+function MyJobsList({
+  orders,
   onUpdateStatus,
   onViewDetail,
   onPickup,
   onDeliver,
+  onMarkPaid,
+  payingOrder,
   updatingStatus
-}: { 
+}: {
   orders: Order[];
   onUpdateStatus: (orderId: string, status: OrderStatus) => void;
   onViewDetail: (order: Order) => void;
   onPickup: (order: Order) => void;
   onDeliver: (order: Order) => void;
+  onMarkPaid: (order: Order) => void;
+  payingOrder: string | null;
   updatingStatus: boolean;
 }) {
   const navigate = useNavigate();
 
   if (orders.length === 0) {
     return (
-      <div className="text-center py-12 bg-card rounded-xl">
+      <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-14 text-center">
         <Package className="w-12 h-12 text-border mx-auto mb-4" />
         <p className="text-muted-foreground">No active jobs</p>
         <p className="text-sm text-muted-foreground mt-1">Accept an order from the Available tab</p>
@@ -526,7 +540,8 @@ function MyJobsList({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="grid gap-3 lg:grid-cols-2">
+      <AnimatePresence initial={false}>
       {orders.map((order) => {
         const statusInfo = statusLabels[order.status];
         const nextStatuses = statusFlow[order.status] || [];
@@ -549,7 +564,7 @@ function MyJobsList({
               </Button>
             );
           }
-          
+
           if (nextStatus === 'delivered') {
             return (
               <Button
@@ -596,9 +611,11 @@ function MyJobsList({
         return (
           <motion.div
             key={order.id}
-            initial={{ opacity: 0, y: 10 }}
+            layout
+            initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-card rounded-xl p-5 shadow-sm"
+            exit={{ opacity: 0, x: 60, transition: { duration: 0.25 } }}
+            className="rounded-2xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5"
           >
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -638,8 +655,28 @@ function MyJobsList({
               </div>
             </div>
 
+            {/* Payment */}
+            {['delivering', 'delivered'].includes(order.status) && (
+              order.paymentStatus === 'paid' ? (
+                <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle2 className="h-3.5 w-3.5" /> Paid · {order.paymentMethod === 'ewallet' ? 'e-Wallet' : 'Cash'}
+                </p>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onMarkPaid(order)}
+                  disabled={payingOrder === order.id}
+                  className="mt-3 w-full rounded-xl border-emerald-500/40 text-emerald-600 hover:bg-emerald-500/10 dark:text-emerald-400"
+                >
+                  {payingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />}
+                  Collect RM{order.totalAmount} · {order.paymentMethod === 'ewallet' ? 'e-Wallet' : 'Cash'}
+                </Button>
+              )
+            )}
+
             {/* Action Buttons */}
-            <div className="flex gap-2 mt-4 pt-4 border-t border-background">
+            <div className="flex gap-2 mt-4 pt-4 border-t border-border">
               <Button
                 size="sm"
                 variant="outline"
@@ -666,6 +703,7 @@ function MyJobsList({
           </motion.div>
         );
       })}
+      </AnimatePresence>
     </div>
   );
 }
@@ -674,7 +712,7 @@ function MyJobsList({
 function CompletedOrdersList({ orders }: { orders: Order[] }) {
   if (orders.length === 0) {
     return (
-      <div className="text-center py-12 bg-card rounded-xl">
+      <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-14 text-center">
         <CheckCircle2 className="w-12 h-12 text-border mx-auto mb-4" />
         <p className="text-muted-foreground">No completed orders yet</p>
       </div>
@@ -682,13 +720,16 @@ function CompletedOrdersList({ orders }: { orders: Order[] }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="grid gap-3 lg:grid-cols-2">
+      <AnimatePresence initial={false}>
       {orders.map((order) => (
         <motion.div
           key={order.id}
-          initial={{ opacity: 0, y: 10 }}
+          layout
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-card rounded-xl p-5 shadow-sm opacity-75"
+          exit={{ opacity: 0, x: 60, transition: { duration: 0.25 } }}
+          className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -716,6 +757,7 @@ function CompletedOrdersList({ orders }: { orders: Order[] }) {
           </div>
         </motion.div>
       ))}
+      </AnimatePresence>
     </div>
   );
 }
@@ -1050,7 +1092,7 @@ function DeliveryDialog({
             <p className="text-sm text-muted-foreground mb-3">
               Take a photo or choose from gallery for proof
             </p>
-            
+
             {/* Camera input - opens camera on mobile */}
             <input
               type="file"

@@ -1,11 +1,11 @@
+import { TopBar } from '@/components/shell/TopBar';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Search, 
-  Users, 
-  Bike, 
+import {
+  Search,
+  Bike,
   User,
   Phone,
   Mail,
@@ -55,18 +55,18 @@ export function AdminUsers() {
 
   const handleDeleteUser = async () => {
     if (!userToDelete) return;
-    
+
     setDeleting(true);
     try {
       await authService.deleteUser(userToDelete.uid);
-      
+
       // Update local state
       if (userToDelete.role === 'customer') {
         setCustomers(prev => prev.filter(u => u.uid !== userToDelete.uid));
       } else {
         setRiders(prev => prev.filter(u => u.uid !== userToDelete.uid));
       }
-      
+
       setUserToDelete(null);
       toast.success(`${userToDelete.displayName ?? 'User'} deleted`);
     } catch (error) {
@@ -79,9 +79,9 @@ export function AdminUsers() {
 
   const filterUsers = (users: UserType[]) => {
     if (!searchQuery.trim()) return users;
-    
+
     const query = searchQuery.toLowerCase();
-    return users.filter(user => 
+    return users.filter(user =>
       user.displayName?.toLowerCase().includes(query) ||
       user.email.toLowerCase().includes(query) ||
       user.phone?.toLowerCase().includes(query)
@@ -93,7 +93,7 @@ export function AdminUsers() {
 
   const UserCard = ({ user }: { user: UserType }) => {
     const isCurrentUser = user.uid === currentAdmin?.uid;
-    
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -163,22 +163,12 @@ export function AdminUsers() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div>
       {/* Header */}
-      <header className="bg-card shadow-sm sticky top-0 z-40">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <h1 className="text-xl font-semibold text-foreground font-['Poppins']">Users</h1>
-            <div className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">{customers.length + riders.length} total</span>
-            </div>
-          </div>
-        </div>
-      </header>
+      <TopBar title="Users" subtitle={`${customers.length + riders.length} people`} />
 
       {/* Content */}
-      <main className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
+      <div>
         {/* Search */}
         <div className="relative mb-6">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -245,7 +235,7 @@ export function AdminUsers() {
             )}
           </TabsContent>
         </Tabs>
-      </main>
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <AnimatePresence>
@@ -281,7 +271,7 @@ export function AdminUsers() {
                 Delete User?
               </h3>
               <p className="text-muted-foreground mb-6">
-                Are you sure you want to delete <span className="font-medium text-foreground">{userToDelete.displayName || userToDelete.email}</span>? 
+                Are you sure you want to delete <span className="font-medium text-foreground">{userToDelete.displayName || userToDelete.email}</span>?
                 This action cannot be undone and all their data will be permanently removed.
               </p>
 

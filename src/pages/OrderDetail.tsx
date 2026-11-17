@@ -75,7 +75,7 @@ export function OrderDetail() {
   }, [orderId]);
 
   const isCustomer = userData?.role === 'customer';
-  const back = isCustomer ? '/orders' : '/jobs';
+  const back = isCustomer ? '/orders' : userData?.role === 'admin' ? '/dashboard' : '/jobs';
 
   if (loading) {
     return (

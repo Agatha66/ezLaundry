@@ -33,7 +33,7 @@ export const NAV_ITEMS: Record<ShellRole, NavItem[]> = {
 
 /** Which nav item a pathname belongs to (detail pages map to their list). */
 export function activeNavPath(role: ShellRole, pathname: string): string | null {
-  if (pathname.startsWith('/order/')) return role === 'rider' ? '/jobs' : '/orders';
+  if (pathname.startsWith('/order/')) return role === 'rider' ? '/jobs' : role === 'admin' ? '/dashboard' : '/orders';
   if (pathname.startsWith('/user/')) return '/users';
   const match = NAV_ITEMS[role].find(i => pathname === i.path || (i.path !== '/dashboard' && pathname.startsWith(i.path)));
   return match?.path ?? null;

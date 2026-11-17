@@ -1,292 +1,138 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { 
-  BarChart3, 
-  TrendingUp, 
-  Users, 
-  Package, 
-  DollarSign,
-  Calendar,
-  Loader2
-} from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { orderService } from '@/services/orderService';
-import { authService } from '@/services/authService';
-import type { Order } from '@/types';
+import { useMemo, useState } from 'react';
+import { Download, Star, TrendingUp } from 'lucide-react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { TopBar } from '@/components/shell/TopBar';
+import { SegmentedTabs } from '@/components/SegmentedTabs';
+import { CountUp, Stagger, StaggerItem } from '@/components/motion';
+import { StatsSkeleton, Skeleton } from '@/components/Skeletons';
+import { OrdersBar, RevenueArea, StatusPie } from '@/components/admin/Charts';
+import { useAllOrders } from '@/hooks/useOrders';
+import { dailySeries, ordersToCsv, riderAverage, statusBreakdown } from '@/lib/reports';
+import { dayKey, toDate, toNumber } from '@/lib/dates';
 
-interface ReportStats {
-  totalOrders: number;
-  totalRevenue: number;
-  totalCustomers: number;
-  totalRiders: number;
-  completedOrders: number;
-  pendingOrders: number;
-  activeOrders: number;
-  cancelledOrders: number;
-  averageOrderValue: number;
+type Range = '7' | '30';
+
+function downloadCsv(filename: string, csv: string) {
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 export function AdminReports() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [stats, setStats] = useState<ReportStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { orders, loading } = useAllOrders();
+  const [range, setRange] = useState<Range>('7');
+  const days = Number(range);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  const inRange = useMemo(() => {
+    const since = Date.now() - days * 24 * 3600e3;
+    return orders.filter(o => (toDate(o.createdAt)?.getTime() ?? 0) >= since);
+  }, [orders, days]);
+  const series = useMemo(() => dailySeries(orders, days), [orders, days]);
+  const breakdown = useMemo(() => statusBreakdown(inRange), [inRange]);
 
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      const [allOrders, allUsers] = await Promise.all([
-        orderService.getAllOrders(),
-        authService.getAllUsers()
-      ]);
+  const revenue = series.reduce((s, d) => s + d.revenue, 0);
+  const paidOrders = inRange.filter(o => o.status !== 'cancelled');
+  const aov = paidOrders.length ? revenue / paidOrders.length : 0;
+  const cancelRate = inRange.length ? (inRange.filter(o => o.status === 'cancelled').length / inRange.length) * 100 : 0;
 
-      setOrders(allOrders);
-
-      const customers = allUsers.filter(u => u.role === 'customer');
-      const riders = allUsers.filter(u => u.role === 'rider');
-
-      const completedOrders = allOrders.filter(o => o.status === 'completed');
-      const pendingOrders = allOrders.filter(o => o.status === 'pending');
-      const cancelledOrders = allOrders.filter(o => o.status === 'cancelled');
-      const activeOrders = allOrders.filter(o => 
-        !['completed', 'cancelled', 'delivered'].includes(o.status)
-      );
-
-      const totalRevenue = completedOrders.reduce((sum, o) => sum + o.totalAmount, 0);
-      const averageOrderValue = completedOrders.length > 0 
-        ? totalRevenue / completedOrders.length 
-        : 0;
-
-      setStats({
-        totalOrders: allOrders.length,
-        totalRevenue,
-        totalCustomers: customers.length,
-        totalRiders: riders.length,
-        completedOrders: completedOrders.length,
-        pendingOrders: pendingOrders.length,
-        activeOrders: activeOrders.length,
-        cancelledOrders: cancelledOrders.length,
-        averageOrderValue
-      });
-    } catch (error) {
-      console.error('Error loading reports:', error);
-    } finally {
-      setLoading(false);
+  const riders = useMemo(() => {
+    const map = new Map<string, { name: string; jobs: number; earned: number }>();
+    for (const o of inRange) {
+      if (!o.riderId) continue;
+      const r = map.get(o.riderId) ?? { name: o.riderName ?? 'Rider', jobs: 0, earned: 0 };
+      if (o.status === 'completed' || o.status === 'delivered') {
+        r.jobs += 1;
+        r.earned += toNumber(o.deliveryFee);
+      }
+      map.set(o.riderId, r);
     }
+    return [...map.entries()]
+      .map(([id, r]) => ({ id, ...r, rating: riderAverage(orders, id) }))
+      .sort((a, b) => b.jobs - a.jobs)
+      .slice(0, 5);
+  }, [inRange, orders]);
+
+  const exportCsv = () => {
+    downloadCsv(`ezlaundry-orders-${dayKey(new Date())}.csv`, ordersToCsv(inRange));
+    toast.success(`Exported ${inRange.length} orders`);
   };
-
-  const StatCard = ({ 
-    title, 
-    value, 
-    icon: Icon, 
-    color
-  }: { 
-    title: string; 
-    value: string | number; 
-    icon: any; 
-    color: string;
-  }) => (
-    <Card className="border-none shadow-sm">
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground">{title}</p>
-            <p className="text-2xl font-semibold text-foreground mt-1">{value}</p>
-          </div>
-          <div className={`w-12 h-12 ${color} rounded-xl flex items-center justify-center`}>
-            <Icon className="w-6 h-6 text-white" />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
-  const OrderStatusCard = ({ 
-    title, 
-    count, 
-    total, 
-    color 
-  }: { 
-    title: string; 
-    count: number; 
-    total: number; 
-    color: string;
-  }) => {
-    const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
-    
-    return (
-      <div className="bg-card rounded-xl p-4 shadow-sm">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-muted-foreground">{title}</span>
-          <span className="text-sm font-medium text-foreground">{count}</span>
-        </div>
-        <div className="w-full h-2 bg-background rounded-full overflow-hidden">
-          <div 
-            className={`h-full ${color} rounded-full transition-all duration-500`}
-            style={{ width: `${percentage}%` }}
-          />
-        </div>
-        <p className="text-xs text-muted-foreground mt-1">{percentage}% of total orders</p>
-      </div>
-    );
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card shadow-sm sticky top-0 z-40">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <h1 className="text-xl font-semibold text-foreground font-['Poppins']">Reports</h1>
-            <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">{new Date().toLocaleDateString()}</span>
-            </div>
-          </div>
-        </div>
-      </header>
+    <>
+      <TopBar
+        title="Reports"
+        subtitle={`Last ${days} days`}
+        actions={
+          <Button variant="outline" onClick={exportCsv} disabled={!inRange.length} className="h-10 rounded-xl">
+            <Download className="h-4 w-4" /> <span className="hidden sm:inline">Export CSV</span>
+          </Button>
+        }
+      />
 
-      {/* Content */}
-      <main className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
-        {stats && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            {/* Key Metrics */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatCard
-                title="Total Revenue"
-                value={`RM${stats.totalRevenue.toLocaleString()}`}
-                icon={DollarSign}
-                color="bg-green-500"
-              />
-              <StatCard
-                title="Total Orders"
-                value={stats.totalOrders}
-                icon={Package}
-                color="bg-primary"
-              />
-              <StatCard
-                title="Customers"
-                value={stats.totalCustomers}
-                icon={Users}
-                color="bg-purple-500"
-              />
-              <StatCard
-                title="Riders"
-                value={stats.totalRiders}
-                icon={TrendingUp}
-                color="bg-teal"
-              />
-            </div>
+      <SegmentedTabs value={range} onChange={setRange} className="mb-5" items={[{ value: '7', label: '7 days' }, { value: '30', label: '30 days' }]} />
 
-            {/* Order Status Breakdown */}
-            <div className="bg-card rounded-xl p-5 shadow-sm">
-              <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-primary" />
-                Order Status Breakdown
-              </h2>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <OrderStatusCard
-                  title="Completed"
-                  count={stats.completedOrders}
-                  total={stats.totalOrders}
-                  color="bg-green-500"
-                />
-                <OrderStatusCard
-                  title="Active"
-                  count={stats.activeOrders}
-                  total={stats.totalOrders}
-                  color="bg-primary"
-                />
-                <OrderStatusCard
-                  title="Pending"
-                  count={stats.pendingOrders}
-                  total={stats.totalOrders}
-                  color="bg-yellow-500"
-                />
-                <OrderStatusCard
-                  title="Cancelled"
-                  count={stats.cancelledOrders}
-                  total={stats.totalOrders}
-                  color="bg-red-500"
-                />
+      {loading ? (
+        <div className="space-y-5"><StatsSkeleton /><Skeleton className="h-72 rounded-2xl" /></div>
+      ) : (
+        <Stagger key={range} className="space-y-5">
+          <StaggerItem className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {[
+              { label: 'Revenue', value: revenue, prefix: 'RM' },
+              { label: 'Orders', value: inRange.length },
+              { label: 'Avg order value', value: aov, prefix: 'RM', decimals: 2 },
+              { label: 'Cancellation rate', value: cancelRate, suffix: '%', decimals: 1 },
+            ].map(k => (
+              <div key={k.label} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+                <CountUp value={k.value} prefix={k.prefix} suffix={k.suffix} decimals={k.decimals} className="block font-poppins text-2xl font-semibold text-foreground" />
+                <p className="text-xs text-muted-foreground">{k.label}</p>
               </div>
+            ))}
+          </StaggerItem>
+
+          <StaggerItem className="grid gap-5 lg:grid-cols-2">
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <h2 className="mb-2 flex items-center gap-2 font-semibold text-foreground"><TrendingUp className="h-4 w-4 text-primary" /> Revenue</h2>
+              <RevenueArea data={series} />
             </div>
-
-            {/* Additional Stats */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="bg-card rounded-xl p-5 shadow-sm">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Average Order Value</h3>
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-                    <DollarSign className="w-8 h-8 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-3xl font-bold text-foreground">
-                      RM{stats.averageOrderValue.toFixed(2)}
-                    </p>
-                    <p className="text-sm text-muted-foreground">Per completed order</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-card rounded-xl p-5 shadow-sm">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Completion Rate</h3>
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center">
-                    <TrendingUp className="w-8 h-8 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-3xl font-bold text-foreground">
-                      {stats.totalOrders > 0 
-                        ? Math.round((stats.completedOrders / stats.totalOrders) * 100) 
-                        : 0}%
-                    </p>
-                    <p className="text-sm text-muted-foreground">Orders completed successfully</p>
-                  </div>
-                </div>
-              </div>
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <h2 className="mb-2 font-semibold text-foreground">Orders per day</h2>
+              <OrdersBar data={series} />
             </div>
+          </StaggerItem>
 
-            {/* Recent Activity */}
-            <div className="bg-card rounded-xl p-5 shadow-sm">
-              <h3 className="text-lg font-semibold text-foreground mb-4">Recent Orders</h3>
-              {orders.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">No orders yet</p>
+          <StaggerItem className="grid gap-5 lg:grid-cols-2">
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <h2 className="mb-4 font-semibold text-foreground">Status breakdown</h2>
+              {breakdown.length ? <StatusPie data={breakdown} /> : <p className="text-sm text-muted-foreground">No orders in this period.</p>}
+            </div>
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <h2 className="mb-4 font-semibold text-foreground">Top riders</h2>
+              {riders.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No completed jobs in this period.</p>
               ) : (
-                <div className="space-y-3">
-                  {orders.slice(0, 5).map((order) => (
-                    <div key={order.id} className="flex items-center justify-between p-3 bg-background rounded-lg">
-                      <div>
-                        <p className="font-medium text-foreground">Order #{order.id.slice(-4)}</p>
-                        <p className="text-sm text-muted-foreground">{order.customerName}</p>
+                <ol className="space-y-3">
+                  {riders.map((r, i) => (
+                    <li key={r.id} className="flex items-center gap-3">
+                      <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-teal to-primary text-sm font-semibold text-white">{i + 1}</span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-foreground">{r.name}</p>
+                        <p className="text-xs text-muted-foreground">{r.jobs} jobs · RM{r.earned} fees</p>
                       </div>
-                      <div className="text-right">
-                        <p className="font-medium text-foreground">RM{order.totalAmount}</p>
-                        <p className="text-xs text-muted-foreground capitalize">{order.status}</p>
-                      </div>
-                    </div>
+                      <span className="flex items-center gap-1 text-sm font-medium text-foreground">
+                        <Star className="h-4 w-4 fill-amber-400 text-amber-400" /> {r.rating.count ? r.rating.avg.toFixed(1) : '–'}
+                      </span>
+                    </li>
                   ))}
-                </div>
+                </ol>
               )}
             </div>
-          </motion.div>
-        )}
-      </main>
-    </div>
+          </StaggerItem>
+        </Stagger>
+      )}
+    </>
   );
 }

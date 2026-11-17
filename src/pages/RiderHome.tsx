@@ -1,459 +1,166 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
-import { 
-  Package, 
-  DollarSign,
-  Star,
-  CheckCircle2,
-  TrendingUp,
-  Bike,
-  MapPin,
-  Clock,
-  ChevronRight,
-  MessageCircle,
-  Hash,
-  AlertCircle
-} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Bike, CheckCircle2, ChevronRight, Clock, Loader2, MapPin, Package, Star, Wallet } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { TopBar } from '@/components/shell/TopBar';
+import { CountUp, Stagger, StaggerItem } from '@/components/motion';
+import { HomeSkeleton } from '@/components/Skeletons';
+import { OrderCard } from '@/components/order/OrderCard';
+import { SERVICE_EMOJI, SERVICE_NAMES } from '@/components/order/orderMeta';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRiderOrders, usePendingOrders } from '@/hooks/useOrders';
-import { orderService, statusLabels } from '@/services/orderService';
+import { orderService } from '@/services/orderService';
+import { riderAverage } from '@/lib/reports';
+import { toDate, toNumber } from '@/lib/dates';
 import type { Order } from '@/types';
 
-export function RiderHome() {
-  const navigate = useNavigate();
-  const { userData } = useAuth();
-  const { activeOrders, completedOrders, refresh: refreshRiderOrders } = useRiderOrders(userData?.uid);
-  const { orders: pendingOrders, refresh: refreshPendingOrders } = usePendingOrders();
-  const [acceptingOrder, setAcceptingOrder] = useState<string | null>(null);
-
-  const today = new Date();
-  const todayStr = today.toDateString();
-
-  // Calculate stats
-  const todayEarnings = completedOrders
-    .filter(o => {
-      if (!o.completedAt) return false;
-      try {
-        return new Date(o.completedAt).toDateString() === todayStr;
-      } catch {
-        return false;
-      }
-    })
-    .reduce((sum, o) => sum + (o.deliveryFee || 0), 0);
-
-  const weekAgo = new Date();
-  weekAgo.setDate(weekAgo.getDate() - 7);
-
-  const weeklyCompleted = completedOrders.filter(o => {
-    if (!o.completedAt) return false;
-    try {
-      return new Date(o.completedAt) >= weekAgo;
-    } catch {
-      return false;
-    }
-  }).length;
-
-  const handleAcceptOrder = async (order: Order) => {
-    if (!userData) return;
-    
-    setAcceptingOrder(order.id);
-    
-    try {
-      await orderService.acceptOrder(
-        order.id,
-        userData.uid,
-        userData.displayName || 'Rider',
-        userData.phone || ''
-      );
-      
-      await refreshPendingOrders();
-      await refreshRiderOrders();
-      navigate('/jobs');
-    } catch (err: any) {
-      console.error('Failed to accept order:', err);
-    } finally {
-      setAcceptingOrder(null);
-    }
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
-
+function Stat({ icon: Icon, tint, label, value, prefix, decimals }: { icon: typeof Package; tint: string; label: string; value: number; prefix?: string; decimals?: number }) {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card shadow-sm sticky top-0 z-40">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link to="/dashboard" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-teal rounded-full flex items-center justify-center">
-                <Bike className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-semibold text-foreground font-['Poppins']">ezLaundry</span>
-            </Link>
-
-            {/* User Info & Logout */}
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-3">
-                <Avatar className="w-9 h-9 bg-teal">
-                  <AvatarFallback className="bg-teal text-white text-sm font-medium">
-                    {userData?.displayName?.split(' ').map(n => n[0]).join('') || 'R'}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-foreground">{userData?.displayName}</p>
-                  <p className="text-xs text-muted-foreground capitalize">rider</p>
-                </div>
-              </div>
-              {/* <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleLogout}
-                className="text-muted-foreground hover:text-red-500 hover:bg-red-50"
-              >
-                <LogOut className="w-5 h-5" />
-              </Button> */}
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <motion.div 
-        variants={containerVariants} 
-        initial="hidden" 
-        animate="visible"
-        className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6"
-      >
-        {/* Welcome Section */}
-        <motion.div variants={itemVariants} className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-semibold text-foreground font-['Poppins']">
-            Good day, {userData?.displayName?.split(' ')[0] || 'Rider'}! 👋
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Ready to pick up some laundry today?
-          </p>
-        </motion.div>
-
-        {/* Quick Stats */}
-        <motion.div variants={itemVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <Card className="border-none shadow-sm bg-gradient-to-br from-[#1A7A7E] to-[#092635]">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-white/70">Active Jobs</p>
-                  <p className="text-2xl font-semibold text-white">{activeOrders.length}</p>
-                </div>
-                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                  <Package className="w-5 h-5 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Available</p>
-                  <p className="text-2xl font-semibold text-foreground">{pendingOrders.length}</p>
-                </div>
-                <div className="w-10 h-10 bg-yellow-50 rounded-xl flex items-center justify-center">
-                  <AlertCircle className="w-5 h-5 text-yellow-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Today&apos;s Earnings</p>
-                  <p className="text-2xl font-semibold text-foreground">RM{todayEarnings}</p>
-                </div>
-                <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
-                  <DollarSign className="w-5 h-5 text-green-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Weekly Done</p>
-                  <p className="text-2xl font-semibold text-foreground">{weeklyCompleted}</p>
-                </div>
-                <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
-                  <CheckCircle2 className="w-5 h-5 text-purple-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Quick Actions */}
-        <motion.div variants={itemVariants} className="mb-6">
-          <div className="grid grid-cols-3 gap-3">
-            <button
-              onClick={() => navigate('/jobs', { state: { activeTab: 'active' } })}
-              className="flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-sm hover:shadow-md transition-all"
-            >
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                <Bike className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-sm font-medium text-foreground">My Jobs</span>
-            </button>
-            
-            <button
-              onClick={() => navigate('/chats')}
-              className="flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-sm hover:shadow-md transition-all"
-            >
-              <div className="w-10 h-10 bg-teal rounded-xl flex items-center justify-center">
-                <MessageCircle className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-sm font-medium text-foreground">Messages</span>
-            </button>
-            
-            <button
-              onClick={() => navigate('/profile')}
-              className="flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-sm hover:shadow-md transition-all"
-            >
-              <div className="w-10 h-10 bg-navy rounded-xl flex items-center justify-center">
-                <MapPin className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-sm font-medium text-foreground">Profile</span>
-            </button>
-          </div>
-        </motion.div>
-
-        {/* Available Orders */}
-        <motion.div variants={itemVariants} className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">Available Orders</h2>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => navigate('/jobs', { state: { activeTab: 'available' } })}
-              className="text-primary"
-            >
-              View All
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          </div>
-
-          {pendingOrders.length > 0 ? (
-            <div className="space-y-3">
-              {pendingOrders.slice(0, 2).map((order) => (
-                <AvailableOrderCard 
-                  key={order.id} 
-                  order={order}
-                  onAccept={() => handleAcceptOrder(order)}
-                  accepting={acceptingOrder === order.id}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-card rounded-xl p-8 text-center">
-              <AlertCircle className="w-12 h-12 text-border mx-auto mb-3" />
-              <p className="text-muted-foreground">No available orders right now.</p>
-              <p className="text-sm text-muted-foreground mt-1">Check back soon!</p>
-            </div>
-          )}
-        </motion.div>
-
-        {/* Active Jobs */}
-        <motion.div variants={itemVariants}>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">Your Active Jobs</h2>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => navigate('/jobs', { state: { activeTab: 'active' } })}
-              className="text-primary"
-            >
-              View All
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          </div>
-
-          {activeOrders.length > 0 ? (
-            <div className="space-y-3">
-              {activeOrders.slice(0, 2).map((order) => (
-                <ActiveJobCard 
-                  key={order.id} 
-                  order={order}
-                  onClick={() => navigate('/jobs', { state: { activeTab: 'active' } })}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-card rounded-xl p-8 text-center">
-              <Package className="w-12 h-12 text-border mx-auto mb-3" />
-              <p className="text-muted-foreground">No active jobs right now.</p>
-              <p className="text-sm text-muted-foreground mt-1">Accept an order to get started!</p>
-            </div>
-          )}
-        </motion.div>
-
-        {/* Performance Banner */}
-        <motion.div variants={itemVariants} className="mt-6">
-          <div className="bg-gradient-to-r from-[#1188E9] to-[#1A7A7E] rounded-xl p-5 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-white/70">Your Rating</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <Star className="w-5 h-5 text-yellow-300 fill-yellow-300" />
-                  <h3 className="text-2xl font-semibold">4.9</h3>
-                </div>
-                <p className="text-sm text-white/80 mt-1">Keep up the great work!</p>
-              </div>
-              <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center">
-                <TrendingUp className="w-7 h-7 text-white" />
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </motion.div>
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+      <span className={`mb-3 grid h-9 w-9 place-items-center rounded-xl ${tint}`}><Icon className="h-[18px] w-[18px]" /></span>
+      <CountUp value={value} prefix={prefix} decimals={decimals} className="block font-poppins text-2xl font-semibold text-foreground" />
+      <p className="text-xs text-muted-foreground">{label}</p>
     </div>
   );
 }
 
-// Available Order Card
-function AvailableOrderCard({ 
-  order, 
-  onAccept,
-  accepting 
-}: { 
-  order: Order; 
-  onAccept: () => void;
-  accepting: boolean;
-}) {
+export function RiderHome() {
   const navigate = useNavigate();
+  const { userData } = useAuth();
+  const { activeOrders, completedOrders, loading, refresh: refreshRiderOrders } = useRiderOrders(userData?.uid);
+  const { orders: pendingOrders, refresh: refreshPendingOrders } = usePendingOrders();
+  const [accepting, setAccepting] = useState<string | null>(null);
+
+  const today = new Date().toDateString();
+  const weekAgo = Date.now() - 7 * 24 * 3600e3;
+  const doneAt = (o: Order) => toDate(o.completedAt) ?? toDate(o.updatedAt);
+  const todayEarnings = completedOrders.filter(o => doneAt(o)?.toDateString() === today).reduce((s, o) => s + toNumber(o.deliveryFee), 0);
+  const weekJobs = completedOrders.filter(o => (doneAt(o)?.getTime() ?? 0) >= weekAgo).length;
+  const rating = riderAverage(completedOrders);
+  const firstName = userData?.displayName?.split(' ')[0] || 'Rider';
+
+  const accept = async (order: Order) => {
+    if (!userData) return;
+    setAccepting(order.id);
+    try {
+      await orderService.acceptOrder(order.id, userData.uid, userData.displayName || 'Rider', userData.phone || '');
+      await Promise.all([refreshPendingOrders(), refreshRiderOrders()]);
+      toast.success(`Job #${order.id.slice(-4)} accepted`, { description: `Pickup at ${order.customerAddress.building}`, action: { label: 'Open', onClick: () => navigate(`/order/${order.id}`) } });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not accept this job');
+    } finally {
+      setAccepting(null);
+    }
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      onClick={() => navigate(`/order/${order.id}`)}
-      className="bg-card rounded-xl p-4 shadow-sm"
-    >
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <Badge className="bg-yellow-100 text-yellow-700">
-            ⏳ Looking for Rider
-          </Badge>
-          <p className="font-semibold text-foreground mt-2">
-            {order.customerAddress.building}, {order.customerAddress.area}
-          </p>
-          <p className="text-sm text-muted-foreground">{order.customerAddress.street}</p>
-          <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Clock className="w-4 h-4" />
-              {new Date(order.pickupDate).toLocaleDateString()}
-            </span>
-            <span className="flex items-center gap-1">
-              <Hash className="w-4 h-4" />
-              {order.declaredItemCount} items
-            </span>
-          </div>
-        </div>
-        <div className="text-right ml-4">
-          <p className="text-lg font-semibold text-primary">
-            RM{order.deliveryFee}
-          </p>
-          <p className="text-xs text-muted-foreground">Delivery fee</p>
-          <Button
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation(); 
-              onAccept();
-            }}
-            disabled={accepting}
-            className="mt-3 bg-primary hover:bg-navy"
-          >
-            {accepting ? 'Accepting...' : 'Accept'}
-          </Button>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
+    <>
+      <TopBar subtitle="Ready to ride? 🛵" title={`Hi, ${firstName}`} />
+      {loading ? (
+        <HomeSkeleton />
+      ) : (
+        <div className="grid items-start gap-5 lg:grid-cols-[1.5fr_1fr]">
+          <Stagger className="space-y-5">
+            <StaggerItem>
+              <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal via-[#16676B] to-navy p-5 text-white shadow-xl shadow-teal/25 sm:p-6">
+                <span className="pointer-events-none absolute -right-14 -top-16 h-52 w-52 rounded-full bg-white/10" />
+                <div className="relative flex items-center justify-between">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-75" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                    </span>
+                    Online
+                  </span>
+                  <motion.span animate={{ x: [0, 6, 0] }} transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}>
+                    <Bike className="h-8 w-8" />
+                  </motion.span>
+                </div>
+                {activeOrders[0] ? (
+                  <button onClick={() => navigate(`/order/${activeOrders[0].id}`)} className="relative mt-4 block w-full text-left">
+                    <p className="text-sm text-white/70">Current job · #{activeOrders[0].id.slice(-4)}</p>
+                    <h2 className="font-poppins text-xl font-semibold sm:text-2xl">{activeOrders[0].customerName}</h2>
+                    <p className="flex items-center gap-1 text-sm text-white/80"><MapPin className="h-4 w-4" /> {activeOrders[0].customerAddress.building}, {activeOrders[0].customerAddress.area}</p>
+                    <span className="mt-4 inline-flex items-center gap-1 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-teal">
+                      Continue job <ChevronRight className="h-4 w-4" />
+                    </span>
+                  </button>
+                ) : (
+                  <div className="relative mt-4">
+                    <h2 className="font-poppins text-xl font-semibold sm:text-2xl">No active job</h2>
+                    <p className="text-sm text-white/80">{pendingOrders.length} pickup{pendingOrders.length === 1 ? '' : 's'} waiting nearby.</p>
+                  </div>
+                )}
+              </div>
+            </StaggerItem>
 
-// Active Job Card
-function ActiveJobCard({ 
-  order
-}: { 
-  order: Order; 
-  onClick: () => void;
-}) {
-  const navigate = useNavigate();
-  const statusInfo = statusLabels[order.status];
-  const canChat = order.riderId && ['accepted', 'picking-up', 'picked-up', 'to-laundry', 'at-laundry', 'washing', 'washed', 'delivering', 'delivered', 'completed'].includes(order.status);
+            <StaggerItem className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <Stat icon={Wallet} tint="bg-emerald-500/10 text-emerald-600" label="Earned today" value={todayEarnings} prefix="RM" />
+              <Stat icon={CheckCircle2} tint="bg-primary/10 text-primary" label="Jobs this week" value={weekJobs} />
+              <Stat icon={Package} tint="bg-amber-500/10 text-amber-600" label="In progress" value={activeOrders.length} />
+              <Stat icon={Star} tint="bg-violet-500/10 text-violet-600" label={`${rating.count} reviews`} value={rating.avg} decimals={1} />
+            </StaggerItem>
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      onClick={() => navigate(`/order/${order.id}`)}
-      className="bg-card rounded-xl p-4 shadow-sm cursor-pointer hover:shadow-md transition-all"
-    >
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <Badge className={statusInfo.color}>
-            <span className="mr-1">{statusInfo.icon}</span>
-            {statusInfo.label}
-          </Badge>
-          <p className="font-semibold text-foreground mt-2">{order.customerName}</p>
-          <p className="text-sm text-muted-foreground">{order.customerAddress.building}</p>
-          <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Hash className="w-4 h-4" />
-              {order.declaredItemCount} items
-              {order.actualItemCount !== undefined && (
-                <span className="text-green-600 ml-1">(✓ {order.actualItemCount})</span>
-              )}
-            </span>
-          </div>
+            {activeOrders.length > 1 && (
+              <StaggerItem>
+                <h2 className="mb-3 font-semibold text-foreground">Also in progress</h2>
+                <div className="space-y-3">
+                  {activeOrders.slice(1, 4).map(o => <OrderCard key={o.id} order={o} showCustomer />)}
+                </div>
+              </StaggerItem>
+            )}
+          </Stagger>
+
+          <section>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="font-semibold text-foreground">Available pickups</h2>
+              <button onClick={() => navigate('/jobs')} className="flex items-center text-sm font-medium text-primary hover:underline">
+                All jobs <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+            {pendingOrders.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+                <CheckCircle2 className="mx-auto mb-2 h-8 w-8 text-emerald-500" />
+                <p className="text-sm text-muted-foreground">All caught up. New pickups will appear here.</p>
+              </div>
+            ) : (
+              <motion.div layout className="space-y-3">
+                <AnimatePresence initial={false}>
+                  {pendingOrders.slice(0, 5).map((o, i) => (
+                    <motion.div
+                      key={o.id}
+                      layout
+                      initial={{ opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0, transition: { delay: i * 0.05 } }}
+                      exit={{ opacity: 0, x: 60, transition: { duration: 0.25 } }}
+                      className="rounded-2xl border border-border bg-card p-4 shadow-sm"
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-muted text-xl">{SERVICE_EMOJI[o.serviceType]}</span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-semibold text-foreground">{o.customerAddress.building}</p>
+                          <p className="truncate text-xs text-muted-foreground">{o.customerAddress.area} · {SERVICE_NAMES[o.serviceType]}</p>
+                          <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                            <Clock className="h-3.5 w-3.5" /> {toDate(o.pickupDate)?.toLocaleDateString('en-MY', { day: 'numeric', month: 'short' })} · <span className="capitalize">{o.preferredTimeSlot}</span> · {o.estimatedWeight} kg
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-emerald-600 dark:text-emerald-400">+RM{o.deliveryFee}</p>
+                        </div>
+                      </div>
+                      <Button onClick={() => accept(o)} disabled={accepting === o.id} className="mt-3 h-10 w-full rounded-xl">
+                        {accepting === o.id ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Accept job'}
+                      </Button>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+            )}
+          </section>
         </div>
-        <div className="text-right">
-          <p className="text-lg font-semibold text-primary">
-            RM{order.deliveryFee}
-          </p>
-          <p className="text-xs text-muted-foreground">#{order.id.slice(-4)}</p>
-          {canChat && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/chat/${order.id}`);
-              }}
-              className="mt-2 text-primary hover:bg-primary/10"
-            >
-              <MessageCircle className="w-4 h-4 mr-1" />
-              Chat
-            </Button>
-          )}
-        </div>
-      </div>
-    </motion.div>
+      )}
+    </>
   );
 }
