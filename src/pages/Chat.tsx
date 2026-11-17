@@ -83,12 +83,13 @@ export function ChatList() {
       <TopBar title="Messages" subtitle={`${chats.length} conversation${chats.length === 1 ? '' : 's'}`} />
       <div>
         {chats.length === 0 ? (
-          <div className="text-center py-12">
+          // Fill the space between the header and the bottom nav so the message sits in the middle
+          <div className="flex min-h-[calc(100dvh-15rem)] flex-col items-center justify-center px-4 text-center lg:min-h-[calc(100dvh-10rem)]">
             <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <Send className="w-8 h-8 text-primary" />
             </div>
             <h3 className="text-lg font-semibold text-foreground">No messages yet</h3>
-            <p className="text-muted-foreground">
+            <p className="mt-1 max-w-xs text-muted-foreground">
               {userData?.role === 'customer'
                 ? "Once a rider accepts your order, you can chat with them here."
                 : "Once you accept an order, you can chat with the customer here."}
