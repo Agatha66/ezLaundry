@@ -5,6 +5,10 @@ Customers schedule a pickup, a rider collects the laundry, it is washed at a par
 
 ezLaundry is a responsive web app for **mobile and desktop** with three roles: **Customer**, **Rider** and **Admin**. It is built with React, TypeScript, Tailwind CSS, Framer Motion and Firebase.
 
+### 🔗 Live demo: **[ezlaundry-c7d95.web.app](https://ezlaundry-c7d95.web.app)**
+
+Create an account and pick a role (Customer, Rider or Admin) to try it. Open it on your phone too: the layout is built for both.
+
 ![ezLaundry customer dashboard on desktop](docs/screenshots/desktop-home.jpg)
 
 ---
