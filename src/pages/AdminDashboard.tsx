@@ -49,31 +49,31 @@ export function AdminDashboard() {
   const activeRiders = new Set(activeOrders.map(o => o.riderId).filter(Boolean)).size;
 
   return (
-    <div className="min-h-screen bg-[#F5F7F9]">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
+      <header className="bg-card shadow-sm sticky top-0 z-50">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-[#1188E9] rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
                 <Shirt className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-semibold text-[#092635] font-['Poppins']">ezLaundry</span>
+              <span className="text-xl font-semibold text-foreground font-['Poppins']">ezLaundry</span>
             </Link>
 
             <div className="flex items-center gap-2">
               <Link to="/profile">
-                <Button variant="ghost" className="text-[#4A6375] hover:text-[#1188E9] hover:bg-[#E6F4FF]">
+                <Button variant="ghost" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
                   <User className="w-4 h-4 mr-2" />
                   Profile
                 </Button>
               </Link>
-              <Badge className="bg-[#092635] text-white ml-2">
+              <Badge className="bg-navy text-white ml-2">
                 <Settings className="w-3 h-3 mr-1" />
                 Admin
               </Badge>
-              <Avatar className="w-9 h-9 bg-[#092635]">
-                <AvatarFallback className="bg-[#092635] text-white text-sm font-medium">
+              <Avatar className="w-9 h-9 bg-navy">
+                <AvatarFallback className="bg-navy text-white text-sm font-medium">
                   {userData?.displayName?.split(' ').map(n => n[0]).join('') || 'A'}
                 </AvatarFallback>
               </Avatar>
@@ -81,7 +81,7 @@ export function AdminDashboard() {
                 variant="ghost"
                 size="icon"
                 onClick={handleLogout}
-                className="text-[#4A6375] hover:text-red-500 hover:bg-red-50"
+                className="text-muted-foreground hover:text-red-500 hover:bg-red-50"
               >
                 <LogOut className="w-5 h-5" />
               </Button>
@@ -98,10 +98,10 @@ export function AdminDashboard() {
         >
           {/* Welcome Section */}
           <div className="mb-8">
-            <h1 className="text-2xl sm:text-3xl font-semibold text-[#092635] font-['Poppins']">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-foreground font-['Poppins']">
               Admin Dashboard
             </h1>
-            <p className="text-[#4A6375] mt-1">
+            <p className="text-muted-foreground mt-1">
               Overview of ezLaundry operations
             </p>
           </div>
@@ -112,11 +112,11 @@ export function AdminDashboard() {
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-[#4A6375]">Total Orders</p>
-                    <p className="text-2xl font-semibold text-[#092635]">{orders.length}</p>
+                    <p className="text-sm text-muted-foreground">Total Orders</p>
+                    <p className="text-2xl font-semibold text-foreground">{orders.length}</p>
                   </div>
-                  <div className="w-12 h-12 bg-[#E6F4FF] rounded-xl flex items-center justify-center">
-                    <Package className="w-6 h-6 text-[#1188E9]" />
+                  <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                    <Package className="w-6 h-6 text-primary" />
                   </div>
                 </div>
               </CardContent>
@@ -126,8 +126,8 @@ export function AdminDashboard() {
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-[#4A6375]">Pending</p>
-                    <p className="text-2xl font-semibold text-[#092635]">{pendingOrders.length}</p>
+                    <p className="text-sm text-muted-foreground">Pending</p>
+                    <p className="text-2xl font-semibold text-foreground">{pendingOrders.length}</p>
                   </div>
                   <div className="w-12 h-12 bg-yellow-50 rounded-xl flex items-center justify-center">
                     <Clock className="w-6 h-6 text-yellow-600" />
@@ -140,8 +140,8 @@ export function AdminDashboard() {
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-[#4A6375]">Active</p>
-                    <p className="text-2xl font-semibold text-[#092635]">{activeOrders.length}</p>
+                    <p className="text-sm text-muted-foreground">Active</p>
+                    <p className="text-2xl font-semibold text-foreground">{activeOrders.length}</p>
                   </div>
                   <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
                     <Bike className="w-6 h-6 text-blue-600" />
@@ -154,8 +154,8 @@ export function AdminDashboard() {
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-[#4A6375]">Completed</p>
-                    <p className="text-2xl font-semibold text-[#092635]">{completedOrders.length}</p>
+                    <p className="text-sm text-muted-foreground">Completed</p>
+                    <p className="text-2xl font-semibold text-foreground">{completedOrders.length}</p>
                   </div>
                   <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
                     <CheckCircle2 className="w-6 h-6 text-green-600" />
@@ -168,8 +168,8 @@ export function AdminDashboard() {
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-[#4A6375]">Total Revenue</p>
-                    <p className="text-2xl font-semibold text-[#092635]">RM{totalRevenue}</p>
+                    <p className="text-sm text-muted-foreground">Total Revenue</p>
+                    <p className="text-2xl font-semibold text-foreground">RM{totalRevenue}</p>
                   </div>
                   <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
                     <DollarSign className="w-6 h-6 text-purple-600" />
@@ -182,8 +182,8 @@ export function AdminDashboard() {
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-[#4A6375]">Active Riders</p>
-                    <p className="text-2xl font-semibold text-[#092635]">{activeRiders}</p>
+                    <p className="text-sm text-muted-foreground">Active Riders</p>
+                    <p className="text-2xl font-semibold text-foreground">{activeRiders}</p>
                   </div>
                   <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center">
                     <Users className="w-6 h-6 text-orange-600" />
@@ -195,19 +195,19 @@ export function AdminDashboard() {
 
           {/* Quick Actions */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-            <Button className="h-auto py-4 bg-[#1188E9] hover:bg-[#092635] rounded-xl flex flex-col items-center gap-2">
+            <Button className="h-auto py-4 bg-primary hover:bg-navy rounded-xl flex flex-col items-center gap-2">
               <Package className="w-6 h-6" />
               <span className="text-sm">Manage Orders</span>
             </Button>
-            <Button variant="outline" className="h-auto py-4 rounded-xl flex flex-col items-center gap-2 border-[#D8E5EF]">
+            <Button variant="outline" className="h-auto py-4 rounded-xl flex flex-col items-center gap-2 border-border">
               <Users className="w-6 h-6" />
               <span className="text-sm">Customers</span>
             </Button>
-            <Button variant="outline" className="h-auto py-4 rounded-xl flex flex-col items-center gap-2 border-[#D8E5EF]">
+            <Button variant="outline" className="h-auto py-4 rounded-xl flex flex-col items-center gap-2 border-border">
               <Bike className="w-6 h-6" />
               <span className="text-sm">Riders</span>
             </Button>
-            <Button variant="outline" className="h-auto py-4 rounded-xl flex flex-col items-center gap-2 border-[#D8E5EF]">
+            <Button variant="outline" className="h-auto py-4 rounded-xl flex flex-col items-center gap-2 border-border">
               <BarChart3 className="w-6 h-6" />
               <span className="text-sm">Reports</span>
             </Button>
@@ -258,7 +258,7 @@ function OrdersList({ orders, loading }: { orders: Order[]; loading: boolean }) 
     return (
       <div className="space-y-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-24 bg-white rounded-xl animate-pulse" />
+          <div key={i} className="h-24 bg-card rounded-xl animate-pulse" />
         ))}
       </div>
     );
@@ -266,9 +266,9 @@ function OrdersList({ orders, loading }: { orders: Order[]; loading: boolean }) 
 
   if (orders.length === 0) {
     return (
-      <div className="text-center py-12 bg-white rounded-xl">
-        <Package className="w-12 h-12 text-[#D8E5EF] mx-auto mb-4" />
-        <p className="text-[#4A6375]">No orders in this category</p>
+      <div className="text-center py-12 bg-card rounded-xl">
+        <Package className="w-12 h-12 text-border mx-auto mb-4" />
+        <p className="text-muted-foreground">No orders in this category</p>
       </div>
     );
   }
@@ -286,7 +286,7 @@ function OrdersList({ orders, loading }: { orders: Order[]; loading: boolean }) 
           key={order.id}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl p-5 shadow-sm"
+          className="bg-card rounded-xl p-5 shadow-sm"
         >
           <div className="flex items-start justify-between">
             <div>
@@ -296,19 +296,19 @@ function OrdersList({ orders, loading }: { orders: Order[]; loading: boolean }) 
                   {statusLabels[order.status].label}
                 </Badge>
                 {order.riderName && (
-                  <Badge variant="outline" className="border-[#D8E5EF]">
+                  <Badge variant="outline" className="border-border">
                     <Bike className="w-3 h-3 mr-1" />
                     {order.riderName}
                   </Badge>
                 )}
               </div>
-              <p className="font-semibold text-[#092635] mt-2">
+              <p className="font-semibold text-foreground mt-2">
                 {order.customerName} • {serviceNames[order.serviceType]}
               </p>
-              <p className="text-sm text-[#4A6375]">
+              <p className="text-sm text-muted-foreground">
                 {order.customerAddress.building}, {order.customerAddress.area}
               </p>
-              <div className="flex items-center gap-4 mt-2 text-sm text-[#4A6375]">
+              <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Clock className="w-4 h-4" />
                   {new Date(order.pickupDate).toLocaleDateString()}
@@ -320,10 +320,10 @@ function OrdersList({ orders, loading }: { orders: Order[]; loading: boolean }) 
               </div>
             </div>
             <div className="text-right">
-              <p className="text-lg font-semibold text-[#092635]">
+              <p className="text-lg font-semibold text-foreground">
                 RM{order.finalPrice || order.estimatedPrice}
               </p>
-              <p className="text-xs text-[#4A6375]">#{order.id}</p>
+              <p className="text-xs text-muted-foreground">#{order.id}</p>
               <Badge 
                 variant={order.paymentStatus === 'paid' ? 'default' : 'secondary'}
                 className="mt-2"

@@ -90,30 +90,30 @@ export function Profile() {
   const getRoleColor = () => {
     switch (userData?.role) {
       case 'admin':
-        return 'bg-[#092635]';
+        return 'bg-navy';
       case 'rider':
-        return 'bg-[#1A7A7E]';
+        return 'bg-teal';
       default:
-        return 'bg-[#1188E9]';
+        return 'bg-primary';
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7F9]">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
+      <header className="bg-card shadow-sm sticky top-0 z-50">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-[#1188E9] rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
                 <Shirt className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-semibold text-[#092635] font-['Poppins']">ezLaundry</span>
+              <span className="text-xl font-semibold text-foreground font-['Poppins']">ezLaundry</span>
             </Link>
 
             <div className="flex items-center gap-4">
               {/* <Link to={getDashboardLink()}>
-                <Button variant="ghost" className="text-[#4A6375]">
+                <Button variant="ghost" className="text-muted-foreground">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Dashboard
                 </Button>
@@ -122,7 +122,7 @@ export function Profile() {
                 variant="ghost"
                 size="icon"
                 onClick={handleLogout}
-                className="text-[#4A6375] hover:text-red-500 hover:bg-red-50"
+                className="text-muted-foreground hover:text-red-500 hover:bg-red-50"
               >
                 <LogOut className="w-5 h-5" />
               </Button>
@@ -144,11 +144,11 @@ export function Profile() {
                 {userData?.displayName?.split(' ').map(n => n[0]).join('') || 'U'}
               </AvatarFallback>
             </Avatar>
-            <h1 className="text-2xl font-semibold text-[#092635] font-['Poppins']">
+            <h1 className="text-2xl font-semibold text-foreground font-['Poppins']">
               {userData?.displayName}
             </h1>
-            <p className="text-[#4A6375] capitalize">{userData?.role}</p>
-            <p className="text-sm text-[#4A6375]">{userData?.email}</p>
+            <p className="text-muted-foreground capitalize">{userData?.role}</p>
+            <p className="text-sm text-muted-foreground">{userData?.email}</p>
           </div>
 
           {/* Messages */}
@@ -193,13 +193,13 @@ export function Profile() {
               <TabsContent value="personal">
                 <Card className="border-none shadow-sm">
                   <CardHeader>
-                    <CardTitle className="text-lg font-semibold text-[#092635]">
+                    <CardTitle className="text-lg font-semibold text-foreground">
                       Personal Information
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div>
-                      <Label htmlFor="displayName" className="text-[#092635] font-medium">
+                      <Label htmlFor="displayName" className="text-foreground font-medium">
                         <User className="w-4 h-4 inline mr-2" />
                         Full Name
                       </Label>
@@ -209,12 +209,12 @@ export function Profile() {
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
                         required
-                        className="mt-2 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
+                        className="mt-2 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="email" className="text-[#092635] font-medium">
+                      <Label htmlFor="email" className="text-foreground font-medium">
                         Email Address
                       </Label>
                       <Input
@@ -222,13 +222,13 @@ export function Profile() {
                         type="email"
                         value={userData?.email}
                         disabled
-                        className="mt-2 h-12 rounded-xl border-[#D8E5EF] bg-[#F5F7F9] text-[#4A6375]"
+                        className="mt-2 h-12 rounded-xl border-border bg-background text-muted-foreground"
                       />
-                      <p className="text-xs text-[#4A6375] mt-1">Email cannot be changed</p>
+                      <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
                     </div>
 
                     <div>
-                      <Label htmlFor="phone" className="text-[#092635] font-medium">
+                      <Label htmlFor="phone" className="text-foreground font-medium">
                         <Phone className="w-4 h-4 inline mr-2" />
                         Phone Number
                       </Label>
@@ -238,14 +238,14 @@ export function Profile() {
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         required
-                        className="mt-2 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
+                        className="mt-2 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
                       />
                     </div>
 
                     <Button
                       type="submit"
                       disabled={loading}
-                      className="w-full h-12 bg-[#1188E9] hover:bg-[#092635] text-white rounded-full font-medium"
+                      className="w-full h-12 bg-primary hover:bg-navy text-white rounded-full font-medium"
                     >
                       {loading ? (
                         <>
@@ -267,14 +267,14 @@ export function Profile() {
                 <TabsContent value="address">
                   <Card className="border-none shadow-sm">
                     <CardHeader>
-                      <CardTitle className="text-lg font-semibold text-[#092635]">
+                      <CardTitle className="text-lg font-semibold text-foreground">
                         <MapPin className="w-5 h-5 inline mr-2" />
                         Default Address
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
                       <div>
-                        <Label htmlFor="street" className="text-[#092635] font-medium">
+                        <Label htmlFor="street" className="text-foreground font-medium">
                           Street Address *
                         </Label>
                         <Input
@@ -285,13 +285,13 @@ export function Profile() {
                           value={address.street}
                           onChange={handleAddressChange}
                           required
-                          className="mt-2 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
+                          className="mt-2 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
                         />
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="unit" className="text-[#092635] font-medium">
+                          <Label htmlFor="unit" className="text-foreground font-medium">
                             Unit/Floor
                           </Label>
                           <Input
@@ -301,11 +301,11 @@ export function Profile() {
                             placeholder="e.g., Unit 5-2"
                             value={address.unit}
                             onChange={handleAddressChange}
-                            className="mt-2 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
+                            className="mt-2 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="building" className="text-[#092635] font-medium">
+                          <Label htmlFor="building" className="text-foreground font-medium">
                             Building/Block *
                           </Label>
                           <Input
@@ -316,14 +316,14 @@ export function Profile() {
                             value={address.building}
                             onChange={handleAddressChange}
                             required
-                            className="mt-2 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
+                            className="mt-2 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
                           />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="area" className="text-[#092635] font-medium">
+                          <Label htmlFor="area" className="text-foreground font-medium">
                             Area
                           </Label>
                           <Input
@@ -332,11 +332,11 @@ export function Profile() {
                             type="text"
                             value={address.area}
                             onChange={handleAddressChange}
-                            className="mt-2 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
+                            className="mt-2 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="postcode" className="text-[#092635] font-medium">
+                          <Label htmlFor="postcode" className="text-foreground font-medium">
                             Postcode *
                           </Label>
                           <Input
@@ -347,13 +347,13 @@ export function Profile() {
                             value={address.postcode}
                             onChange={handleAddressChange}
                             required
-                            className="mt-2 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
+                            className="mt-2 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <Label htmlFor="city" className="text-[#092635] font-medium">
+                        <Label htmlFor="city" className="text-foreground font-medium">
                           City
                         </Label>
                         <Input
@@ -362,14 +362,14 @@ export function Profile() {
                           type="text"
                           value={address.city}
                           onChange={handleAddressChange}
-                          className="mt-2 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
+                          className="mt-2 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
                         />
                       </div>
 
                       <Button
                         type="submit"
                         disabled={loading}
-                        className="w-full h-12 bg-[#1188E9] hover:bg-[#092635] text-white rounded-full font-medium"
+                        className="w-full h-12 bg-primary hover:bg-navy text-white rounded-full font-medium"
                       >
                         {loading ? (
                           <>

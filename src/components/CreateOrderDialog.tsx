@@ -25,7 +25,7 @@ const services = [
     pricePerKg: 8, 
     minKg: 3,
     icon: Shirt,
-    color: 'bg-[#1188E9]'
+    color: 'bg-primary'
   },
   { 
     id: 'wash-iron', 
@@ -34,7 +34,7 @@ const services = [
     pricePerKg: 12, 
     minKg: 3,
     icon: Sparkles,
-    color: 'bg-[#1A7A7E]'
+    color: 'bg-teal'
   },
   { 
     id: 'dry-clean', 
@@ -43,7 +43,7 @@ const services = [
     pricePerKg: 15, 
     minKg: 2,
     icon: Archive,
-    color: 'bg-[#092635]'
+    color: 'bg-navy'
   },
 ];
 
@@ -199,7 +199,7 @@ export function CreateOrderDialog({ isOpen, onClose, onOrderCreated }: CreateOrd
       case 1:
         return (
           <div className="space-y-4">
-            <p className="text-[#4A6375] text-sm">Select a service for your laundry</p>
+            <p className="text-muted-foreground text-sm">Select a service for your laundry</p>
             <div className="space-y-3">
               {services.map((service) => (
                 <button
@@ -207,8 +207,8 @@ export function CreateOrderDialog({ isOpen, onClose, onOrderCreated }: CreateOrd
                   onClick={() => setSelectedService(service)}
                   className={`w-full p-4 rounded-xl border-2 text-left transition-all duration-300 ${
                     selectedService.id === service.id
-                      ? 'border-[#1188E9] bg-[#E6F4FF]'
-                      : 'border-[#D8E5EF] hover:border-[#1188E9]/50'
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border hover:border-primary/50'
                   }`}
                 >
                   <div className="flex items-start gap-4">
@@ -217,11 +217,11 @@ export function CreateOrderDialog({ isOpen, onClose, onOrderCreated }: CreateOrd
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-[#092635]">{service.name}</h3>
-                        <span className="text-[#1188E9] font-semibold">RM{service.pricePerKg}/kg</span>
+                        <h3 className="font-semibold text-foreground">{service.name}</h3>
+                        <span className="text-primary font-semibold">RM{service.pricePerKg}/kg</span>
                       </div>
-                      <p className="text-sm text-[#4A6375] mt-1">{service.description}</p>
-                      <p className="text-xs text-[#4A6375] mt-2">Min {service.minKg}kg</p>
+                      <p className="text-sm text-muted-foreground mt-1">{service.description}</p>
+                      <p className="text-xs text-muted-foreground mt-2">Min {service.minKg}kg</p>
                     </div>
                   </div>
                 </button>
@@ -234,82 +234,82 @@ export function CreateOrderDialog({ isOpen, onClose, onOrderCreated }: CreateOrd
         return (
           <div className="space-y-6">
             <div>
-              <Label className="text-[#092635] font-medium">Estimated Weight (kg)</Label>
+              <Label className="text-foreground font-medium">Estimated Weight (kg)</Label>
               <div className="flex items-center gap-4 mt-3">
                 <button
                   onClick={() => setEstimatedWeight(Math.max(selectedService.minKg, estimatedWeight - 1))}
-                  className="w-10 h-10 rounded-full bg-[#F5F7F9] hover:bg-[#E6F4FF] flex items-center justify-center text-[#092635] font-semibold"
+                  className="w-10 h-10 rounded-full bg-background hover:bg-primary/10 flex items-center justify-center text-foreground font-semibold"
                 >
                   -
                 </button>
-                <span className="text-3xl font-semibold text-[#092635] w-16 text-center">
+                <span className="text-3xl font-semibold text-foreground w-16 text-center">
                   {estimatedWeight}
                 </span>
                 <button
                   onClick={() => setEstimatedWeight(estimatedWeight + 1)}
-                  className="w-10 h-10 rounded-full bg-[#F5F7F9] hover:bg-[#E6F4FF] flex items-center justify-center text-[#092635] font-semibold"
+                  className="w-10 h-10 rounded-full bg-background hover:bg-primary/10 flex items-center justify-center text-foreground font-semibold"
                 >
                   +
                 </button>
               </div>
-              <p className="text-sm text-[#4A6375] mt-2">
+              <p className="text-sm text-muted-foreground mt-2">
                 Minimum {selectedService.minKg}kg required
               </p>
             </div>
 
             <div>
-              <Label className="text-[#092635] font-medium">Number of Items</Label>
+              <Label className="text-foreground font-medium">Number of Items</Label>
               <div className="flex items-center gap-4 mt-3">
                 <button
                   onClick={() => setDeclaredItemCount(Math.max(1, declaredItemCount - 1))}
-                  className="w-10 h-10 rounded-full bg-[#F5F7F9] hover:bg-[#E6F4FF] flex items-center justify-center text-[#092635] font-semibold"
+                  className="w-10 h-10 rounded-full bg-background hover:bg-primary/10 flex items-center justify-center text-foreground font-semibold"
                 >
                   -
                 </button>
-                <span className="text-3xl font-semibold text-[#092635] w-16 text-center">
+                <span className="text-3xl font-semibold text-foreground w-16 text-center">
                   {declaredItemCount}
                 </span>
                 <button
                   onClick={() => setDeclaredItemCount(declaredItemCount + 1)}
-                  className="w-10 h-10 rounded-full bg-[#F5F7F9] hover:bg-[#E6F4FF] flex items-center justify-center text-[#092635] font-semibold"
+                  className="w-10 h-10 rounded-full bg-background hover:bg-primary/10 flex items-center justify-center text-foreground font-semibold"
                 >
                   +
                 </button>
               </div>
-              <p className="text-sm text-[#4A6375] mt-2">
+              <p className="text-sm text-muted-foreground mt-2">
                 Total number of items you&apos;re sending
               </p>
             </div>
 
-            <div className="p-4 bg-[#F5F7F9] rounded-xl">
+            <div className="p-4 bg-background rounded-xl">
               <div className="flex items-center justify-between">
-                <span className="text-[#4A6375]">Estimated Price</span>
-                <span className="text-xl font-semibold text-[#1188E9]">
+                <span className="text-muted-foreground">Estimated Price</span>
+                <span className="text-xl font-semibold text-primary">
                   RM{calculateEstimatedPrice()}
                 </span>
               </div>
               <div className="flex items-center justify-between mt-2 text-sm">
-                <span className="text-[#4A6375]">Delivery Fee</span>
-                <span className="text-[#092635]">RM5</span>
+                <span className="text-muted-foreground">Delivery Fee</span>
+                <span className="text-foreground">RM5</span>
               </div>
-              <div className="border-t border-[#D8E5EF] mt-2 pt-2 flex items-center justify-between">
-                <span className="font-medium text-[#092635]">Total Estimate</span>
-                <span className="text-xl font-bold text-[#092635]">
+              <div className="border-t border-border mt-2 pt-2 flex items-center justify-between">
+                <span className="font-medium text-foreground">Total Estimate</span>
+                <span className="text-xl font-bold text-foreground">
                   RM{calculateEstimatedPrice() + 5}
                 </span>
               </div>
-              <p className="text-xs text-[#4A6375] mt-2">
+              <p className="text-xs text-muted-foreground mt-2">
                 * Final price will be confirmed after weighing
               </p>
             </div>
 
             <div>
-              <Label className="text-[#092635] font-medium">Special Instructions (Optional)</Label>
+              <Label className="text-foreground font-medium">Special Instructions (Optional)</Label>
               <Textarea
                 placeholder="Any special requests, stains to note, etc."
                 value={specialInstructions}
                 onChange={(e) => setSpecialInstructions(e.target.value)}
-                className="mt-2 min-h-[100px] rounded-xl border-[#D8E5EF] focus:border-[#1188E9]"
+                className="mt-2 min-h-[100px] rounded-xl border-border focus:border-primary"
               />
             </div>
           </div>
@@ -319,18 +319,18 @@ export function CreateOrderDialog({ isOpen, onClose, onOrderCreated }: CreateOrd
         return (
           <div className="space-y-6">
             <div>
-              <Label className="text-[#092635] font-medium">Pickup Date</Label>
+              <Label className="text-foreground font-medium">Pickup Date</Label>
               <Input
                 type="date"
                 value={pickupDate}
                 onChange={(e) => setPickupDate(e.target.value)}
                 min={new Date().toISOString().split('T')[0]}
-                className="mt-2 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9]"
+                className="mt-2 h-12 rounded-xl border-border focus:border-primary"
               />
             </div>
 
             <div>
-              <Label className="text-[#092635] font-medium">Preferred Time Slot</Label>
+              <Label className="text-foreground font-medium">Preferred Time Slot</Label>
               <div className="grid grid-cols-1 gap-3 mt-2">
                 {timeSlots.map((slot) => (
                   <button
@@ -338,15 +338,15 @@ export function CreateOrderDialog({ isOpen, onClose, onOrderCreated }: CreateOrd
                     onClick={() => setTimeSlot(slot.value)}
                     className={`p-4 rounded-xl border-2 text-left transition-all duration-300 ${
                       timeSlot === slot.value
-                        ? 'border-[#1188E9] bg-[#E6F4FF]'
-                        : 'border-[#D8E5EF] hover:border-[#1188E9]/50'
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border hover:border-primary/50'
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{slot.icon}</span>
-                      <span className="font-medium text-[#092635]">{slot.label}</span>
+                      <span className="font-medium text-foreground">{slot.label}</span>
                       {timeSlot === slot.value && (
-                        <Check className="w-5 h-5 text-[#1188E9] ml-auto" />
+                        <Check className="w-5 h-5 text-primary ml-auto" />
                       )}
                     </div>
                   </button>
@@ -362,8 +362,8 @@ export function CreateOrderDialog({ isOpen, onClose, onOrderCreated }: CreateOrd
         return (
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-[#1188E9]" />
-              <p className="text-[#092635] font-medium">Pickup Address</p>
+              <MapPin className="w-5 h-5 text-primary" />
+              <p className="text-foreground font-medium">Pickup Address</p>
             </div>
             
             {hasSavedAddress && (
@@ -376,62 +376,62 @@ export function CreateOrderDialog({ isOpen, onClose, onOrderCreated }: CreateOrd
             )}
             
             <div>
-              <Label className="text-[#092635] font-medium">Street Address *</Label>
+              <Label className="text-foreground font-medium">Street Address *</Label>
               <Input
                 placeholder="e.g., Jalan PJU 8/1"
                 value={address.street}
                 onChange={(e) => setAddress({ ...address, street: e.target.value })}
-                className="mt-1.5 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9]"
+                className="mt-1.5 h-12 rounded-xl border-border focus:border-primary"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-[#092635] font-medium">Unit/Floor (Optional)</Label>
+                <Label className="text-foreground font-medium">Unit/Floor (Optional)</Label>
                 <Input
                   placeholder="e.g., Unit 5-2"
                   value={address.unit}
                   onChange={(e) => setAddress({ ...address, unit: e.target.value })}
-                  className="mt-1.5 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9]"
+                  className="mt-1.5 h-12 rounded-xl border-border focus:border-primary"
                 />
               </div>
               <div>
-                <Label className="text-[#092635] font-medium">Building/Block</Label>
+                <Label className="text-foreground font-medium">Building/Block</Label>
                 <Input
                   placeholder="e.g., Perdana Exclusive"
                   value={address.building}
                   onChange={(e) => setAddress({ ...address, building: e.target.value })}
-                  className="mt-1.5 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9]"
+                  className="mt-1.5 h-12 rounded-xl border-border focus:border-primary"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-[#092635] font-medium">Area</Label>
+                <Label className="text-foreground font-medium">Area</Label>
                 <Input
                   value={address.area}
                   onChange={(e) => setAddress({ ...address, area: e.target.value })}
-                  className="mt-1.5 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9]"
+                  className="mt-1.5 h-12 rounded-xl border-border focus:border-primary"
                 />
               </div>
               <div>
-                <Label className="text-[#092635] font-medium">Postcode</Label>
+                <Label className="text-foreground font-medium">Postcode</Label>
                 <Input
                   placeholder="e.g., 47820"
                   value={address.postcode}
                   onChange={(e) => setAddress({ ...address, postcode: e.target.value })}
-                  className="mt-1.5 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9]"
+                  className="mt-1.5 h-12 rounded-xl border-border focus:border-primary"
                 />
               </div>
             </div>
 
             <div>
-              <Label className="text-[#092635] font-medium">City</Label>
+              <Label className="text-foreground font-medium">City</Label>
               <Input
                   value={address.city}
                   onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                  className="mt-1.5 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9]"
+                  className="mt-1.5 h-12 rounded-xl border-border focus:border-primary"
                 />
             </div>
           </div>
@@ -444,49 +444,49 @@ export function CreateOrderDialog({ isOpen, onClose, onOrderCreated }: CreateOrd
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Check className="w-8 h-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-semibold text-[#092635]">Review Your Order</h3>
+              <h3 className="text-xl font-semibold text-foreground">Review Your Order</h3>
             </div>
 
-            <div className="bg-[#F5F7F9] rounded-xl p-4 space-y-3">
+            <div className="bg-background rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-[#4A6375]">Service</span>
-                <span className="font-medium text-[#092635]">{selectedService.name}</span>
+                <span className="text-muted-foreground">Service</span>
+                <span className="font-medium text-foreground">{selectedService.name}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[#4A6375]">Estimated Weight</span>
-                <span className="font-medium text-[#092635]">{estimatedWeight} kg</span>
+                <span className="text-muted-foreground">Estimated Weight</span>
+                <span className="font-medium text-foreground">{estimatedWeight} kg</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[#4A6375]">Number of Items</span>
-                <span className="font-medium text-[#092635]">{declaredItemCount} items</span>
+                <span className="text-muted-foreground">Number of Items</span>
+                <span className="font-medium text-foreground">{declaredItemCount} items</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[#4A6375]">Pickup Date</span>
-                <span className="font-medium text-[#092635]">{pickupDate}</span>
+                <span className="text-muted-foreground">Pickup Date</span>
+                <span className="font-medium text-foreground">{pickupDate}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[#4A6375]">Time Slot</span>
-                <span className="font-medium text-[#092635]">
+                <span className="text-muted-foreground">Time Slot</span>
+                <span className="font-medium text-foreground">
                   {timeSlots.find(t => t.value === timeSlot)?.label}
                 </span>
               </div>
-              <div className="border-t border-[#D8E5EF] pt-3">
+              <div className="border-t border-border pt-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-[#4A6375]">Estimated Price</span>
-                  <span className="font-medium text-[#092635]">RM{calculateEstimatedPrice()}</span>
+                  <span className="text-muted-foreground">Estimated Price</span>
+                  <span className="font-medium text-foreground">RM{calculateEstimatedPrice()}</span>
                 </div>
                 <div className="flex items-center justify-between mt-1">
-                  <span className="text-[#4A6375]">Delivery Fee</span>
-                  <span className="font-medium text-[#092635]">RM5</span>
+                  <span className="text-muted-foreground">Delivery Fee</span>
+                  <span className="font-medium text-foreground">RM5</span>
                 </div>
-                <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#D8E5EF]">
-                  <span className="font-semibold text-[#092635]">Total</span>
-                  <span className="text-xl font-bold text-[#1188E9]">RM{calculateEstimatedPrice() + 5}</span>
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-border">
+                  <span className="font-semibold text-foreground">Total</span>
+                  <span className="text-xl font-bold text-primary">RM{calculateEstimatedPrice() + 5}</span>
                 </div>
               </div>
             </div>
 
-            <p className="text-xs text-[#4A6375] text-center">
+            <p className="text-xs text-muted-foreground text-center">
               By placing this order, you agree to our Terms of Service
             </p>
           </div>
@@ -503,7 +503,7 @@ export function CreateOrderDialog({ isOpen, onClose, onOrderCreated }: CreateOrd
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-[#092635]">
+          <DialogTitle className="text-xl font-semibold text-foreground">
             Create New Order
           </DialogTitle>
         </DialogHeader>
@@ -517,8 +517,8 @@ export function CreateOrderDialog({ isOpen, onClose, onOrderCreated }: CreateOrd
                   step > index + 1
                     ? 'bg-green-500 text-white'
                     : step === index + 1
-                    ? 'bg-[#1188E9] text-white'
-                    : 'bg-[#D8E5EF] text-[#4A6375]'
+                    ? 'bg-primary text-white'
+                    : 'bg-border text-muted-foreground'
                 }`}
               >
                 {step > index + 1 ? <Check className="w-4 h-4" /> : index + 1}
@@ -526,7 +526,7 @@ export function CreateOrderDialog({ isOpen, onClose, onOrderCreated }: CreateOrd
               {index < stepTitles.length - 1 && (
                 <div
                   className={`w-8 h-0.5 ${
-                    step > index + 1 ? 'bg-green-500' : 'bg-[#D8E5EF]'
+                    step > index + 1 ? 'bg-green-500' : 'bg-border'
                   }`}
                 />
               )}
@@ -535,7 +535,7 @@ export function CreateOrderDialog({ isOpen, onClose, onOrderCreated }: CreateOrd
         </div>
 
         {/* Step Title */}
-        <p className="text-center text-sm text-[#4A6375] mb-4">
+        <p className="text-center text-sm text-muted-foreground mb-4">
           Step {step} of {stepTitles.length}: {stepTitles[step - 1]}
         </p>
 
@@ -565,7 +565,7 @@ export function CreateOrderDialog({ isOpen, onClose, onOrderCreated }: CreateOrd
             <Button
               variant="outline"
               onClick={() => setStep(step - 1)}
-              className="flex-1 h-12 rounded-xl border-[#D8E5EF]"
+              className="flex-1 h-12 rounded-xl border-border"
             >
               Back
             </Button>
@@ -574,7 +574,7 @@ export function CreateOrderDialog({ isOpen, onClose, onOrderCreated }: CreateOrd
             <Button
               onClick={() => setStep(step + 1)}
               disabled={!isStepValid()}
-              className="flex-1 h-12 bg-[#1188E9] hover:bg-[#092635] text-white rounded-xl"
+              className="flex-1 h-12 bg-primary hover:bg-navy text-white rounded-xl"
             >
               Continue
             </Button>
@@ -582,7 +582,7 @@ export function CreateOrderDialog({ isOpen, onClose, onOrderCreated }: CreateOrd
             <Button
               onClick={handleSubmit}
               disabled={loading}
-              className="flex-1 h-12 bg-[#1188E9] hover:bg-[#092635] text-white rounded-xl"
+              className="flex-1 h-12 bg-primary hover:bg-navy text-white rounded-xl"
             >
               {loading ? 'Creating Order...' : 'Place Order'}
             </Button>

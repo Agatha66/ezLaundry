@@ -62,37 +62,37 @@ export function CustomerHome() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7F9]">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+      <header className="bg-card shadow-sm sticky top-0 z-40">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/dashboard" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-[#1188E9] rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
                 <Shirt className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-semibold text-[#092635] font-['Poppins']">ezLaundry</span>
+              <span className="text-xl font-semibold text-foreground font-['Poppins']">ezLaundry</span>
             </Link>
 
             {/* User Info & Logout */}
             <div className="flex items-center gap-3">
               <div className="hidden sm:flex items-center gap-3">
-                <Avatar className="w-9 h-9 bg-[#1188E9]">
-                  <AvatarFallback className="bg-[#1188E9] text-white text-sm font-medium">
+                <Avatar className="w-9 h-9 bg-primary">
+                  <AvatarFallback className="bg-primary text-white text-sm font-medium">
                     {userData?.displayName?.split(' ').map(n => n[0]).join('') || 'U'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-[#092635]">{userData?.displayName}</p>
-                  <p className="text-xs text-[#4A6375] capitalize">customer</p>
+                  <p className="text-sm font-medium text-foreground">{userData?.displayName}</p>
+                  <p className="text-xs text-muted-foreground capitalize">customer</p>
                 </div>
               </div>
               {/* <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleLogout}
-                className="text-[#4A6375] hover:text-red-500 hover:bg-red-50"
+                className="text-muted-foreground hover:text-red-500 hover:bg-red-50"
               >
                 <LogOut className="w-5 h-5" />
               </Button> */}
@@ -109,10 +109,10 @@ export function CustomerHome() {
       >
         {/* Welcome Section */}
         <motion.div variants={itemVariants} className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-semibold text-[#092635] font-['Poppins']">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-foreground font-['Poppins']">
             Good day, {userData?.displayName?.split(' ')[0] || 'Customer'}! 👋
           </h1>
-          <p className="text-[#4A6375] mt-1">
+          <p className="text-muted-foreground mt-1">
             Here&apos;s what&apos;s happening with your laundry
           </p>
         </motion.div>
@@ -137,8 +137,8 @@ export function CustomerHome() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[#4A6375]">Completed</p>
-                  <p className="text-2xl font-semibold text-[#092635]">{completedOrders.length}</p>
+                  <p className="text-sm text-muted-foreground">Completed</p>
+                  <p className="text-2xl font-semibold text-foreground">{completedOrders.length}</p>
                 </div>
                 <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
                   <CheckCircle2 className="w-5 h-5 text-green-600" />
@@ -151,8 +151,8 @@ export function CustomerHome() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[#4A6375]">Total Spent</p>
-                  <p className="text-2xl font-semibold text-[#092635]">RM{totalSpent}</p>
+                  <p className="text-sm text-muted-foreground">Total Spent</p>
+                  <p className="text-2xl font-semibold text-foreground">RM{totalSpent}</p>
                 </div>
                 <div className="w-10 h-10 bg-yellow-50 rounded-xl flex items-center justify-center">
                   <CreditCard className="w-5 h-5 text-yellow-600" />
@@ -165,8 +165,8 @@ export function CustomerHome() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[#4A6375]">Loyalty Points</p>
-                  <p className="text-2xl font-semibold text-[#092635]">{completedOrders.length * 10}</p>
+                  <p className="text-sm text-muted-foreground">Loyalty Points</p>
+                  <p className="text-2xl font-semibold text-foreground">{completedOrders.length * 10}</p>
                 </div>
                 <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
                   <Star className="w-5 h-5 text-purple-600" />
@@ -181,42 +181,42 @@ export function CustomerHome() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <button
               onClick={() => setIsCreateDialogOpen(true)}
-              className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all"
+              className="flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-sm hover:shadow-md transition-all"
             >
-              <div className="w-10 h-10 bg-[#1188E9] rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
                 <Plus className="w-5 h-5 text-white" />
               </div>
-              <span className="text-sm font-medium text-[#092635]">New Order</span>
+              <span className="text-sm font-medium text-foreground">New Order</span>
             </button>
             
             <button
               onClick={() => navigate('/orders')}
-              className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all"
+              className="flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-sm hover:shadow-md transition-all"
             >
-              <div className="w-10 h-10 bg-[#1A7A7E] rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-teal rounded-xl flex items-center justify-center">
                 <Package className="w-5 h-5 text-white" />
               </div>
-              <span className="text-sm font-medium text-[#092635]">My Orders</span>
+              <span className="text-sm font-medium text-foreground">My Orders</span>
             </button>
             
             <button
               onClick={() => navigate('/chats')}
-              className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all"
+              className="flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-sm hover:shadow-md transition-all"
             >
-              <div className="w-10 h-10 bg-[#092635] rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-navy rounded-xl flex items-center justify-center">
                 <MessageCircle className="w-5 h-5 text-white" />
               </div>
-              <span className="text-sm font-medium text-[#092635]">Messages</span>
+              <span className="text-sm font-medium text-foreground">Messages</span>
             </button>
             
             <button
               onClick={() => navigate('/profile')}
-              className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all"
+              className="flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-sm hover:shadow-md transition-all"
             >
               <div className="w-10 h-10 bg-[#4A6375] rounded-xl flex items-center justify-center">
                 <MapPin className="w-5 h-5 text-white" />
               </div>
-              <span className="text-sm font-medium text-[#092635]">Addresses</span>
+              <span className="text-sm font-medium text-foreground">Addresses</span>
             </button>
           </div>
         </motion.div>
@@ -224,12 +224,12 @@ export function CustomerHome() {
         {/* Recent Orders */}
         <motion.div variants={itemVariants}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-[#092635]">Recent Orders</h2>
+            <h2 className="text-lg font-semibold text-foreground">Recent Orders</h2>
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => navigate('/orders')}
-              className="text-[#1188E9]"
+              className="text-primary"
             >
               View All
               <ChevronRight className="w-4 h-4 ml-1" />
@@ -237,12 +237,12 @@ export function CustomerHome() {
           </div>
 
           {recentOrders.length === 0 ? (
-            <div className="text-center py-8 bg-white rounded-xl">
-              <Package className="w-12 h-12 text-[#D8E5EF] mx-auto mb-4" />
-              <p className="text-[#4A6375]">No orders yet</p>
+            <div className="text-center py-8 bg-card rounded-xl">
+              <Package className="w-12 h-12 text-border mx-auto mb-4" />
+              <p className="text-muted-foreground">No orders yet</p>
               <Button 
                 onClick={() => setIsCreateDialogOpen(true)}
-                className="mt-4 bg-[#1188E9] hover:bg-[#092635]"
+                className="mt-4 bg-primary hover:bg-navy"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Create Your First Order
@@ -305,7 +305,7 @@ function OrderCard({ order, onClick }: { order: Order; onClick: () => void }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       onClick={onClick}
-      className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
+      className="bg-card rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
@@ -315,9 +315,9 @@ function OrderCard({ order, onClick }: { order: Order; onClick: () => void }) {
               {statusInfo.label}
             </Badge>
           </div>
-          <p className="font-semibold text-[#092635] mt-2">{serviceNames[order.serviceType]}</p>
-          <p className="text-sm text-[#4A6375]">Order #{order.id.slice(-4)}</p>
-          <div className="flex items-center gap-4 mt-2 text-sm text-[#4A6375]">
+          <p className="font-semibold text-foreground mt-2">{serviceNames[order.serviceType]}</p>
+          <p className="text-sm text-muted-foreground">Order #{order.id.slice(-4)}</p>
+          <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
               <Calendar className="w-4 h-4" />
               {new Date(order.pickupDate).toLocaleDateString()}
@@ -329,10 +329,10 @@ function OrderCard({ order, onClick }: { order: Order; onClick: () => void }) {
           </div>
         </div>
         <div className="text-right">
-          <p className="text-lg font-semibold text-[#092635]">
+          <p className="text-lg font-semibold text-foreground">
             RM{order.totalAmount}
           </p>
-          <p className="text-sm text-[#4A6375]">{order.weight || order.estimatedWeight} kg</p>
+          <p className="text-sm text-muted-foreground">{order.weight || order.estimatedWeight} kg</p>
           {canChat && (
             <Button
               size="sm"
@@ -341,7 +341,7 @@ function OrderCard({ order, onClick }: { order: Order; onClick: () => void }) {
                 e.stopPropagation();
                 navigate(`/chat/${order.id}`);
               }}
-              className="mt-2 text-[#1188E9] hover:bg-[#E6F4FF]"
+              className="mt-2 text-primary hover:bg-primary/10"
             >
               <MessageCircle className="w-4 h-4 mr-1" />
               Chat

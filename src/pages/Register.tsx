@@ -136,7 +136,7 @@ export function Register() {
     <div className="space-y-4">
       {/* Role Selection */}
       <div className="mb-6">
-        <Label className="text-[#092635] font-medium mb-3 block">I want to register as:</Label>
+        <Label className="text-foreground font-medium mb-3 block">I want to register as:</Label>
         <div className="grid grid-cols-3 gap-2">
           {roleOptions.map((role) => (
             <button
@@ -145,18 +145,18 @@ export function Register() {
               onClick={() => setSelectedRole(role.value)}
               className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-300 ${
                 selectedRole === role.value
-                  ? 'border-[#1188E9] bg-[#E6F4FF]'
-                  : 'border-[#D8E5EF] hover:border-[#1188E9]/50'
+                  ? 'border-primary bg-primary/10'
+                  : 'border-border hover:border-primary/50'
               }`}
             >
               <role.icon
                 className={`w-5 h-5 ${
-                  selectedRole === role.value ? 'text-[#1188E9]' : 'text-[#4A6375]'
+                  selectedRole === role.value ? 'text-primary' : 'text-muted-foreground'
                 }`}
               />
               <span
                 className={`text-xs font-medium ${
-                  selectedRole === role.value ? 'text-[#1188E9]' : 'text-[#4A6375]'
+                  selectedRole === role.value ? 'text-primary' : 'text-muted-foreground'
                 }`}
               >
                 {role.label}
@@ -164,13 +164,13 @@ export function Register() {
             </button>
           ))}
         </div>
-        <p className="text-center text-sm text-[#4A6375] mt-2">
+        <p className="text-center text-sm text-muted-foreground mt-2">
           {roleOptions.find(r => r.value === selectedRole)?.description}
         </p>
       </div>
 
       <div>
-        <Label htmlFor="fullName" className="text-[#092635] font-medium">
+        <Label htmlFor="fullName" className="text-foreground font-medium">
           Full Name *
         </Label>
         <Input
@@ -181,12 +181,12 @@ export function Register() {
           value={formData.fullName}
           onChange={handleChange}
           required
-          className="mt-1.5 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
+          className="mt-1.5 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
         />
       </div>
 
       <div>
-        <Label htmlFor="email" className="text-[#092635] font-medium">
+        <Label htmlFor="email" className="text-foreground font-medium">
           Email Address *
         </Label>
         <Input
@@ -197,12 +197,12 @@ export function Register() {
           value={formData.email}
           onChange={handleChange}
           required
-          className="mt-1.5 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
+          className="mt-1.5 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
         />
       </div>
 
       <div>
-        <Label htmlFor="phone" className="text-[#092635] font-medium">
+        <Label htmlFor="phone" className="text-foreground font-medium">
           Phone Number *
         </Label>
         <Input
@@ -213,12 +213,12 @@ export function Register() {
           value={formData.phone}
           onChange={handleChange}
           required
-          className="mt-1.5 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
+          className="mt-1.5 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
         />
       </div>
 
       <div>
-        <Label htmlFor="password" className="text-[#092635] font-medium">
+        <Label htmlFor="password" className="text-foreground font-medium">
           Password *
         </Label>
         <div className="relative mt-1.5">
@@ -231,12 +231,12 @@ export function Register() {
             onChange={handleChange}
             required
             minLength={6}
-            className="h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9] pr-10"
+            className="h-12 rounded-xl border-border focus:border-primary focus:ring-primary pr-10"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#4A6375] hover:text-[#1188E9] transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
           >
             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
           </button>
@@ -244,7 +244,7 @@ export function Register() {
       </div>
 
       <div>
-        <Label htmlFor="confirmPassword" className="text-[#092635] font-medium">
+        <Label htmlFor="confirmPassword" className="text-foreground font-medium">
           Confirm Password *
         </Label>
         <div className="relative mt-1.5">
@@ -256,12 +256,12 @@ export function Register() {
             value={formData.confirmPassword}
             onChange={handleChange}
             required
-            className="h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9] pr-10"
+            className="h-12 rounded-xl border-border focus:border-primary focus:ring-primary pr-10"
           />
           <button
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#4A6375] hover:text-[#1188E9] transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
           >
             {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
           </button>
@@ -271,7 +271,7 @@ export function Register() {
       <Button
         type="button"
         onClick={handleNext}
-        className="w-full h-12 bg-[#1188E9] hover:bg-[#092635] text-white rounded-full font-medium"
+        className="w-full h-12 bg-primary hover:bg-navy text-white rounded-full font-medium"
       >
         {selectedRole === 'customer' ? 'Next: Add Address' : 'Next: Review'}
       </Button>
@@ -281,13 +281,13 @@ export function Register() {
   const renderAddressStep = () => (
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-4">
-        <MapPin className="w-5 h-5 text-[#1188E9]" />
-        <h3 className="font-semibold text-[#092635]">Your Address</h3>
+        <MapPin className="w-5 h-5 text-primary" />
+        <h3 className="font-semibold text-foreground">Your Address</h3>
       </div>
-      <p className="text-sm text-[#4A6375]">This will be your default pickup address</p>
+      <p className="text-sm text-muted-foreground">This will be your default pickup address</p>
 
       <div>
-        <Label htmlFor="street" className="text-[#092635] font-medium">
+        <Label htmlFor="street" className="text-foreground font-medium">
           Street Address *
         </Label>
         <Input
@@ -298,13 +298,13 @@ export function Register() {
           value={address.street}
           onChange={handleAddressChange}
           required
-          className="mt-1.5 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
+          className="mt-1.5 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="unit" className="text-[#092635] font-medium">
+          <Label htmlFor="unit" className="text-foreground font-medium">
             Unit/Floor
           </Label>
           <Input
@@ -314,11 +314,11 @@ export function Register() {
             placeholder="e.g., Unit 5-2"
             value={address.unit}
             onChange={handleAddressChange}
-            className="mt-1.5 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
+            className="mt-1.5 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
           />
         </div>
         <div>
-          <Label htmlFor="building" className="text-[#092635] font-medium">
+          <Label htmlFor="building" className="text-foreground font-medium">
             Building/Block *
           </Label>
           <Input
@@ -329,14 +329,14 @@ export function Register() {
             value={address.building}
             onChange={handleAddressChange}
             required
-            className="mt-1.5 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
+            className="mt-1.5 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="area" className="text-[#092635] font-medium">
+          <Label htmlFor="area" className="text-foreground font-medium">
             Area
           </Label>
           <Input
@@ -345,11 +345,11 @@ export function Register() {
             type="text"
             value={address.area}
             onChange={handleAddressChange}
-            className="mt-1.5 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
+            className="mt-1.5 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
           />
         </div>
         <div>
-          <Label htmlFor="postcode" className="text-[#092635] font-medium">
+          <Label htmlFor="postcode" className="text-foreground font-medium">
             Postcode *
           </Label>
           <Input
@@ -360,13 +360,13 @@ export function Register() {
             value={address.postcode}
             onChange={handleAddressChange}
             required
-            className="mt-1.5 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
+            className="mt-1.5 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
           />
         </div>
       </div>
 
       <div>
-        <Label htmlFor="city" className="text-[#092635] font-medium">
+        <Label htmlFor="city" className="text-foreground font-medium">
           City
         </Label>
         <Input
@@ -375,7 +375,7 @@ export function Register() {
           type="text"
           value={address.city}
           onChange={handleAddressChange}
-          className="mt-1.5 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
+          className="mt-1.5 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
         />
       </div>
 
@@ -384,14 +384,14 @@ export function Register() {
           type="button"
           variant="outline"
           onClick={handleBack}
-          className="flex-1 h-12 rounded-full border-[#D8E5EF]"
+          className="flex-1 h-12 rounded-full border-border"
         >
           Back
         </Button>
         <Button
           type="button"
           onClick={handleNext}
-          className="flex-1 h-12 bg-[#1188E9] hover:bg-[#092635] text-white rounded-full font-medium"
+          className="flex-1 h-12 bg-primary hover:bg-navy text-white rounded-full font-medium"
         >
           Next: Review
         </Button>
@@ -401,34 +401,34 @@ export function Register() {
 
   const renderReviewStep = () => (
     <div className="space-y-4">
-      <h3 className="font-semibold text-[#092635]">Review Your Information</h3>
+      <h3 className="font-semibold text-foreground">Review Your Information</h3>
       
-      <div className="bg-[#F5F7F9] rounded-xl p-4 space-y-3">
+      <div className="bg-background rounded-xl p-4 space-y-3">
         <div className="flex justify-between">
-          <span className="text-[#4A6375]">Name</span>
-          <span className="text-[#092635] font-medium">{formData.fullName}</span>
+          <span className="text-muted-foreground">Name</span>
+          <span className="text-foreground font-medium">{formData.fullName}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-[#4A6375]">Email</span>
-          <span className="text-[#092635]">{formData.email}</span>
+          <span className="text-muted-foreground">Email</span>
+          <span className="text-foreground">{formData.email}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-[#4A6375]">Phone</span>
-          <span className="text-[#092635]">{formData.phone}</span>
+          <span className="text-muted-foreground">Phone</span>
+          <span className="text-foreground">{formData.phone}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-[#4A6375]">Role</span>
-          <span className="text-[#092635] capitalize">{selectedRole}</span>
+          <span className="text-muted-foreground">Role</span>
+          <span className="text-foreground capitalize">{selectedRole}</span>
         </div>
         
         {selectedRole === 'customer' && (
           <>
-            <div className="border-t border-[#D8E5EF] pt-3 mt-3">
-              <p className="text-sm font-medium text-[#092635] mb-2">Default Address:</p>
-              <p className="text-sm text-[#4A6375]">{address.building}</p>
-              <p className="text-sm text-[#4A6375]">{address.street}</p>
-              {address.unit && <p className="text-sm text-[#4A6375]">{address.unit}</p>}
-              <p className="text-sm text-[#4A6375]">{address.area}, {address.city} {address.postcode}</p>
+            <div className="border-t border-border pt-3 mt-3">
+              <p className="text-sm font-medium text-foreground mb-2">Default Address:</p>
+              <p className="text-sm text-muted-foreground">{address.building}</p>
+              <p className="text-sm text-muted-foreground">{address.street}</p>
+              {address.unit && <p className="text-sm text-muted-foreground">{address.unit}</p>}
+              <p className="text-sm text-muted-foreground">{address.area}, {address.city} {address.postcode}</p>
             </div>
           </>
         )}
@@ -441,19 +441,19 @@ export function Register() {
           onClick={() => setAgreedToTerms(!agreedToTerms)}
           className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
             agreedToTerms
-              ? 'bg-[#1188E9] border-[#1188E9]'
-              : 'border-[#D8E5EF] hover:border-[#1188E9]'
+              ? 'bg-primary border-primary'
+              : 'border-border hover:border-primary'
           }`}
         >
           {agreedToTerms && <Check className="w-3 h-3 text-white" />}
         </button>
-        <p className="text-sm text-[#4A6375]">
+        <p className="text-sm text-muted-foreground">
           I agree to the{' '}
-          <Link to="#" className="text-[#1188E9] hover:underline">
+          <Link to="#" className="text-primary hover:underline">
             Terms of Service
           </Link>{' '}
           and{' '}
-          <Link to="#" className="text-[#1188E9] hover:underline">
+          <Link to="#" className="text-primary hover:underline">
             Privacy Policy
           </Link>
         </p>
@@ -474,14 +474,14 @@ export function Register() {
           type="button"
           variant="outline"
           onClick={handleBack}
-          className="flex-1 h-12 rounded-full border-[#D8E5EF]"
+          className="flex-1 h-12 rounded-full border-border"
         >
           Back
         </Button>
         <Button
           type="submit"
           disabled={loading}
-          className="flex-1 h-12 bg-[#1188E9] hover:bg-[#092635] text-white rounded-full font-medium"
+          className="flex-1 h-12 bg-primary hover:bg-navy text-white rounded-full font-medium"
         >
           {loading ? 'Creating Account...' : 'Create Account'}
         </Button>
@@ -509,23 +509,23 @@ export function Register() {
         {/* Back Button */}
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-[#4A6375] hover:text-[#1188E9] transition-colors mb-6"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home
         </Link>
 
         {/* Card */}
-        <div className="bg-white rounded-3xl shadow-xl p-8">
+        <div className="bg-card rounded-3xl shadow-xl p-8">
           {/* Logo */}
           <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-[#1188E9] rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
               <Shirt className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-2xl font-semibold text-[#092635] font-['Poppins']">
+            <h1 className="text-2xl font-semibold text-foreground font-['Poppins']">
               Create Account
             </h1>
-            <p className="text-[#4A6375] mt-1">Step {step} of {totalSteps}: {getStepTitle()}</p>
+            <p className="text-muted-foreground mt-1">Step {step} of {totalSteps}: {getStepTitle()}</p>
           </div>
 
           {/* Progress Bar */}
@@ -534,7 +534,7 @@ export function Register() {
               <div
                 key={i}
                 className={`flex-1 h-2 rounded-full ${
-                  i + 1 <= step ? 'bg-[#1188E9]' : 'bg-[#D8E5EF]'
+                  i + 1 <= step ? 'bg-primary' : 'bg-border'
                 }`}
               />
             ))}
@@ -549,9 +549,9 @@ export function Register() {
           </form>
 
           {/* Login Link */}
-          <p className="text-center text-[#4A6375] mt-6">
+          <p className="text-center text-muted-foreground mt-6">
             Already have an account?{' '}
-            <Link to="/login" className="text-[#1188E9] hover:underline font-medium">
+            <Link to="/login" className="text-primary hover:underline font-medium">
               Sign in
             </Link>
           </p>

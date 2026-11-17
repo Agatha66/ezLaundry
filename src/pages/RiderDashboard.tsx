@@ -229,31 +229,31 @@ export function RiderDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7F9]">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
+      <header className="bg-card shadow-sm sticky top-0 z-50">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-[#1188E9] rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
                 <Shirt className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-semibold text-[#092635] font-['Poppins']">ezLaundry</span>
+              <span className="text-xl font-semibold text-foreground font-['Poppins']">ezLaundry</span>
             </Link>
 
             <div className="flex items-center gap-2">
               <Link to="/profile">
-                <Button variant="ghost" className="text-[#4A6375] hover:text-[#1188E9] hover:bg-[#E6F4FF]">
+                <Button variant="ghost" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
                   <User className="w-4 h-4 mr-2" />
                   Profile
                 </Button>
               </Link>
-              <Badge className="bg-[#1A7A7E] text-white ml-2">
+              <Badge className="bg-teal text-white ml-2">
                 <Bike className="w-3 h-3 mr-1" />
                 Rider
               </Badge>
-              <Avatar className="w-9 h-9 bg-[#1A7A7E]">
-                <AvatarFallback className="bg-[#1A7A7E] text-white text-sm font-medium">
+              <Avatar className="w-9 h-9 bg-teal">
+                <AvatarFallback className="bg-teal text-white text-sm font-medium">
                   {userData?.displayName?.split(' ').map(n => n[0]).join('') || 'R'}
                 </AvatarFallback>
               </Avatar>
@@ -261,7 +261,7 @@ export function RiderDashboard() {
                 variant="ghost"
                 size="icon"
                 onClick={handleLogout}
-                className="text-[#4A6375] hover:text-red-500 hover:bg-red-50"
+                className="text-muted-foreground hover:text-red-500 hover:bg-red-50"
               >
                 <LogOut className="w-5 h-5" />
               </Button>
@@ -278,10 +278,10 @@ export function RiderDashboard() {
         >
           {/* Welcome Section */}
           <div className="mb-8">
-            <h1 className="text-2xl sm:text-3xl font-semibold text-[#092635] font-['Poppins']">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-foreground font-['Poppins']">
               Good Morning, {userData?.displayName?.split(' ')[0] || 'Rider'}!
             </h1>
-            <p className="text-[#4A6375] mt-1">
+            <p className="text-muted-foreground mt-1">
               You have {activeOrders.length} active jobs and {pendingOrders.length} available orders
             </p>
           </div>
@@ -315,11 +315,11 @@ export function RiderDashboard() {
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-[#4A6375]">Active Jobs</p>
-                    <p className="text-2xl font-semibold text-[#092635]">{activeOrders.length}</p>
+                    <p className="text-sm text-muted-foreground">Active Jobs</p>
+                    <p className="text-2xl font-semibold text-foreground">{activeOrders.length}</p>
                   </div>
-                  <div className="w-12 h-12 bg-[#E6F4FF] rounded-xl flex items-center justify-center">
-                    <Package className="w-6 h-6 text-[#1188E9]" />
+                  <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                    <Package className="w-6 h-6 text-primary" />
                   </div>
                 </div>
               </CardContent>
@@ -329,8 +329,8 @@ export function RiderDashboard() {
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-[#4A6375]">Today&apos;s Earnings</p>
-                    <p className="text-2xl font-semibold text-[#092635]">RM{todayEarnings}</p>
+                    <p className="text-sm text-muted-foreground">Today&apos;s Earnings</p>
+                    <p className="text-2xl font-semibold text-foreground">RM{todayEarnings}</p>
                   </div>
                   <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
                     <DollarSign className="w-6 h-6 text-green-600" />
@@ -343,8 +343,8 @@ export function RiderDashboard() {
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-[#4A6375]">Weekly Completed</p>
-                    <p className="text-2xl font-semibold text-[#092635]">{weeklyCompleted}</p>
+                    <p className="text-sm text-muted-foreground">Weekly Completed</p>
+                    <p className="text-2xl font-semibold text-foreground">{weeklyCompleted}</p>
                   </div>
                   <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
                     <CheckCircle2 className="w-6 h-6 text-purple-600" />
@@ -357,8 +357,8 @@ export function RiderDashboard() {
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-[#4A6375]">Rating</p>
-                    <p className="text-2xl font-semibold text-[#092635]">4.9</p>
+                    <p className="text-sm text-muted-foreground">Rating</p>
+                    <p className="text-2xl font-semibold text-foreground">4.9</p>
                   </div>
                   <div className="w-12 h-12 bg-yellow-50 rounded-xl flex items-center justify-center">
                     <Star className="w-6 h-6 text-yellow-600" />
@@ -461,10 +461,10 @@ function AvailableOrdersList({
 }) {
   if (orders.length === 0) {
     return (
-      <div className="text-center py-12 bg-white rounded-xl">
+      <div className="text-center py-12 bg-card rounded-xl">
         <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-4" />
-        <p className="text-[#4A6375]">No available orders right now</p>
-        <p className="text-sm text-[#4A6375] mt-1">Check back soon!</p>
+        <p className="text-muted-foreground">No available orders right now</p>
+        <p className="text-sm text-muted-foreground mt-1">Check back soon!</p>
       </div>
     );
   }
@@ -476,7 +476,7 @@ function AvailableOrdersList({
           key={order.id}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl p-5 shadow-sm"
+          className="bg-card rounded-xl p-5 shadow-sm"
         >
           <div className="flex items-start justify-between">
             <div className="flex-1">
@@ -485,11 +485,11 @@ function AvailableOrdersList({
                   ⏳ Looking for Rider
                 </Badge>
               </div>
-              <p className="font-semibold text-[#092635] mt-2">
+              <p className="font-semibold text-foreground mt-2">
                 {order.customerAddress.building}, {order.customerAddress.area}
               </p>
-              <p className="text-sm text-[#4A6375]">{order.customerAddress.street}</p>
-              <div className="flex items-center gap-4 mt-2 text-sm text-[#4A6375]">
+              <p className="text-sm text-muted-foreground">{order.customerAddress.street}</p>
+              <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Clock className="w-4 h-4" />
                   {new Date(order.pickupDate).toLocaleDateString()}
@@ -505,15 +505,15 @@ function AvailableOrdersList({
               </div>
             </div>
             <div className="text-right ml-4">
-              <p className="text-lg font-semibold text-[#1188E9]">
+              <p className="text-lg font-semibold text-primary">
                 RM{order.deliveryFee}
               </p>
-              <p className="text-xs text-[#4A6375]">Delivery fee</p>
+              <p className="text-xs text-muted-foreground">Delivery fee</p>
               <Button
                 size="sm"
                 onClick={() => onAccept(order)}
                 disabled={acceptingOrder === order.id}
-                className="mt-3 bg-[#1188E9] hover:bg-[#092635]"
+                className="mt-3 bg-primary hover:bg-navy"
               >
                 {acceptingOrder === order.id ? (
                   <>
@@ -550,10 +550,10 @@ function MyJobsList({
 }) {
   if (orders.length === 0) {
     return (
-      <div className="text-center py-12 bg-white rounded-xl">
-        <Package className="w-12 h-12 text-[#D8E5EF] mx-auto mb-4" />
-        <p className="text-[#4A6375]">No active jobs</p>
-        <p className="text-sm text-[#4A6375] mt-1">Accept an order from the Available tab</p>
+      <div className="text-center py-12 bg-card rounded-xl">
+        <Package className="w-12 h-12 text-border mx-auto mb-4" />
+        <p className="text-muted-foreground">No active jobs</p>
+        <p className="text-sm text-muted-foreground mt-1">Accept an order from the Available tab</p>
       </div>
     );
   }
@@ -606,7 +606,7 @@ function ActiveJobCard({
           size="sm"
           onClick={() => onPickup(order)}
           disabled={updatingStatus}
-          className="bg-[#1188E9] hover:bg-[#092635]"
+          className="bg-primary hover:bg-navy"
         >
           <Hash className="w-4 h-4 mr-1" />
           Record Pickup
@@ -644,7 +644,7 @@ function ActiveJobCard({
         size="sm"
         onClick={() => onUpdateStatus(order.id, nextStatus)}
         disabled={updatingStatus}
-        className="bg-[#1188E9] hover:bg-[#092635]"
+        className="bg-primary hover:bg-navy"
       >
         {updatingStatus ? (
           <Loader2 className="w-4 h-4 animate-spin" />
@@ -662,7 +662,7 @@ function ActiveJobCard({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl p-5 shadow-sm"
+      className="bg-card rounded-xl p-5 shadow-sm"
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
@@ -672,13 +672,13 @@ function ActiveJobCard({
               {statusInfo.label}
             </Badge>
           </div>
-          <p className="font-semibold text-[#092635] mt-2">
+          <p className="font-semibold text-foreground mt-2">
             {order.customerName}
           </p>
-          <p className="text-sm text-[#4A6375]">
+          <p className="text-sm text-muted-foreground">
             {order.customerAddress.building}, {order.customerAddress.street}
           </p>
-          <div className="flex items-center gap-4 mt-2 text-sm text-[#4A6375]">
+          <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
               <Phone className="w-4 h-4" />
               {order.customerPhone}
@@ -699,16 +699,16 @@ function ActiveJobCard({
           </div>
         </div>
         <div className="text-right ml-4">
-          <p className="text-lg font-semibold text-[#1188E9]">
+          <p className="text-lg font-semibold text-primary">
             RM{order.deliveryFee}
           </p>
-          <p className="text-xs text-[#4A6375]">#{order.id.slice(-4)}</p>
+          <p className="text-xs text-muted-foreground">#{order.id.slice(-4)}</p>
           <div className="flex gap-2 mt-3">
             <Button
               size="sm"
               variant="outline"
               onClick={() => onViewDetail(order)}
-              className="border-[#D8E5EF]"
+              className="border-border"
             >
               Details
             </Button>
@@ -724,9 +724,9 @@ function ActiveJobCard({
 function CompletedOrdersList({ orders }: { orders: Order[] }) {
   if (orders.length === 0) {
     return (
-      <div className="text-center py-12 bg-white rounded-xl">
-        <CheckCircle2 className="w-12 h-12 text-[#D8E5EF] mx-auto mb-4" />
-        <p className="text-[#4A6375]">No completed orders yet</p>
+      <div className="text-center py-12 bg-card rounded-xl">
+        <CheckCircle2 className="w-12 h-12 text-border mx-auto mb-4" />
+        <p className="text-muted-foreground">No completed orders yet</p>
       </div>
     );
   }
@@ -738,7 +738,7 @@ function CompletedOrdersList({ orders }: { orders: Order[] }) {
           key={order.id}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl p-5 shadow-sm opacity-75"
+          className="bg-card rounded-xl p-5 shadow-sm opacity-75"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -746,8 +746,8 @@ function CompletedOrdersList({ orders }: { orders: Order[] }) {
                 <CheckCircle2 className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <p className="font-medium text-[#092635]">{order.customerName}</p>
-                <p className="text-sm text-[#4A6375]">
+                <p className="font-medium text-foreground">{order.customerName}</p>
+                <p className="text-sm text-muted-foreground">
                   {order.customerAddress.area} • {order.weight || order.estimatedWeight}kg
                 </p>
                 {order.actualItemCount && (
@@ -758,8 +758,8 @@ function CompletedOrdersList({ orders }: { orders: Order[] }) {
               </div>
             </div>
             <div className="text-right">
-              <p className="font-semibold text-[#092635]">RM{order.deliveryFee}</p>
-              <p className="text-xs text-[#4A6375]">
+              <p className="font-semibold text-foreground">RM{order.deliveryFee}</p>
+              <p className="text-xs text-muted-foreground">
                 {order.completedAt && new Date(order.completedAt).toLocaleDateString()}
               </p>
             </div>
@@ -799,15 +799,15 @@ function OrderDetailDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-[#092635]">
+          <DialogTitle className="text-xl font-semibold text-foreground">
             Order Details
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Status */}
-          <div className="flex items-center justify-between p-4 bg-[#F5F7F9] rounded-xl">
-            <span className="text-[#4A6375]">Current Status</span>
+          <div className="flex items-center justify-between p-4 bg-background rounded-xl">
+            <span className="text-muted-foreground">Current Status</span>
             <Badge className={statusInfo.color}>
               <span className="mr-1">{statusInfo.icon}</span>
               {statusInfo.label}
@@ -816,18 +816,18 @@ function OrderDetailDialog({
 
           {/* Customer Info */}
           <div>
-            <h3 className="font-semibold text-[#092635] mb-3">Customer</h3>
+            <h3 className="font-semibold text-foreground mb-3">Customer</h3>
             <div className="space-y-2 text-sm">
-              <p className="text-[#092635] font-medium">{order.customerName}</p>
-              <p className="text-[#4A6375] flex items-center gap-2">
+              <p className="text-foreground font-medium">{order.customerName}</p>
+              <p className="text-muted-foreground flex items-center gap-2">
                 <Phone className="w-4 h-4" />
                 {order.customerPhone}
               </p>
-              <p className="text-[#4A6375] flex items-center gap-2">
+              <p className="text-muted-foreground flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
                 {order.customerAddress.building}, {order.customerAddress.street}
               </p>
-              <p className="text-[#4A6375] ml-6">
+              <p className="text-muted-foreground ml-6">
                 {order.customerAddress.area}, {order.customerAddress.city}
               </p>
             </div>
@@ -835,29 +835,29 @@ function OrderDetailDialog({
 
           {/* Order Info */}
           <div>
-            <h3 className="font-semibold text-[#092635] mb-3">Order Info</h3>
+            <h3 className="font-semibold text-foreground mb-3">Order Info</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-[#4A6375]">Service</span>
-                <span className="text-[#092635]">{serviceNames[order.serviceType]}</span>
+                <span className="text-muted-foreground">Service</span>
+                <span className="text-foreground">{serviceNames[order.serviceType]}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#4A6375]">Weight</span>
-                <span className="text-[#092635]">{order.weight || order.estimatedWeight} kg</span>
+                <span className="text-muted-foreground">Weight</span>
+                <span className="text-foreground">{order.weight || order.estimatedWeight} kg</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#4A6375]">Items Declared</span>
-                <span className="text-[#092635]">{order.declaredItemCount} items</span>
+                <span className="text-muted-foreground">Items Declared</span>
+                <span className="text-foreground">{order.declaredItemCount} items</span>
               </div>
               {order.actualItemCount !== undefined && (
                 <div className="flex justify-between">
-                  <span className="text-[#4A6375]">Items Verified</span>
+                  <span className="text-muted-foreground">Items Verified</span>
                   <span className="text-green-600 font-medium">{order.actualItemCount} items ✓</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-[#4A6375]">Pickup Date</span>
-                <span className="text-[#092635]">{new Date(order.pickupDate).toLocaleDateString()}</span>
+                <span className="text-muted-foreground">Pickup Date</span>
+                <span className="text-foreground">{new Date(order.pickupDate).toLocaleDateString()}</span>
               </div>
               {order.specialInstructions && (
                 <div className="mt-3 p-3 bg-yellow-50 rounded-lg">
@@ -876,18 +876,18 @@ function OrderDetailDialog({
 
           {/* Status History */}
           <div>
-            <h3 className="font-semibold text-[#092635] mb-3">Status History</h3>
+            <h3 className="font-semibold text-foreground mb-3">Status History</h3>
             <div className="space-y-3">
               {order.statusHistory.map((item, index) => (
                 <div key={index} className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-[#1188E9] rounded-full mt-2" />
+                  <div className="w-2 h-2 bg-primary rounded-full mt-2" />
                   <div>
-                    <p className="text-sm text-[#092635]">{statusLabels[item.status].label}</p>
-                    <p className="text-xs text-[#4A6375]">
+                    <p className="text-sm text-foreground">{statusLabels[item.status].label}</p>
+                    <p className="text-xs text-muted-foreground">
                       {new Date(item.timestamp).toLocaleString()}
                     </p>
                     {item.note && (
-                      <p className="text-xs text-[#4A6375] mt-1">{item.note}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{item.note}</p>
                     )}
                   </div>
                 </div>
@@ -897,8 +897,8 @@ function OrderDetailDialog({
 
           {/* Action Buttons */}
           {nextStatuses.length > 0 && (
-            <div className="pt-4 border-t border-[#F5F7F9]">
-              <p className="text-sm text-[#4A6375] mb-3">Update Status:</p>
+            <div className="pt-4 border-t border-background">
+              <p className="text-sm text-muted-foreground mb-3">Update Status:</p>
               <div className="flex flex-wrap gap-2">
                 {nextStatuses.map((status) => (
                   <Button
@@ -909,7 +909,7 @@ function OrderDetailDialog({
                       onClose();
                     }}
                     disabled={updatingStatus}
-                    className="bg-[#1188E9] hover:bg-[#092635]"
+                    className="bg-primary hover:bg-navy"
                   >
                     {statusLabels[status].icon} {statusLabels[status].label}
                   </Button>
@@ -953,28 +953,28 @@ function PickupDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-[#092635] flex items-center gap-2">
-            <Package className="w-5 h-5 text-[#1188E9]" />
+          <DialogTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
+            <Package className="w-5 h-5 text-primary" />
             Record Pickup
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Order Info */}
-          <div className="p-4 bg-[#F5F7F9] rounded-xl">
-            <p className="text-sm text-[#4A6375]">Order #{order.id.slice(-4)}</p>
-            <p className="font-medium text-[#092635]">{order.customerName}</p>
-            <p className="text-sm text-[#4A6375]">{order.customerAddress.building}</p>
+          <div className="p-4 bg-background rounded-xl">
+            <p className="text-sm text-muted-foreground">Order #{order.id.slice(-4)}</p>
+            <p className="font-medium text-foreground">{order.customerName}</p>
+            <p className="text-sm text-muted-foreground">{order.customerAddress.building}</p>
           </div>
 
           {/* Item Count */}
           <div>
-            <Label className="text-[#092635] font-medium flex items-center gap-2">
+            <Label className="text-foreground font-medium flex items-center gap-2">
               <Hash className="w-4 h-4" />
               Actual Item Count
             </Label>
-            <p className="text-sm text-[#4A6375] mb-3">
-              Customer declared: <span className="font-medium text-[#092635]">{order.declaredItemCount} items</span>
+            <p className="text-sm text-muted-foreground mb-3">
+              Customer declared: <span className="font-medium text-foreground">{order.declaredItemCount} items</span>
             </p>
             <div className="flex items-center gap-4">
               <Button
@@ -1013,7 +1013,7 @@ function PickupDialog({
 
           {/* Pickup Notes */}
           <div>
-            <Label htmlFor="pickupNotes" className="text-[#092635] font-medium flex items-center gap-2">
+            <Label htmlFor="pickupNotes" className="text-foreground font-medium flex items-center gap-2">
               <FileText className="w-4 h-4" />
               Pickup Notes (Optional)
             </Label>
@@ -1038,7 +1038,7 @@ function PickupDialog({
             </Button>
             <Button
               onClick={onSubmit}
-              className="flex-1 bg-[#1188E9] hover:bg-[#092635]"
+              className="flex-1 bg-primary hover:bg-navy"
               disabled={updatingStatus || actualItemCount <= 0}
             >
               {updatingStatus ? (
@@ -1088,7 +1088,7 @@ function DeliveryDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-[#092635] flex items-center gap-2">
+          <DialogTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-green-600" />
             Record Delivery
           </DialogTitle>
@@ -1096,10 +1096,10 @@ function DeliveryDialog({
 
         <div className="space-y-6">
           {/* Order Info */}
-          <div className="p-4 bg-[#F5F7F9] rounded-xl">
-            <p className="text-sm text-[#4A6375]">Order #{order.id.slice(-4)}</p>
-            <p className="font-medium text-[#092635]">{order.customerName}</p>
-            <p className="text-sm text-[#4A6375]">{order.customerAddress.building}</p>
+          <div className="p-4 bg-background rounded-xl">
+            <p className="text-sm text-muted-foreground">Order #{order.id.slice(-4)}</p>
+            <p className="font-medium text-foreground">{order.customerName}</p>
+            <p className="text-sm text-muted-foreground">{order.customerAddress.building}</p>
             {order.actualItemCount && (
               <p className="text-sm text-green-600 mt-1">
                 ✓ {order.actualItemCount} items to deliver
@@ -1109,11 +1109,11 @@ function DeliveryDialog({
 
           {/* Photo Upload */}
           <div>
-            <Label className="text-[#092635] font-medium flex items-center gap-2">
+            <Label className="text-foreground font-medium flex items-center gap-2">
               <Camera className="w-4 h-4" />
               Delivery Photo (Optional)
             </Label>
-            <p className="text-sm text-[#4A6375] mb-3">
+            <p className="text-sm text-muted-foreground mb-3">
               Take a photo of the delivered laundry for proof (recommended)
             </p>
             
@@ -1143,14 +1143,14 @@ function DeliveryDialog({
             ) : (
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full h-48 border-2 border-dashed border-[#D8E5EF] rounded-xl flex flex-col items-center justify-center gap-3 hover:border-[#1188E9] hover:bg-[#E6F4FF] transition-colors"
+                className="w-full h-48 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/10 transition-colors"
               >
-                <div className="w-16 h-16 bg-[#E6F4FF] rounded-full flex items-center justify-center">
-                  <Camera className="w-8 h-8 text-[#1188E9]" />
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                  <Camera className="w-8 h-8 text-primary" />
                 </div>
                 <div className="text-center">
-                  <p className="text-[#092635] font-medium">Take Photo</p>
-                  <p className="text-sm text-[#4A6375]">Tap to capture delivery photo</p>
+                  <p className="text-foreground font-medium">Take Photo</p>
+                  <p className="text-sm text-muted-foreground">Tap to capture delivery photo</p>
                 </div>
               </button>
             )}

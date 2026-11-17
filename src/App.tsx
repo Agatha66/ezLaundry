@@ -26,6 +26,8 @@ import { OrderDetail } from '@/pages/OrderDetail';
 import { MainLayout } from '@/components/MainLayout';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import type { UserRole } from '@/types';
+import { MotionConfig } from 'framer-motion';
+import { ThemeProvider } from '@/components/ThemeProvider';
 
 // Landing Page Component
 function LandingPage() {
@@ -422,7 +424,11 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <AppRoutes />
+        <ThemeProvider>
+          <MotionConfig reducedMotion="user">
+            <AppRoutes />
+          </MotionConfig>
+        </ThemeProvider>
       </BrowserRouter>
     </AuthProvider>
   );

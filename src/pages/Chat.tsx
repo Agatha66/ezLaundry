@@ -70,27 +70,27 @@ export function ChatList() {
   const unread = (c: Chat) => (userData?.role === 'customer' ? c.unreadCountCustomer : c.unreadCountRider) || 0;
 
   if (loading) return (
-    <div className="min-h-screen bg-[#F5F7F9] flex items-center justify-center">
-      <Loader2 className="w-8 h-8 animate-spin text-[#1188E9]" />
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#F5F7F9]">
-      <header className="bg-white shadow-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-background">
+      <header className="bg-card shadow-sm sticky top-0 z-50">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-[#092635]">Messages</h1>
-          <span className="text-sm text-[#4A6375]">{chats.length} conversations</span>
+          <h1 className="text-xl font-semibold text-foreground">Messages</h1>
+          <span className="text-sm text-muted-foreground">{chats.length} conversations</span>
         </div>
       </header>
       <main className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-4 pb-24">
         {chats.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-20 h-20 bg-[#E6F4FF] rounded-full flex items-center justify-center mx-auto mb-4">
-              <Send className="w-8 h-8 text-[#1188E9]" />
+            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Send className="w-8 h-8 text-primary" />
             </div>
-            <h3 className="text-lg font-semibold text-[#092635]">No messages yet</h3>
-            <p className="text-[#4A6375]">
+            <h3 className="text-lg font-semibold text-foreground">No messages yet</h3>
+            <p className="text-muted-foreground">
               {userData?.role === 'customer'
                 ? "Once a rider accepts your order, you can chat with them here."
                 : "Once you accept an order, you can chat with the customer here."}
@@ -107,13 +107,13 @@ export function ChatList() {
                   animate={{ opacity: 1, y: 0 }}
                   onClick={() => navigate(`/chat/${c.orderId}`)}
                   className={`rounded-xl p-4 shadow-sm hover:shadow-md cursor-pointer transition-colors ${
-                    hasUnread ? 'bg-[#E6F4FF] border border-[#1188E9]/20' : 'bg-white'
+                    hasUnread ? 'bg-primary/10 border border-primary/20' : 'bg-card'
                   }`}
                 >
                   <div className="flex items-center gap-4">
                     <div className="relative">
-                      <Avatar className="w-12 h-12 bg-[#1188E9]">
-                        <AvatarFallback className="bg-[#1188E9] text-white">
+                      <Avatar className="w-12 h-12 bg-primary">
+                        <AvatarFallback className="bg-primary text-white">
                           {otherName(c).charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
@@ -124,18 +124,18 @@ export function ChatList() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <h3 className={`${hasUnread ? 'font-bold text-[#092635]' : 'font-semibold text-[#092635]'}`}>
+                        <h3 className={`${hasUnread ? 'font-bold text-foreground' : 'font-semibold text-foreground'}`}>
                           {otherName(c)}
                         </h3>
                         {c.lastMessageAt && (
-                          <span className={`text-xs ${hasUnread ? 'text-[#1188E9] font-medium' : 'text-[#4A6375]'}`}>
+                          <span className={`text-xs ${hasUnread ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
                             {formatTime(c.lastMessageAt)}
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-[#4A6375] truncate">Order #{c.orderId.slice(-4)}</p>
+                      <p className="text-sm text-muted-foreground truncate">Order #{c.orderId.slice(-4)}</p>
                       {c.lastMessage && (
-                        <p className={`text-sm truncate mt-1 ${hasUnread ? 'text-[#092635] font-medium' : 'text-[#4A6375]'}`}>
+                        <p className={`text-sm truncate mt-1 ${hasUnread ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
                           {c.lastMessage}
                         </p>
                       )}
@@ -318,17 +318,17 @@ export function ChatPage() {
   }, [messages, userData?.uid, showDivider, unreadSnapshot]);
 
   if (loading) return (
-    <div className="min-h-screen bg-[#F5F7F9] flex items-center justify-center">
-      <Loader2 className="w-8 h-8 animate-spin text-[#1188E9]" />
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
     </div>
   );
 
   if (error || !chat) return (
-    <div className="min-h-screen bg-[#F5F7F9] flex items-center justify-center">
+    <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center">
         <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <p className="text-[#4A6375] mb-4">{error || 'Chat not available'}</p>
-        <Button onClick={() => navigate('/chats')} className="bg-[#1188E9]">Back to Chats</Button>
+        <p className="text-muted-foreground mb-4">{error || 'Chat not available'}</p>
+        <Button onClick={() => navigate('/chats')} className="bg-primary">Back to Chats</Button>
       </div>
     </div>
   );
@@ -336,28 +336,28 @@ export function ChatPage() {
   return (
     <div className="min-h-screen bg-[#E8EDF2] flex flex-col">
       {/* ══ Header ══ */}
-      <header className="bg-white shadow-sm sticky top-0 z-50 h-16 flex-shrink-0">
+      <header className="bg-card shadow-sm sticky top-0 z-50 h-16 flex-shrink-0">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/chats')} className="text-[#4A6375]">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/chats')} className="text-muted-foreground">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <Avatar className="w-10 h-10 bg-[#1188E9]">
-              <AvatarFallback className="bg-[#1188E9] text-white">{otherName.charAt(0).toUpperCase()}</AvatarFallback>
+            <Avatar className="w-10 h-10 bg-primary">
+              <AvatarFallback className="bg-primary text-white">{otherName.charAt(0).toUpperCase()}</AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="font-semibold text-[#092635] leading-tight">{otherName}</h1>
-              <p className="text-xs text-[#4A6375]">Order #{orderId?.slice(-4)}</p>
+              <h1 className="font-semibold text-foreground leading-tight">{otherName}</h1>
+              <p className="text-xs text-muted-foreground">Order #{orderId?.slice(-4)}</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
             {otherPhone && (
               <a href={`tel:${otherPhone}`}>
-                <Button variant="ghost" size="icon" className="text-[#1188E9]"><Phone className="w-5 h-5" /></Button>
+                <Button variant="ghost" size="icon" className="text-primary"><Phone className="w-5 h-5" /></Button>
               </a>
             )}
             {order && (
-              <Button variant="ghost" size="sm" onClick={() => navigate(`/order/${orderId}`)} className="text-[#1188E9]">
+              <Button variant="ghost" size="sm" onClick={() => navigate(`/order/${orderId}`)} className="text-primary">
                 View Order
               </Button>
             )}
@@ -367,19 +367,19 @@ export function ChatPage() {
 
       {/* ══ Sticky Order Status Banner ══ */}
       {order && (
-        <div className="bg-white border-b border-[#D8E5EF] sticky top-16 z-40">
+        <div className="bg-card border-b border-border sticky top-16 z-40">
           <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className={`w-2.5 h-2.5 rounded-full ${order.status === 'completed' ? 'bg-green-500' : order.status === 'cancelled' ? 'bg-red-500' : 'bg-[#1188E9]'}`} />
-              <Package className="w-4 h-4 text-[#4A6375]" />
-              <span className="text-sm text-[#092635] font-medium">
+              <div className={`w-2.5 h-2.5 rounded-full ${order.status === 'completed' ? 'bg-green-500' : order.status === 'cancelled' ? 'bg-red-500' : 'bg-primary'}`} />
+              <Package className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-foreground font-medium">
                 {order.status === 'completed' ? 'Order Completed' :
                  order.status === 'delivered' ? 'Delivered — waiting for confirmation' :
                  order.status === 'cancelled' ? 'Order Cancelled' :
                  statusLabels[order.status]?.label || order.status}
               </span>
             </div>
-            <span className="text-xs text-[#4A6375] bg-[#F5F7F9] px-2 py-1 rounded-md">#{order.id.slice(-6)}</span>
+            <span className="text-xs text-muted-foreground bg-background px-2 py-1 rounded-md">#{order.id.slice(-6)}</span>
           </div>
         </div>
       )}
@@ -389,11 +389,11 @@ export function ChatPage() {
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-4 pb-36">
           {messages.length === 0 ? (
             <div className="text-center py-12">
-              <div className="w-16 h-16 bg-[#D8E5EF] rounded-full flex items-center justify-center mx-auto mb-4">
-                <Send className="w-8 h-8 text-[#1188E9]" />
+              <div className="w-16 h-16 bg-border rounded-full flex items-center justify-center mx-auto mb-4">
+                <Send className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-lg font-semibold text-[#092635] mb-2">Start a conversation</h3>
-              <p className="text-[#4A6375]">Send a message to {otherName}</p>
+              <h3 className="text-lg font-semibold text-foreground mb-2">Start a conversation</h3>
+              <p className="text-muted-foreground">Send a message to {otherName}</p>
             </div>
           ) : (
             <div className="space-y-1">
@@ -427,11 +427,11 @@ export function ChatPage() {
                     {/* ── unread divider ── */}
                     {item.isUnread && (
                       <div className="flex items-center gap-3 my-3">
-                        <div className="flex-1 h-px bg-[#1188E9]" />
-                        <span className="text-xs text-[#1188E9] font-semibold flex items-center gap-1">
+                        <div className="flex-1 h-px bg-primary" />
+                        <span className="text-xs text-primary font-semibold flex items-center gap-1">
                           <Bell className="w-3 h-3" /> New Messages
                         </span>
-                        <div className="flex-1 h-px bg-[#1188E9]" />
+                        <div className="flex-1 h-px bg-primary" />
                       </div>
                     )}
 
@@ -445,8 +445,8 @@ export function ChatPage() {
                       <div className={`flex items-end gap-2 max-w-[80%] ${isMine ? 'flex-row-reverse' : ''}`}>
                         {/* Avatar (other party only, show on first of group) */}
                         {!isMine && (
-                          <Avatar className="w-7 h-7 bg-[#1188E9] flex-shrink-0 mb-1">
-                            <AvatarFallback className="bg-[#1188E9] text-white text-[10px]">
+                          <Avatar className="w-7 h-7 bg-primary flex-shrink-0 mb-1">
+                            <AvatarFallback className="bg-primary text-white text-[10px]">
                               {m.senderName.charAt(0).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
@@ -454,8 +454,8 @@ export function ChatPage() {
 
                         <div className={`px-3.5 py-2 rounded-2xl ${
                           isMine
-                            ? 'bg-[#1188E9] text-white rounded-br-md'
-                            : 'bg-white text-[#092635] rounded-bl-md shadow-sm border border-[#E2E8F0]'
+                            ? 'bg-primary text-white rounded-br-md'
+                            : 'bg-card text-foreground rounded-bl-md shadow-sm border border-[#E2E8F0]'
                         }`}>
                           {/* ── image message ── */}
                           {m.imageUrl && (
@@ -498,7 +498,7 @@ export function ChatPage() {
       </main>
 
       {/* ══ Input ══ */}
-      <footer className="bg-white border-t border-[#D8E5EF] fixed bottom-0 left-0 right-0 z-40">
+      <footer className="bg-card border-t border-border fixed bottom-0 left-0 right-0 z-40">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center gap-3">
             <Input
@@ -506,13 +506,13 @@ export function ChatPage() {
               onChange={(e) => setText(e.target.value)}
               onKeyDown={onKeyDown}
               placeholder={`Message ${otherName}...`}
-              className="flex-1 h-12 rounded-full border-[#D8E5EF] focus:border-[#1188E9] px-5 bg-[#F5F7F9] focus:bg-white"
+              className="flex-1 h-12 rounded-full border-border focus:border-primary px-5 bg-background focus:bg-white"
               disabled={sending}
             />
             <Button
               onClick={handleSend}
               disabled={!text.trim() || sending}
-              className="w-12 h-12 rounded-full bg-[#1188E9] hover:bg-[#092635] p-0 flex items-center justify-center disabled:opacity-50"
+              className="w-12 h-12 rounded-full bg-primary hover:bg-navy p-0 flex items-center justify-center disabled:opacity-50"
             >
               {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
             </Button>

@@ -93,8 +93,8 @@ export function AdminReports() {
       <CardContent className="p-5">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-sm text-[#4A6375]">{title}</p>
-            <p className="text-2xl font-semibold text-[#092635] mt-1">{value}</p>
+            <p className="text-sm text-muted-foreground">{title}</p>
+            <p className="text-2xl font-semibold text-foreground mt-1">{value}</p>
           </div>
           <div className={`w-12 h-12 ${color} rounded-xl flex items-center justify-center`}>
             <Icon className="w-6 h-6 text-white" />
@@ -118,40 +118,40 @@ export function AdminReports() {
     const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
     
     return (
-      <div className="bg-white rounded-xl p-4 shadow-sm">
+      <div className="bg-card rounded-xl p-4 shadow-sm">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-[#4A6375]">{title}</span>
-          <span className="text-sm font-medium text-[#092635]">{count}</span>
+          <span className="text-sm text-muted-foreground">{title}</span>
+          <span className="text-sm font-medium text-foreground">{count}</span>
         </div>
-        <div className="w-full h-2 bg-[#F5F7F9] rounded-full overflow-hidden">
+        <div className="w-full h-2 bg-background rounded-full overflow-hidden">
           <div 
             className={`h-full ${color} rounded-full transition-all duration-500`}
             style={{ width: `${percentage}%` }}
           />
         </div>
-        <p className="text-xs text-[#4A6375] mt-1">{percentage}% of total orders</p>
+        <p className="text-xs text-muted-foreground mt-1">{percentage}% of total orders</p>
       </div>
     );
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F5F7F9] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#1188E9]" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7F9]">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+      <header className="bg-card shadow-sm sticky top-0 z-40">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <h1 className="text-xl font-semibold text-[#092635] font-['Poppins']">Reports</h1>
+            <h1 className="text-xl font-semibold text-foreground font-['Poppins']">Reports</h1>
             <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-[#4A6375]" />
-              <span className="text-sm text-[#4A6375]">{new Date().toLocaleDateString()}</span>
+              <Calendar className="w-5 h-5 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">{new Date().toLocaleDateString()}</span>
             </div>
           </div>
         </div>
@@ -177,7 +177,7 @@ export function AdminReports() {
                 title="Total Orders"
                 value={stats.totalOrders}
                 icon={Package}
-                color="bg-[#1188E9]"
+                color="bg-primary"
               />
               <StatCard
                 title="Customers"
@@ -189,14 +189,14 @@ export function AdminReports() {
                 title="Riders"
                 value={stats.totalRiders}
                 icon={TrendingUp}
-                color="bg-[#1A7A7E]"
+                color="bg-teal"
               />
             </div>
 
             {/* Order Status Breakdown */}
-            <div className="bg-white rounded-xl p-5 shadow-sm">
-              <h2 className="text-lg font-semibold text-[#092635] mb-4 flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-[#1188E9]" />
+            <div className="bg-card rounded-xl p-5 shadow-sm">
+              <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-primary" />
                 Order Status Breakdown
               </h2>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -210,7 +210,7 @@ export function AdminReports() {
                   title="Active"
                   count={stats.activeOrders}
                   total={stats.totalOrders}
-                  color="bg-[#1188E9]"
+                  color="bg-primary"
                 />
                 <OrderStatusCard
                   title="Pending"
@@ -229,55 +229,55 @@ export function AdminReports() {
 
             {/* Additional Stats */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="bg-white rounded-xl p-5 shadow-sm">
-                <h3 className="text-lg font-semibold text-[#092635] mb-4">Average Order Value</h3>
+              <div className="bg-card rounded-xl p-5 shadow-sm">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Average Order Value</h3>
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-[#E6F4FF] rounded-full flex items-center justify-center">
-                    <DollarSign className="w-8 h-8 text-[#1188E9]" />
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                    <DollarSign className="w-8 h-8 text-primary" />
                   </div>
                   <div>
-                    <p className="text-3xl font-bold text-[#092635]">
+                    <p className="text-3xl font-bold text-foreground">
                       RM{stats.averageOrderValue.toFixed(2)}
                     </p>
-                    <p className="text-sm text-[#4A6375]">Per completed order</p>
+                    <p className="text-sm text-muted-foreground">Per completed order</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl p-5 shadow-sm">
-                <h3 className="text-lg font-semibold text-[#092635] mb-4">Completion Rate</h3>
+              <div className="bg-card rounded-xl p-5 shadow-sm">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Completion Rate</h3>
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center">
                     <TrendingUp className="w-8 h-8 text-green-600" />
                   </div>
                   <div>
-                    <p className="text-3xl font-bold text-[#092635]">
+                    <p className="text-3xl font-bold text-foreground">
                       {stats.totalOrders > 0 
                         ? Math.round((stats.completedOrders / stats.totalOrders) * 100) 
                         : 0}%
                     </p>
-                    <p className="text-sm text-[#4A6375]">Orders completed successfully</p>
+                    <p className="text-sm text-muted-foreground">Orders completed successfully</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-white rounded-xl p-5 shadow-sm">
-              <h3 className="text-lg font-semibold text-[#092635] mb-4">Recent Orders</h3>
+            <div className="bg-card rounded-xl p-5 shadow-sm">
+              <h3 className="text-lg font-semibold text-foreground mb-4">Recent Orders</h3>
               {orders.length === 0 ? (
-                <p className="text-[#4A6375] text-center py-8">No orders yet</p>
+                <p className="text-muted-foreground text-center py-8">No orders yet</p>
               ) : (
                 <div className="space-y-3">
                   {orders.slice(0, 5).map((order) => (
-                    <div key={order.id} className="flex items-center justify-between p-3 bg-[#F5F7F9] rounded-lg">
+                    <div key={order.id} className="flex items-center justify-between p-3 bg-background rounded-lg">
                       <div>
-                        <p className="font-medium text-[#092635]">Order #{order.id.slice(-4)}</p>
-                        <p className="text-sm text-[#4A6375]">{order.customerName}</p>
+                        <p className="font-medium text-foreground">Order #{order.id.slice(-4)}</p>
+                        <p className="text-sm text-muted-foreground">{order.customerName}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium text-[#092635]">RM{order.totalAmount}</p>
-                        <p className="text-xs text-[#4A6375] capitalize">{order.status}</p>
+                        <p className="font-medium text-foreground">RM{order.totalAmount}</p>
+                        <p className="text-xs text-muted-foreground capitalize">{order.status}</p>
                       </div>
                     </div>
                   ))}

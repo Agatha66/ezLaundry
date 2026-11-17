@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 210 25% 97%;
     --foreground: 207 64% 12%;
     --card: 0 0% 100%;
     --card-foreground: 207 64% 12%;
@@ -34,6 +34,33 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --navy: 200 71% 12%;
+    --teal: 181 65% 30%;
+  }
+
+  .dark {
+    --background: 207 52% 7%;
+    --foreground: 205 52% 94%;
+    --card: 206 48% 11%;
+    --card-foreground: 205 52% 94%;
+    --popover: 206 48% 12%;
+    --popover-foreground: 205 52% 94%;
+    --primary: 206 87% 54%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 205 40% 15%;
+    --secondary-foreground: 205 52% 94%;
+    --muted: 205 40% 15%;
+    --muted-foreground: 205 23% 64%;
+    --accent: 181 55% 38%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 204 44% 19%;
+    --input: 204 44% 19%;
+    --ring: 206 87% 54%;
+    --navy: 203 60% 18%;
+    --teal: 181 55% 38%;
+    color-scheme: dark;
   }
 }
 
@@ -44,6 +71,7 @@
   
   html {
     scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
   }
   
   body {
@@ -73,11 +101,11 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #F5F7F9;
+  background: hsl(var(--background));
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D8E5EF;
+  background: hsl(var(--border));
   border-radius: 4px;
 }
 
@@ -108,3 +136,16 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Skeleton shimmer */
+.skeleton {
+  background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--border)) 37%, hsl(var(--muted)) 63%);
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.3s ease infinite;
+}
+@keyframes skeleton-shimmer {
+  from { background-position: 100% 50%; }
+  to { background-position: 0 50%; }
+}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }

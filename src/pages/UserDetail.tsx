@@ -60,20 +60,20 @@ export function UserDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F5F7F9] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#1188E9]" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#F5F7F9] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <p className="text-[#4A6375]">User not found</p>
+          <p className="text-muted-foreground">User not found</p>
           <Button 
             onClick={() => navigate('/users')} 
-            className="mt-4 bg-[#1188E9]"
+            className="mt-4 bg-primary"
           >
             Go Back
           </Button>
@@ -95,9 +95,9 @@ export function UserDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7F9]">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+      <header className="bg-card shadow-sm sticky top-0 z-40">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
@@ -105,15 +105,15 @@ export function UserDetail() {
                 variant="ghost"
                 size="icon"
                 onClick={() => navigate('/users')}
-                className="text-[#4A6375]"
+                className="text-muted-foreground"
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
-              <h1 className="text-xl font-semibold text-[#092635] font-['Poppins']">
+              <h1 className="text-xl font-semibold text-foreground font-['Poppins']">
                 {user.role === 'rider' ? 'Rider Details' : 'Customer Details'}
               </h1>
             </div>
-            <Badge className={user.role === 'rider' ? 'bg-[#1A7A7E]' : 'bg-[#1188E9]'}>
+            <Badge className={user.role === 'rider' ? 'bg-teal' : 'bg-primary'}>
               {user.role === 'rider' ? (
                 <><Bike className="w-3 h-3 mr-1" /> Rider</>
               ) : (
@@ -132,24 +132,24 @@ export function UserDetail() {
           className="space-y-6"
         >
           {/* User Profile Card */}
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="bg-card rounded-xl p-6 shadow-sm">
             <div className="flex items-center gap-4">
-              <Avatar className="w-20 h-20 bg-[#1188E9]">
-                <AvatarFallback className="bg-[#1188E9] text-white text-2xl">
+              <Avatar className="w-20 h-20 bg-primary">
+                <AvatarFallback className="bg-primary text-white text-2xl">
                   {user.displayName?.charAt(0).toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <h2 className="text-xl font-semibold text-[#092635]">
+                <h2 className="text-xl font-semibold text-foreground">
                   {user.displayName || 'Unknown'}
                 </h2>
                 <div className="space-y-1 mt-2">
-                  <p className="text-sm text-[#4A6375] flex items-center gap-2">
+                  <p className="text-sm text-muted-foreground flex items-center gap-2">
                     <Mail className="w-4 h-4" />
                     {user.email}
                   </p>
                   {user.phone && (
-                    <p className="text-sm text-[#4A6375] flex items-center gap-2">
+                    <p className="text-sm text-muted-foreground flex items-center gap-2">
                       <Phone className="w-4 h-4" />
                       {user.phone}
                     </p>
@@ -159,8 +159,8 @@ export function UserDetail() {
             </div>
             
             {user.address && (
-              <div className="mt-4 pt-4 border-t border-[#F5F7F9]">
-                <p className="text-sm text-[#4A6375] flex items-start gap-2">
+              <div className="mt-4 pt-4 border-t border-background">
+                <p className="text-sm text-muted-foreground flex items-start gap-2">
                   <MapPin className="w-4 h-4 mt-0.5" />
                   <span>
                     {user.address.building}, {user.address.street}<br />
@@ -170,8 +170,8 @@ export function UserDetail() {
               </div>
             )}
             
-            <div className="mt-4 pt-4 border-t border-[#F5F7F9]">
-              <p className="text-sm text-[#4A6375]">
+            <div className="mt-4 pt-4 border-t border-background">
+              <p className="text-sm text-muted-foreground">
                 <Calendar className="w-4 h-4 inline mr-2" />
                 Joined on {new Date(user.createdAt).toLocaleDateString()}
               </p>
@@ -180,27 +180,27 @@ export function UserDetail() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white rounded-xl p-4 shadow-sm">
-              <p className="text-sm text-[#4A6375]">Total Orders</p>
-              <p className="text-2xl font-semibold text-[#092635]">{orders.length}</p>
+            <div className="bg-card rounded-xl p-4 shadow-sm">
+              <p className="text-sm text-muted-foreground">Total Orders</p>
+              <p className="text-2xl font-semibold text-foreground">{orders.length}</p>
             </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm">
-              <p className="text-sm text-[#4A6375]">Completed</p>
+            <div className="bg-card rounded-xl p-4 shadow-sm">
+              <p className="text-sm text-muted-foreground">Completed</p>
               <p className="text-2xl font-semibold text-green-600">{completedOrders.length}</p>
             </div>
             {user.role === 'customer' ? (
-              <div className="bg-white rounded-xl p-4 shadow-sm">
-                <p className="text-sm text-[#4A6375]">Total Spent</p>
-                <p className="text-2xl font-semibold text-[#1188E9]">RM{totalSpent}</p>
+              <div className="bg-card rounded-xl p-4 shadow-sm">
+                <p className="text-sm text-muted-foreground">Total Spent</p>
+                <p className="text-2xl font-semibold text-primary">RM{totalSpent}</p>
               </div>
             ) : (
-              <div className="bg-white rounded-xl p-4 shadow-sm">
-                <p className="text-sm text-[#4A6375]">Total Earnings</p>
-                <p className="text-2xl font-semibold text-[#1188E9]">RM{totalEarnings}</p>
+              <div className="bg-card rounded-xl p-4 shadow-sm">
+                <p className="text-sm text-muted-foreground">Total Earnings</p>
+                <p className="text-2xl font-semibold text-primary">RM{totalEarnings}</p>
               </div>
             )}
-            <div className="bg-white rounded-xl p-4 shadow-sm">
-              <p className="text-sm text-[#4A6375]">Active</p>
+            <div className="bg-card rounded-xl p-4 shadow-sm">
+              <p className="text-sm text-muted-foreground">Active</p>
               <p className="text-2xl font-semibold text-orange-500">
                 {orders.filter(o => !['completed', 'cancelled'].includes(o.status)).length}
               </p>
@@ -208,16 +208,16 @@ export function UserDetail() {
           </div>
 
           {/* Order History */}
-          <div className="bg-white rounded-xl p-5 shadow-sm">
-            <h3 className="text-lg font-semibold text-[#092635] mb-4 flex items-center gap-2">
-              <Package className="w-5 h-5 text-[#1188E9]" />
+          <div className="bg-card rounded-xl p-5 shadow-sm">
+            <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+              <Package className="w-5 h-5 text-primary" />
               Order History
             </h3>
 
             {orders.length === 0 ? (
               <div className="text-center py-8">
-                <Package className="w-12 h-12 text-[#D8E5EF] mx-auto mb-4" />
-                <p className="text-[#4A6375]">No orders yet</p>
+                <Package className="w-12 h-12 text-border mx-auto mb-4" />
+                <p className="text-muted-foreground">No orders yet</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -230,7 +230,7 @@ export function UserDetail() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       onClick={() => navigate(`/order/${order.id}`)}
-                      className="p-4 bg-[#F5F7F9] rounded-xl cursor-pointer hover:bg-[#E6F4FF] transition-colors"
+                      className="p-4 bg-background rounded-xl cursor-pointer hover:bg-primary/10 transition-colors"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -240,11 +240,11 @@ export function UserDetail() {
                               {statusInfo.label}
                             </Badge>
                           </div>
-                          <p className="font-medium text-[#092635]">
+                          <p className="font-medium text-foreground">
                             {serviceNames[order.serviceType]}
                           </p>
-                          <p className="text-sm text-[#4A6375]">Order #{order.id}</p>
-                          <div className="flex items-center gap-4 mt-2 text-sm text-[#4A6375]">
+                          <p className="text-sm text-muted-foreground">Order #{order.id}</p>
+                          <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Clock className="w-4 h-4" />
                               {new Date(order.createdAt).toLocaleDateString()}
@@ -256,11 +256,11 @@ export function UserDetail() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold text-[#092635]">
+                          <p className="font-semibold text-foreground">
                             RM{order.totalAmount}
                           </p>
-                          <p className="text-sm text-[#4A6375]">{order.weight || order.estimatedWeight} kg</p>
-                          <div className="flex items-center gap-1 text-[#1188E9] text-sm mt-2">
+                          <p className="text-sm text-muted-foreground">{order.weight || order.estimatedWeight} kg</p>
+                          <div className="flex items-center gap-1 text-primary text-sm mt-2">
                             <span>View</span>
                             <ChevronRight className="w-4 h-4" />
                           </div>

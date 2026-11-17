@@ -55,20 +55,20 @@ export function MainLayout({ children, userRole }: MainLayoutProps) {
   const tabWidth = 100 / navItems.length;
 
   return (
-    <div className="min-h-screen bg-[#F5F7F9]">
+    <div className="min-h-screen bg-background">
       {/* Main Content */}
       <main className="pb-20">
         {children}
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#D8E5EF] z-50 h-16">
+      <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50 h-16">
         <div className="max-w-[1200px] mx-auto h-full px-4">
           <div className="relative flex items-center h-full">
             {/* Active Indicator - animates left position as percentage */}
             {activeIndex >= 0 && (
               <motion.div
-                className="absolute top-0 h-1 bg-[#1188E9] rounded-b-full z-10"
+                className="absolute top-0 h-1 bg-primary rounded-b-full z-10"
                 style={{ width: `${tabWidth}%` }}
                 initial={false}
                 animate={{ left: `${activeIndex * tabWidth}%` }}
@@ -91,7 +91,7 @@ export function MainLayout({ children, userRole }: MainLayoutProps) {
                   <div className="relative">
                     <Icon
                       className={`w-5 h-5 transition-colors ${
-                        isActive ? 'text-[#1188E9]' : 'text-[#4A6375]'
+                        isActive ? 'text-primary' : 'text-muted-foreground'
                       }`}
                     />
                     {/* Unread badge on Chats tab */}
@@ -103,7 +103,7 @@ export function MainLayout({ children, userRole }: MainLayoutProps) {
                   </div>
                   <span
                     className={`text-xs mt-1 transition-colors ${
-                      isActive ? 'text-[#1188E9] font-medium' : 'text-[#4A6375]'
+                      isActive ? 'text-primary font-medium' : 'text-muted-foreground'
                     }`}
                   >
                     {item.label}

@@ -70,29 +70,29 @@ export function Login() {
         {/* Back Button */}
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-[#4A6375] hover:text-[#1188E9] transition-colors mb-6"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home
         </Link>
 
         {/* Card */}
-        <div className="bg-white rounded-3xl shadow-xl p-8">
+        <div className="bg-card rounded-3xl shadow-xl p-8">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-[#1188E9] rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
               <Shirt className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-2xl font-semibold text-[#092635] font-['Poppins']">
+            <h1 className="text-2xl font-semibold text-foreground font-['Poppins']">
               Welcome Back
             </h1>
-            <p className="text-[#4A6375] mt-1">Sign in to your ezLaundry account</p>
+            <p className="text-muted-foreground mt-1">Sign in to your ezLaundry account</p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="email" className="text-[#092635] font-medium">
+              <Label htmlFor="email" className="text-foreground font-medium">
                 Email Address
               </Label>
               <Input
@@ -103,12 +103,12 @@ export function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
-                className="mt-1.5 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9]"
+                className="mt-1.5 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
               />
             </div>
 
             <div>
-              <Label htmlFor="password" className="text-[#092635] font-medium">
+              <Label htmlFor="password" className="text-foreground font-medium">
                 Password
               </Label>
               <div className="relative mt-1.5">
@@ -120,12 +120,12 @@ export function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoComplete="current-password"
-                  className="h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9] focus:ring-[#1188E9] pr-10"
+                  className="h-12 rounded-xl border-border focus:border-primary focus:ring-primary pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#4A6375] hover:text-[#1188E9] transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -145,7 +145,7 @@ export function Login() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-12 bg-[#1188E9] hover:bg-[#092635] text-white rounded-full font-medium transition-all duration-300"
+              className="w-full h-12 bg-primary hover:bg-navy text-white rounded-full font-medium transition-all duration-300"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </Button>
@@ -153,15 +153,15 @@ export function Login() {
 
           {/* Divider */}
           <div className="flex items-center gap-4 my-6">
-            <div className="flex-1 h-px bg-[#D8E5EF]" />
-            <span className="text-sm text-[#4A6375]">or</span>
-            <div className="flex-1 h-px bg-[#D8E5EF]" />
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-sm text-muted-foreground">or</span>
+            <div className="flex-1 h-px bg-border" />
           </div>
 
           {/* Register Link */}
-          <p className="text-center text-[#4A6375]">
+          <p className="text-center text-muted-foreground">
             Don&apos;t have an account?{' '}
-            <Link to="/register" className="text-[#1188E9] hover:underline font-medium">
+            <Link to="/register" className="text-primary hover:underline font-medium">
               Create one
             </Link>
           </p>

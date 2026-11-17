@@ -48,39 +48,39 @@ function OrderCard({ order }: { order: Order }) {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-xl p-5 shadow-sm"
+        className="bg-card rounded-xl p-5 shadow-sm"
       >
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div>
             <div className="flex items-center gap-2">
-              <p className="font-semibold text-[#092635]">{serviceNames[order.serviceType]}</p>
+              <p className="font-semibold text-foreground">{serviceNames[order.serviceType]}</p>
               <Badge className={statusInfo.color}>
                 <span className="mr-1">{statusInfo.icon}</span>
                 {statusInfo.label}
               </Badge>
             </div>
-            <p className="text-sm text-[#4A6375] mt-1">Order #{order.id}</p>
+            <p className="text-sm text-muted-foreground mt-1">Order #{order.id}</p>
           </div>
           <div className="text-right">
-            <p className="text-lg font-semibold text-[#092635]">
+            <p className="text-lg font-semibold text-foreground">
               RM{order.totalAmount}
             </p>
-            <p className="text-sm text-[#4A6375]">{order.weight || order.estimatedWeight} kg</p>
+            <p className="text-sm text-muted-foreground">{order.weight || order.estimatedWeight} kg</p>
           </div>
         </div>
 
         {/* Details */}
         <div className="space-y-2 text-sm">
-          <div className="flex items-center gap-2 text-[#4A6375]">
+          <div className="flex items-center gap-2 text-muted-foreground">
             <Clock3 className="w-4 h-4" />
             <span>Pickup: {new Date(order.pickupDate).toLocaleDateString()}</span>
           </div>
-          <div className="flex items-center gap-2 text-[#4A6375]">
+          <div className="flex items-center gap-2 text-muted-foreground">
             <MapPin className="w-4 h-4" />
             <span>{order.customerAddress.building}, {order.customerAddress.area}</span>
           </div>
-          <div className="flex items-center gap-2 text-[#4A6375]">
+          <div className="flex items-center gap-2 text-muted-foreground">
             <Hash className="w-4 h-4" />
             <span>{order.declaredItemCount} items declared</span>
             {order.actualItemCount !== undefined && (
@@ -92,17 +92,17 @@ function OrderCard({ order }: { order: Order }) {
         {/* Rider Info */}
         {order.riderName && (
           <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-            <p className="text-sm text-[#092635]">
-              <span className="text-[#4A6375]">Rider:</span> {order.riderName}
+            <p className="text-sm text-foreground">
+              <span className="text-muted-foreground">Rider:</span> {order.riderName}
             </p>
           </div>
         )}
 
         {/* Actions */}
-        <div className="flex gap-2 mt-4 pt-4 border-t border-[#F5F7F9]">
+        <div className="flex gap-2 mt-4 pt-4 border-t border-background">
           <Button
             variant="outline"
-            className="flex-1 border-[#D8E5EF]"
+            className="flex-1 border-border"
             onClick={() => navigate(`/order/${order.id}`)}
           >
             View Details
@@ -110,7 +110,7 @@ function OrderCard({ order }: { order: Order }) {
           </Button>
           {canChat && (
             <Button
-              className="flex-1 bg-[#1188E9] hover:bg-[#092635]"
+              className="flex-1 bg-primary hover:bg-navy"
               onClick={() => navigate(`/chat/${order.id}`)}
             >
               <MessageCircle className="w-4 h-4 mr-2" />
@@ -135,9 +135,9 @@ function OrderCard({ order }: { order: Order }) {
   function OrdersList({ orders, emptyMessage }: { orders: Order[]; loading: boolean; emptyMessage: string }) {
     if (orders.length === 0) {
       return (
-        <div className="text-center py-12 bg-white rounded-xl">
-          <Package className="w-12 h-12 text-[#D8E5EF] mx-auto mb-4" />
-          <p className="text-[#4A6375]">{emptyMessage}</p>
+        <div className="text-center py-12 bg-card rounded-xl">
+          <Package className="w-12 h-12 text-border mx-auto mb-4" />
+          <p className="text-muted-foreground">{emptyMessage}</p>
         </div>
       );
     }
@@ -175,16 +175,16 @@ export function Orders() {
   
 
   return (
-    <div className="min-h-screen bg-[#F5F7F9] pb-24">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
+      <header className="bg-card shadow-sm sticky top-0 z-50">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <h1 className="text-xl font-semibold text-[#092635] font-['Poppins']">My Orders</h1>
+            <h1 className="text-xl font-semibold text-foreground font-['Poppins']">My Orders</h1>
             <Button
               size="sm"
               onClick={() => setIsCreateDialogOpen(true)}
-              className="bg-[#1188E9] hover:bg-[#092635]"
+              className="bg-primary hover:bg-navy"
             >
               <Plus className="w-4 h-4 mr-2" />
               New Order

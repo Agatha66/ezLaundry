@@ -95,37 +95,37 @@ export function RiderHome() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7F9]">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+      <header className="bg-card shadow-sm sticky top-0 z-40">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/dashboard" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-[#1A7A7E] rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-teal rounded-full flex items-center justify-center">
                 <Bike className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-semibold text-[#092635] font-['Poppins']">ezLaundry</span>
+              <span className="text-xl font-semibold text-foreground font-['Poppins']">ezLaundry</span>
             </Link>
 
             {/* User Info & Logout */}
             <div className="flex items-center gap-3">
               <div className="hidden sm:flex items-center gap-3">
-                <Avatar className="w-9 h-9 bg-[#1A7A7E]">
-                  <AvatarFallback className="bg-[#1A7A7E] text-white text-sm font-medium">
+                <Avatar className="w-9 h-9 bg-teal">
+                  <AvatarFallback className="bg-teal text-white text-sm font-medium">
                     {userData?.displayName?.split(' ').map(n => n[0]).join('') || 'R'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-[#092635]">{userData?.displayName}</p>
-                  <p className="text-xs text-[#4A6375] capitalize">rider</p>
+                  <p className="text-sm font-medium text-foreground">{userData?.displayName}</p>
+                  <p className="text-xs text-muted-foreground capitalize">rider</p>
                 </div>
               </div>
               {/* <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleLogout}
-                className="text-[#4A6375] hover:text-red-500 hover:bg-red-50"
+                className="text-muted-foreground hover:text-red-500 hover:bg-red-50"
               >
                 <LogOut className="w-5 h-5" />
               </Button> */}
@@ -142,10 +142,10 @@ export function RiderHome() {
       >
         {/* Welcome Section */}
         <motion.div variants={itemVariants} className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-semibold text-[#092635] font-['Poppins']">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-foreground font-['Poppins']">
             Good day, {userData?.displayName?.split(' ')[0] || 'Rider'}! 👋
           </h1>
-          <p className="text-[#4A6375] mt-1">
+          <p className="text-muted-foreground mt-1">
             Ready to pick up some laundry today?
           </p>
         </motion.div>
@@ -170,8 +170,8 @@ export function RiderHome() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[#4A6375]">Available</p>
-                  <p className="text-2xl font-semibold text-[#092635]">{pendingOrders.length}</p>
+                  <p className="text-sm text-muted-foreground">Available</p>
+                  <p className="text-2xl font-semibold text-foreground">{pendingOrders.length}</p>
                 </div>
                 <div className="w-10 h-10 bg-yellow-50 rounded-xl flex items-center justify-center">
                   <AlertCircle className="w-5 h-5 text-yellow-600" />
@@ -184,8 +184,8 @@ export function RiderHome() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[#4A6375]">Today&apos;s Earnings</p>
-                  <p className="text-2xl font-semibold text-[#092635]">RM{todayEarnings}</p>
+                  <p className="text-sm text-muted-foreground">Today&apos;s Earnings</p>
+                  <p className="text-2xl font-semibold text-foreground">RM{todayEarnings}</p>
                 </div>
                 <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
                   <DollarSign className="w-5 h-5 text-green-600" />
@@ -198,8 +198,8 @@ export function RiderHome() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[#4A6375]">Weekly Done</p>
-                  <p className="text-2xl font-semibold text-[#092635]">{weeklyCompleted}</p>
+                  <p className="text-sm text-muted-foreground">Weekly Done</p>
+                  <p className="text-2xl font-semibold text-foreground">{weeklyCompleted}</p>
                 </div>
                 <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
                   <CheckCircle2 className="w-5 h-5 text-purple-600" />
@@ -214,32 +214,32 @@ export function RiderHome() {
           <div className="grid grid-cols-3 gap-3">
             <button
               onClick={() => navigate('/jobs', { state: { activeTab: 'active' } })}
-              className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all"
+              className="flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-sm hover:shadow-md transition-all"
             >
-              <div className="w-10 h-10 bg-[#1188E9] rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
                 <Bike className="w-5 h-5 text-white" />
               </div>
-              <span className="text-sm font-medium text-[#092635]">My Jobs</span>
+              <span className="text-sm font-medium text-foreground">My Jobs</span>
             </button>
             
             <button
               onClick={() => navigate('/chats')}
-              className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all"
+              className="flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-sm hover:shadow-md transition-all"
             >
-              <div className="w-10 h-10 bg-[#1A7A7E] rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-teal rounded-xl flex items-center justify-center">
                 <MessageCircle className="w-5 h-5 text-white" />
               </div>
-              <span className="text-sm font-medium text-[#092635]">Messages</span>
+              <span className="text-sm font-medium text-foreground">Messages</span>
             </button>
             
             <button
               onClick={() => navigate('/profile')}
-              className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all"
+              className="flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-sm hover:shadow-md transition-all"
             >
-              <div className="w-10 h-10 bg-[#092635] rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-navy rounded-xl flex items-center justify-center">
                 <MapPin className="w-5 h-5 text-white" />
               </div>
-              <span className="text-sm font-medium text-[#092635]">Profile</span>
+              <span className="text-sm font-medium text-foreground">Profile</span>
             </button>
           </div>
         </motion.div>
@@ -247,12 +247,12 @@ export function RiderHome() {
         {/* Available Orders */}
         <motion.div variants={itemVariants} className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-[#092635]">Available Orders</h2>
+            <h2 className="text-lg font-semibold text-foreground">Available Orders</h2>
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => navigate('/jobs', { state: { activeTab: 'available' } })}
-              className="text-[#1188E9]"
+              className="text-primary"
             >
               View All
               <ChevronRight className="w-4 h-4 ml-1" />
@@ -271,10 +271,10 @@ export function RiderHome() {
               ))}
             </div>
           ) : (
-            <div className="bg-white rounded-xl p-8 text-center">
-              <AlertCircle className="w-12 h-12 text-[#D8E5EF] mx-auto mb-3" />
-              <p className="text-[#4A6375]">No available orders right now.</p>
-              <p className="text-sm text-[#4A6375] mt-1">Check back soon!</p>
+            <div className="bg-card rounded-xl p-8 text-center">
+              <AlertCircle className="w-12 h-12 text-border mx-auto mb-3" />
+              <p className="text-muted-foreground">No available orders right now.</p>
+              <p className="text-sm text-muted-foreground mt-1">Check back soon!</p>
             </div>
           )}
         </motion.div>
@@ -282,12 +282,12 @@ export function RiderHome() {
         {/* Active Jobs */}
         <motion.div variants={itemVariants}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-[#092635]">Your Active Jobs</h2>
+            <h2 className="text-lg font-semibold text-foreground">Your Active Jobs</h2>
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => navigate('/jobs', { state: { activeTab: 'active' } })}
-              className="text-[#1188E9]"
+              className="text-primary"
             >
               View All
               <ChevronRight className="w-4 h-4 ml-1" />
@@ -305,10 +305,10 @@ export function RiderHome() {
               ))}
             </div>
           ) : (
-            <div className="bg-white rounded-xl p-8 text-center">
-              <Package className="w-12 h-12 text-[#D8E5EF] mx-auto mb-3" />
-              <p className="text-[#4A6375]">No active jobs right now.</p>
-              <p className="text-sm text-[#4A6375] mt-1">Accept an order to get started!</p>
+            <div className="bg-card rounded-xl p-8 text-center">
+              <Package className="w-12 h-12 text-border mx-auto mb-3" />
+              <p className="text-muted-foreground">No active jobs right now.</p>
+              <p className="text-sm text-muted-foreground mt-1">Accept an order to get started!</p>
             </div>
           )}
         </motion.div>
@@ -353,18 +353,18 @@ function AvailableOrderCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       onClick={() => navigate(`/order/${order.id}`)}
-      className="bg-white rounded-xl p-4 shadow-sm"
+      className="bg-card rounded-xl p-4 shadow-sm"
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <Badge className="bg-yellow-100 text-yellow-700">
             ⏳ Looking for Rider
           </Badge>
-          <p className="font-semibold text-[#092635] mt-2">
+          <p className="font-semibold text-foreground mt-2">
             {order.customerAddress.building}, {order.customerAddress.area}
           </p>
-          <p className="text-sm text-[#4A6375]">{order.customerAddress.street}</p>
-          <div className="flex items-center gap-4 mt-2 text-sm text-[#4A6375]">
+          <p className="text-sm text-muted-foreground">{order.customerAddress.street}</p>
+          <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
               <Clock className="w-4 h-4" />
               {new Date(order.pickupDate).toLocaleDateString()}
@@ -376,10 +376,10 @@ function AvailableOrderCard({
           </div>
         </div>
         <div className="text-right ml-4">
-          <p className="text-lg font-semibold text-[#1188E9]">
+          <p className="text-lg font-semibold text-primary">
             RM{order.deliveryFee}
           </p>
-          <p className="text-xs text-[#4A6375]">Delivery fee</p>
+          <p className="text-xs text-muted-foreground">Delivery fee</p>
           <Button
             size="sm"
             onClick={(e) => {
@@ -387,7 +387,7 @@ function AvailableOrderCard({
               onAccept();
             }}
             disabled={accepting}
-            className="mt-3 bg-[#1188E9] hover:bg-[#092635]"
+            className="mt-3 bg-primary hover:bg-navy"
           >
             {accepting ? 'Accepting...' : 'Accept'}
           </Button>
@@ -413,7 +413,7 @@ function ActiveJobCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       onClick={() => navigate(`/order/${order.id}`)}
-      className="bg-white rounded-xl p-4 shadow-sm cursor-pointer hover:shadow-md transition-all"
+      className="bg-card rounded-xl p-4 shadow-sm cursor-pointer hover:shadow-md transition-all"
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
@@ -421,9 +421,9 @@ function ActiveJobCard({
             <span className="mr-1">{statusInfo.icon}</span>
             {statusInfo.label}
           </Badge>
-          <p className="font-semibold text-[#092635] mt-2">{order.customerName}</p>
-          <p className="text-sm text-[#4A6375]">{order.customerAddress.building}</p>
-          <div className="flex items-center gap-4 mt-2 text-sm text-[#4A6375]">
+          <p className="font-semibold text-foreground mt-2">{order.customerName}</p>
+          <p className="text-sm text-muted-foreground">{order.customerAddress.building}</p>
+          <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
               <Hash className="w-4 h-4" />
               {order.declaredItemCount} items
@@ -434,10 +434,10 @@ function ActiveJobCard({
           </div>
         </div>
         <div className="text-right">
-          <p className="text-lg font-semibold text-[#1188E9]">
+          <p className="text-lg font-semibold text-primary">
             RM{order.deliveryFee}
           </p>
-          <p className="text-xs text-[#4A6375]">#{order.id.slice(-4)}</p>
+          <p className="text-xs text-muted-foreground">#{order.id.slice(-4)}</p>
           {canChat && (
             <Button
               size="sm"
@@ -446,7 +446,7 @@ function ActiveJobCard({
                 e.stopPropagation();
                 navigate(`/chat/${order.id}`);
               }}
-              className="mt-2 text-[#1188E9] hover:bg-[#E6F4FF]"
+              className="mt-2 text-primary hover:bg-primary/10"
             >
               <MessageCircle className="w-4 h-4 mr-1" />
               Chat

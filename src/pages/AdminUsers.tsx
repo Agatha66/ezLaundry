@@ -97,31 +97,31 @@ export function AdminUsers() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         onClick={() => navigate(`/user/${user.uid}`)}
-        className="bg-white rounded-xl p-4 shadow-sm cursor-pointer hover:shadow-md transition-all"
+        className="bg-card rounded-xl p-4 shadow-sm cursor-pointer hover:shadow-md transition-all"
       >
         <div className="flex items-start gap-4">
-          <Avatar className="w-12 h-12 bg-[#1188E9]">
-            <AvatarFallback className="bg-[#1188E9] text-white">
+          <Avatar className="w-12 h-12 bg-primary">
+            <AvatarFallback className="bg-primary text-white">
               {user.displayName?.charAt(0).toUpperCase() || 'U'}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between">
               <div>
-                <p className="font-semibold text-[#092635]">{user.displayName || 'Unknown'}</p>
+                <p className="font-semibold text-foreground">{user.displayName || 'Unknown'}</p>
                 <div className="space-y-1 mt-1">
-                  <p className="text-sm text-[#4A6375] flex items-center gap-2">
+                  <p className="text-sm text-muted-foreground flex items-center gap-2">
                     <Mail className="w-4 h-4" />
                     <span className="truncate">{user.email}</span>
                   </p>
                   {user.phone && (
-                    <p className="text-sm text-[#4A6375] flex items-center gap-2">
+                    <p className="text-sm text-muted-foreground flex items-center gap-2">
                       <Phone className="w-4 h-4" />
                       {user.phone}
                     </p>
                   )}
                   {user.address && (
-                    <p className="text-sm text-[#4A6375] flex items-center gap-2">
+                    <p className="text-sm text-muted-foreground flex items-center gap-2">
                       <MapPin className="w-4 h-4" />
                       <span className="truncate">{user.address.area}</span>
                     </p>
@@ -141,7 +141,7 @@ export function AdminUsers() {
                     <Trash2 className="w-5 h-5" />
                   </button>
                 )}
-                <ChevronRight className="w-5 h-5 text-[#4A6375]" />
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </div>
             </div>
             <div className="mt-3 flex items-center gap-2">
@@ -149,7 +149,7 @@ export function AdminUsers() {
                 Joined {new Date(user.createdAt).toLocaleDateString()}
               </Badge>
               {isCurrentUser && (
-                <Badge className="bg-[#1188E9] text-white text-xs">
+                <Badge className="bg-primary text-white text-xs">
                   You
                 </Badge>
               )}
@@ -161,15 +161,15 @@ export function AdminUsers() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7F9]">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+      <header className="bg-card shadow-sm sticky top-0 z-40">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <h1 className="text-xl font-semibold text-[#092635] font-['Poppins']">Users</h1>
+            <h1 className="text-xl font-semibold text-foreground font-['Poppins']">Users</h1>
             <div className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-[#4A6375]" />
-              <span className="text-sm text-[#4A6375]">{customers.length + riders.length} total</span>
+              <Users className="w-5 h-5 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">{customers.length + riders.length} total</span>
             </div>
           </div>
         </div>
@@ -179,12 +179,12 @@ export function AdminUsers() {
       <main className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
         {/* Search */}
         <div className="relative mb-6">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#4A6375]" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name, email, or phone..."
-            className="pl-12 h-12 rounded-xl border-[#D8E5EF] focus:border-[#1188E9]"
+            className="pl-12 h-12 rounded-xl border-border focus:border-primary"
           />
         </div>
 
@@ -204,12 +204,12 @@ export function AdminUsers() {
           <TabsContent value="customers">
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-[#1188E9]" />
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
             ) : filteredCustomers.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-xl">
-                <User className="w-12 h-12 text-[#D8E5EF] mx-auto mb-4" />
-                <p className="text-[#4A6375]">
+              <div className="text-center py-12 bg-card rounded-xl">
+                <User className="w-12 h-12 text-border mx-auto mb-4" />
+                <p className="text-muted-foreground">
                   {searchQuery ? 'No customers found matching your search' : 'No customers yet'}
                 </p>
               </div>
@@ -225,12 +225,12 @@ export function AdminUsers() {
           <TabsContent value="riders">
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-[#1188E9]" />
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
             ) : filteredRiders.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-xl">
-                <Bike className="w-12 h-12 text-[#D8E5EF] mx-auto mb-4" />
-                <p className="text-[#4A6375]">
+              <div className="text-center py-12 bg-card rounded-xl">
+                <Bike className="w-12 h-12 text-border mx-auto mb-4" />
+                <p className="text-muted-foreground">
                   {searchQuery ? 'No riders found matching your search' : 'No riders yet'}
                 </p>
               </div>
@@ -259,7 +259,7 @@ export function AdminUsers() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl"
+              className="bg-card rounded-2xl p-6 max-w-md w-full shadow-xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
@@ -271,15 +271,15 @@ export function AdminUsers() {
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                   disabled={deleting}
                 >
-                  <X className="w-5 h-5 text-[#4A6375]" />
+                  <X className="w-5 h-5 text-muted-foreground" />
                 </button>
               </div>
 
-              <h3 className="text-xl font-semibold text-[#092635] mb-2">
+              <h3 className="text-xl font-semibold text-foreground mb-2">
                 Delete User?
               </h3>
-              <p className="text-[#4A6375] mb-6">
-                Are you sure you want to delete <span className="font-medium text-[#092635]">{userToDelete.displayName || userToDelete.email}</span>? 
+              <p className="text-muted-foreground mb-6">
+                Are you sure you want to delete <span className="font-medium text-foreground">{userToDelete.displayName || userToDelete.email}</span>? 
                 This action cannot be undone and all their data will be permanently removed.
               </p>
 
@@ -288,7 +288,7 @@ export function AdminUsers() {
                   variant="outline"
                   onClick={() => setUserToDelete(null)}
                   disabled={deleting}
-                  className="flex-1 h-12 rounded-xl border-[#D8E5EF]"
+                  className="flex-1 h-12 rounded-xl border-border"
                 >
                   Cancel
                 </Button>

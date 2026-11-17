@@ -27,9 +27,9 @@ import { statusLabels } from '@/services/orderService';
 import type { Order } from '@/types';
 
 const quickActions = [
-  { icon: Plus, label: 'New Order', color: 'bg-[#1188E9]', action: 'create' },
-  { icon: Package, label: 'My Orders', color: 'bg-[#1A7A7E]', action: 'orders' },
-  { icon: CreditCard, label: 'Payments', color: 'bg-[#092635]', action: 'payments' },
+  { icon: Plus, label: 'New Order', color: 'bg-primary', action: 'create' },
+  { icon: Package, label: 'My Orders', color: 'bg-teal', action: 'orders' },
+  { icon: CreditCard, label: 'Payments', color: 'bg-navy', action: 'payments' },
   { icon: MapPin, label: 'Addresses', color: 'bg-[#4A6375]', action: 'addresses' },
 ];
 
@@ -68,30 +68,30 @@ export function CustomerDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7F9]">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+      <header className="bg-card shadow-sm sticky top-0 z-40">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-[#1188E9] rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
                 <Shirt className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-semibold text-[#092635] font-['Poppins']">ezLaundry</span>
+              <span className="text-xl font-semibold text-foreground font-['Poppins']">ezLaundry</span>
             </Link>
             <div className="flex items-center gap-2">
               <Link to="/profile">
-                <Button variant="ghost" className="text-[#4A6375] hover:text-[#1188E9] hover:bg-[#E6F4FF]">
+                <Button variant="ghost" className="text-muted-foreground hover:text-primary hover:bg-primary/10">
                   <User className="w-4 h-4 mr-2" />
                   Profile
                 </Button>
               </Link>
-              <Avatar className="w-9 h-9 bg-[#1188E9]">
-                <AvatarFallback className="bg-[#1188E9] text-white text-sm font-medium">
+              <Avatar className="w-9 h-9 bg-primary">
+                <AvatarFallback className="bg-primary text-white text-sm font-medium">
                   {userData?.displayName?.split(' ').map(n => n[0]).join('') || 'U'}
                 </AvatarFallback>
               </Avatar>
-              <Button variant="ghost" size="icon" onClick={handleLogout} className="text-[#4A6375] hover:text-red-500 hover:bg-red-50">
+              <Button variant="ghost" size="icon" onClick={handleLogout} className="text-muted-foreground hover:text-red-500 hover:bg-red-50">
                 <LogOut className="w-5 h-5" />
               </Button>
             </div>
@@ -103,36 +103,36 @@ export function CustomerDashboard() {
       <main className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24">
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
           <motion.div variants={itemVariants} className="mb-8">
-            <h1 className="text-2xl sm:text-3xl font-semibold text-[#092635] font-['Poppins']">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-foreground font-['Poppins']">
               Welcome back, {userData?.displayName?.split(' ')[0] || 'Customer'}!
             </h1>
-            <p className="text-[#4A6375] mt-1">Here's what's happening with your laundry</p>
+            <p className="text-muted-foreground mt-1">Here's what's happening with your laundry</p>
           </motion.div>
 
           {/* Quick Stats */}
           <motion.div variants={itemVariants} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <Card className="border-none shadow-sm">
               <CardContent className="p-5">
-                <p className="text-sm text-[#4A6375]">Active Orders</p>
-                <p className="text-2xl font-semibold text-[#092635]">{activeOrders.length}</p>
+                <p className="text-sm text-muted-foreground">Active Orders</p>
+                <p className="text-2xl font-semibold text-foreground">{activeOrders.length}</p>
               </CardContent>
             </Card>
             <Card className="border-none shadow-sm">
               <CardContent className="p-5">
-                <p className="text-sm text-[#4A6375]">Completed</p>
-                <p className="text-2xl font-semibold text-[#092635]">{completedOrders.length}</p>
+                <p className="text-sm text-muted-foreground">Completed</p>
+                <p className="text-2xl font-semibold text-foreground">{completedOrders.length}</p>
               </CardContent>
             </Card>
             <Card className="border-none shadow-sm">
               <CardContent className="p-5">
-                <p className="text-sm text-[#4A6375]">Total Spent</p>
-                <p className="text-2xl font-semibold text-[#092635]">RM{totalSpent}</p>
+                <p className="text-sm text-muted-foreground">Total Spent</p>
+                <p className="text-2xl font-semibold text-foreground">RM{totalSpent}</p>
               </CardContent>
             </Card>
             <Card className="border-none shadow-sm">
               <CardContent className="p-5">
-                <p className="text-sm text-[#4A6375]">Loyalty Points</p>
-                <p className="text-2xl font-semibold text-[#092635]">{completedOrders.length * 10}</p>
+                <p className="text-sm text-muted-foreground">Loyalty Points</p>
+                <p className="text-2xl font-semibold text-foreground">{completedOrders.length * 10}</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -145,12 +145,12 @@ export function CustomerDashboard() {
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => action.action === 'create' && setIsCreateDialogOpen(true)}
-                className="flex flex-col items-center gap-3 p-5 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all"
+                className="flex flex-col items-center gap-3 p-5 bg-card rounded-2xl shadow-sm hover:shadow-md transition-all"
               >
                 <div className={`w-12 h-12 ${action.color} rounded-xl flex items-center justify-center`}>
                   <action.icon className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-sm font-medium text-[#092635]">{action.label}</span>
+                <span className="text-sm font-medium text-foreground">{action.label}</span>
               </motion.button>
             ))}
           </motion.div>
@@ -188,8 +188,8 @@ export function CustomerDashboard() {
 }
 
 function OrdersList({ orders, loading, emptyMessage }: { orders: Order[], loading: boolean, emptyMessage: string }) {
-  if (loading) return <div className="space-y-4">{[1,2,3].map(i => <div key={i} className="h-24 bg-white rounded-xl animate-pulse" />)}</div>;
-  if (orders.length === 0) return <div className="text-center py-12 bg-white rounded-xl"><Package className="w-12 h-12 text-[#D8E5EF] mx-auto mb-4" /><p className="text-[#4A6375]">{emptyMessage}</p></div>;
+  if (loading) return <div className="space-y-4">{[1,2,3].map(i => <div key={i} className="h-24 bg-card rounded-xl animate-pulse" />)}</div>;
+  if (orders.length === 0) return <div className="text-center py-12 bg-card rounded-xl"><Package className="w-12 h-12 text-border mx-auto mb-4" /><p className="text-muted-foreground">{emptyMessage}</p></div>;
   
   return (
     <div className="space-y-4">
@@ -214,46 +214,46 @@ function OrderCard({ order }: { order: Order }) {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl p-5 shadow-sm"
+      className="bg-card rounded-xl p-5 shadow-sm"
     >
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-[#E6F4FF] rounded-xl flex items-center justify-center flex-shrink-0">
-            <Package className="w-6 h-6 text-[#1188E9]" />
+          <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+            <Package className="w-6 h-6 text-primary" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <p className="font-semibold text-[#092635]">{serviceNames[order.serviceType]}</p>
+              <p className="font-semibold text-foreground">{serviceNames[order.serviceType]}</p>
               <Badge className={statusInfo.color}>
                 <span className="mr-1">{statusInfo.icon}</span>
                 {statusInfo.label}
               </Badge>
             </div>
-            <p className="text-sm text-[#4A6375] mt-1">Order #{order.id.slice(-4)}</p>
-            <div className="flex items-center gap-4 mt-2 text-sm text-[#4A6375]">
+            <p className="text-sm text-muted-foreground mt-1">Order #{order.id.slice(-4)}</p>
+            <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
               <span className="flex items-center gap-1"><Clock3 className="w-4 h-4" />{new Date(order.pickupDate).toLocaleDateString()}</span>
               <span className="flex items-center gap-1"><MapPin className="w-4 h-4" />{order.customerAddress.area}</span>
               <span className="flex items-center gap-1"><Hash className="w-4 h-4" />{order.declaredItemCount} items</span>
             </div>
-            {order.riderName && <p className="text-sm text-[#1188E9] mt-2">Rider: {order.riderName}</p>}
+            {order.riderName && <p className="text-sm text-primary mt-2">Rider: {order.riderName}</p>}
           </div>
         </div>
         <div className="text-right">
-          <p className="text-lg font-semibold text-[#092635]">RM{order.finalPrice || order.estimatedPrice}</p>
-          <p className="text-sm text-[#4A6375]">{order.weight || order.estimatedWeight} kg</p>
+          <p className="text-lg font-semibold text-foreground">RM{order.finalPrice || order.estimatedPrice}</p>
+          <p className="text-sm text-muted-foreground">{order.weight || order.estimatedWeight} kg</p>
           <div className="flex gap-2 mt-2 justify-end">
             {canChat && (
-              <Button size="sm" variant="outline" onClick={() => navigate(`/chat/${order.id}`)} className="border-[#1188E9] text-[#1188E9]">
+              <Button size="sm" variant="outline" onClick={() => navigate(`/chat/${order.id}`)} className="border-primary text-primary">
                 <MessageCircle className="w-4 h-4 mr-1" /> Chat
               </Button>
             )}
-            <Button size="sm" onClick={() => navigate(`/order/${order.id}`)} className="bg-[#1188E9] hover:bg-[#092635]">
+            <Button size="sm" onClick={() => navigate(`/order/${order.id}`)} className="bg-primary hover:bg-navy">
               View <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
         </div>
       </div>
-      <div className="mt-4 pt-4 border-t border-[#F5F7F9]">
+      <div className="mt-4 pt-4 border-t border-background">
         <OrderStatusProgress status={order.status} />
       </div>
     </motion.div>
@@ -286,12 +286,12 @@ function OrderStatusProgress({ status }: { status: string }) {
         return (
           <div key={stage.key} className="flex items-center">
             <div className="flex flex-col items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${stageStatus === 'completed' ? 'bg-[#1188E9] text-white' : 'bg-[#F5F7F9] text-[#4A6375]'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${stageStatus === 'completed' ? 'bg-primary text-white' : 'bg-background text-muted-foreground'}`}>
                 {stage.icon}
               </div>
-              <span className="text-xs text-[#4A6375] mt-1">{stage.label}</span>
+              <span className="text-xs text-muted-foreground mt-1">{stage.label}</span>
             </div>
-            {!isLast && <div className={`w-8 h-0.5 mx-1 ${stageStatus === 'completed' ? 'bg-[#1188E9]' : 'bg-[#D8E5EF]'}`} />}
+            {!isLast && <div className={`w-8 h-0.5 mx-1 ${stageStatus === 'completed' ? 'bg-primary' : 'bg-border'}`} />}
           </div>
         );
       })}

@@ -3,13 +3,33 @@
 
 import type { Order } from '@/types';
 
+const STORAGE_KEY = 'ezl-demo-db';
+
+function loadMap(key: string): Map<string, any> {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? new Map(JSON.parse(raw)) : new Map();
+  } catch {
+    return new Map();
+  }
+}
+
+function saveMap(key: string, map: Map<string, any>) {
+  try {
+    localStorage.setItem(key, JSON.stringify([...map.entries()]));
+  } catch {
+    /* storage unavailable: demo data stays in memory */
+  }
+}
+
 class MockFirestoreDB {
-  private data: Map<string, any> = new Map();
+  private data: Map<string, any> = loadMap(STORAGE_KEY);
   private listeners: Map<string, ((data: any) => void)[]> = new Map();
 
   async setDoc(collection: string, docId: string, data: any): Promise<void> {
     const key = `${collection}/${docId}`;
-    this.data.set(key, { ...data, id: docId });
+    this.data.set(key, JSON.parse(JSON.stringify({ ...data, id: docId })));
+    saveMap(STORAGE_KEY, this.data);
     this.notifyListeners(collection);
   }
 
@@ -69,6 +89,7 @@ class MockFirestoreDB {
 }
 
 // Singleton instance - shared across the app
+export { loadMap, saveMap };
 export const mockFirestoreDB = new MockFirestoreDB();
 
 // Orders-specific helpers

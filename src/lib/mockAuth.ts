@@ -2,6 +2,11 @@
 // This simulates Firebase auth without requiring real Firebase credentials
 
 import type { UserRole, Address } from '@/types';
+import { loadMap, saveMap } from './mockFirestore';
+
+const USERS_KEY = 'ezl-demo-auth-users';
+const SESSION_KEY = 'ezl-demo-auth-session';
+const USERDATA_KEY = 'ezl-demo-users';
 
 export interface MockUser {
   uid: string;
@@ -13,7 +18,21 @@ export interface MockUser {
 }
 
 // Store mock users in memory
-const mockUsers: Map<string, MockUser> = new Map();
+const mockUsers: Map<string, MockUser> = loadMap(USERS_KEY);
+const persistUsers = () => saveMap(USERS_KEY, mockUsers);
+const persistSession = (uid: string | null) => {
+  try {
+    if (uid) localStorage.setItem(SESSION_KEY, uid); else localStorage.removeItem(SESSION_KEY);
+  } catch { /* ignore */ }
+};
+const restoreSession = (): MockUser | null => {
+  try {
+    const uid = localStorage.getItem(SESSION_KEY);
+    return uid ? mockUsers.get(uid) ?? null : null;
+  } catch {
+    return null;
+  }
+};
 
 // Generate a random UID
 const generateUID = () => {
@@ -22,7 +41,7 @@ const generateUID = () => {
 
 // Mock Firebase Auth class
 class MockAuth {
-  private currentUser: MockUser | null = null;
+  private currentUser: MockUser | null = restoreSession();
   private listeners: ((user: MockUser | null) => void)[] = [];
 
   // Sign up new user
@@ -54,6 +73,7 @@ class MockAuth {
 
     // Store user first, but DON'T notify listeners yet
     mockUsers.set(newUser.uid, newUser);
+    persistUsers();
     
     // Return the user without notifying - the caller will handle Firestore and then notify
     return newUser;
@@ -64,6 +84,7 @@ class MockAuth {
     for (const user of mockUsers.values()) {
       if (user.email === email) {
         this.currentUser = user;
+        persistSession(user.uid);
         this.notifyListeners();
         return user;
       }
@@ -77,6 +98,7 @@ class MockAuth {
   // Sign out
   async signOut(): Promise<void> {
     this.currentUser = null;
+    persistSession(null);
     this.notifyListeners();
   }
 
@@ -119,14 +141,17 @@ class MockAuth {
   // Set current user and notify listeners (called after Firestore is ready)
   setCurrentUser(user: MockUser): void {
     this.currentUser = user;
+    persistSession(user.uid);
     this.notifyListeners();
   }
 
   // Delete user
   deleteUser(uid: string): void {
     mockUsers.delete(uid);
+    persistUsers();
     if (this.currentUser?.uid === uid) {
       this.currentUser = null;
+      persistSession(null);
       this.notifyListeners();
     }
   }
@@ -137,11 +162,12 @@ export const mockAuth = new MockAuth();
 
 // Mock Firestore for user data
 class MockFirestore {
-  private data: Map<string, any> = new Map();
+  private data: Map<string, any> = loadMap(USERDATA_KEY);
 
   async setDoc(collection: string, docId: string, data: any): Promise<void> {
     const key = `${collection}/${docId}`;
-    this.data.set(key, { ...data, id: docId });
+    this.data.set(key, JSON.parse(JSON.stringify({ ...data, id: docId })));
+    saveMap(USERDATA_KEY, this.data);
   }
 
   async getDoc(collection: string, docId: string): Promise<any | null> {
@@ -166,6 +192,7 @@ class MockFirestore {
   async deleteDoc(collection: string, docId: string): Promise<void> {
     const key = `${collection}/${docId}`;
     this.data.delete(key);
+    saveMap(USERDATA_KEY, this.data);
   }
 }
 
