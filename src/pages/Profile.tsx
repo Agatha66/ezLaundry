@@ -1,396 +1,183 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
-import { 
-  Shirt, 
-  LogOut, 
-  User, 
-  Phone, 
-  MapPin, 
-  Save, 
-  Loader2,
-  CheckCircle2,
-  AlertCircle
-} from 'lucide-react';
+import { ChevronRight, Gift, HelpCircle, Loader2, LogOut, Mail, Moon, Pencil, Phone, Star } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+import { TopBar } from '@/components/shell/TopBar';
+import { CountUp, EASE_OUT, Stagger, StaggerItem } from '@/components/motion';
+import { ResponsiveModal } from '@/components/ResponsiveModal';
+import { useConfirm } from '@/components/ConfirmDialog';
+import { useTheme } from '@/components/ThemeProvider';
+import { AddressManager } from '@/components/profile/AddressManager';
 import { useAuth } from '@/contexts/AuthContext';
-import { authService } from '@/services/authService';
-import type { Address } from '@/types';
+import { useCustomerOrders, useRiderOrders } from '@/hooks/useOrders';
+import { computeLoyalty } from '@/lib/loyalty';
+import { riderAverage } from '@/lib/reports';
+
+const ROLE_BADGE: Record<string, string> = {
+  customer: 'bg-primary/10 text-primary',
+  rider: 'bg-teal/15 text-teal',
+  admin: 'bg-violet-500/15 text-violet-600 dark:text-violet-300',
+};
+
+function LoyaltyCard({ uid }: { uid?: string }) {
+  const { orders } = useCustomerOrders(uid);
+  const l = computeLoyalty(orders);
+  return (
+    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 to-fuchsia-600 p-5 text-white shadow-xl shadow-violet-500/25">
+      <Gift className="absolute -right-3 -top-3 h-24 w-24 text-white/10" />
+      <p className="text-sm text-white/80">ezPoints · {l.tier} member</p>
+      <CountUp value={l.points} suffix=" pts" className="block font-poppins text-3xl font-bold" />
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/25">
+        <motion.div className="h-full rounded-full bg-white" initial={{ width: 0 }} animate={{ width: `${Math.round(l.progress * 100)}%` }} transition={{ duration: 1.1, ease: EASE_OUT, delay: 0.2 }} />
+      </div>
+      <p className="mt-2 text-xs text-white/80">
+        {l.nextTier ? `${l.toNext} pts to ${l.nextTier} · 1 pt per RM spent, +5 per review` : 'You reached the top tier. Thank you!'}
+      </p>
+    </div>
+  );
+}
+
+function RiderStatsCard({ uid }: { uid?: string }) {
+  const { completedOrders } = useRiderOrders(uid);
+  const { avg, count } = riderAverage(completedOrders);
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      <div className="rounded-2xl border border-border bg-card p-4">
+        <CountUp value={completedOrders.length} className="block font-poppins text-2xl font-semibold" />
+        <p className="text-xs text-muted-foreground">Jobs completed</p>
+      </div>
+      <div className="rounded-2xl border border-border bg-card p-4">
+        <p className="flex items-center gap-1 font-poppins text-2xl font-semibold">
+          <Star className="h-5 w-5 fill-amber-400 text-amber-400" /> {count ? avg.toFixed(1) : '–'}
+        </p>
+        <p className="text-xs text-muted-foreground">{count} review{count === 1 ? '' : 's'}</p>
+      </div>
+    </div>
+  );
+}
 
 export function Profile() {
   const navigate = useNavigate();
-  const { userData, logout, currentUser } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const location = useLocation();
+  const { userData, logout, updateProfile } = useAuth();
+  const { resolvedTheme, setTheme } = useTheme();
+  const confirm = useConfirm();
+  const [editOpen, setEditOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  // Form states
-  const [displayName, setDisplayName] = useState(userData?.displayName || '');
-  const [phone, setPhone] = useState(userData?.phone || '');
-  const [address, setAddress] = useState<Address>(userData?.address || {
-    street: '',
-    unit: '',
-    building: '',
-    area: 'Damansara Perdana',
-    city: 'Petaling Jaya',
-    postcode: '',
-  });
+  useEffect(() => {
+    if (location.hash === '#addresses') {
+      const t = setTimeout(() => document.getElementById('addresses')?.scrollIntoView({ behavior: 'smooth' }), 400);
+      return () => clearTimeout(t);
+    }
+  }, [location.hash]);
+
+  const role = userData?.role ?? 'customer';
+  const openEdit = () => {
+    setName(userData?.displayName ?? '');
+    setPhone(userData?.phone ?? '');
+    setEditOpen(true);
+  };
+
+  const saveProfile = async () => {
+    if (!name.trim()) return toast.error('Name is required');
+    setSaving(true);
+    try {
+      await updateProfile({ displayName: name.trim(), phone: phone.trim() });
+      toast.success('Profile updated');
+      setEditOpen(false);
+    } catch {
+      toast.error('Could not update your profile');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleLogout = async () => {
-    await logout();
-    navigate('/');
-  };
-
-  const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-    setLoading(true);
-
-    try {
-      if (!currentUser) {
-        setError('You must be logged in');
-        return;
-      }
-
-      // Update user data in Firestore
-      const updates: any = {
-        displayName,
-        phone,
-      };
-
-      // Only update address for customers
-      if (userData?.role === 'customer') {
-        updates.address = address;
-      }
-
-      await authService.updateUserData(currentUser.uid, updates);
-      
-      setSuccess('Profile updated successfully!');
-      
-      // Clear success message after 3 seconds
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (err: any) {
-      console.error('Failed to update profile:', err);
-      setError(err.message || 'Failed to update profile');
-    } finally {
-      setLoading(false);
+    if (await confirm({ title: 'Log out?', description: 'You can sign back in any time.', confirmText: 'Log out' })) {
+      await logout();
+      navigate('/');
     }
   };
 
-  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAddress({ ...address, [e.target.name]: e.target.value });
-  };
-
-  const getRoleColor = () => {
-    switch (userData?.role) {
-      case 'admin':
-        return 'bg-navy';
-      case 'rider':
-        return 'bg-teal';
-      default:
-        return 'bg-primary';
-    }
-  };
+  const settings = [
+    { icon: Moon, label: 'Dark mode', control: <Switch checked={resolvedTheme === 'dark'} onCheckedChange={v => setTheme(v ? 'dark' : 'light')} aria-label="Dark mode" /> },
+    { icon: HelpCircle, label: 'Help & support', onClick: () => toast.info('Reach us at support@ezlaundry.my') },
+  ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card shadow-sm sticky top-0 z-50">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                <Shirt className="w-5 h-5 text-white" />
+    <>
+      <TopBar title="Profile" />
+      <div className="grid items-start gap-5 lg:grid-cols-[1fr_1fr]">
+        <Stagger className="space-y-5">
+          <StaggerItem>
+            <div className="flex items-center gap-4 rounded-3xl border border-border bg-card p-5 shadow-sm">
+              <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-primary to-teal font-poppins text-2xl font-semibold text-white">
+                {userData?.displayName?.charAt(0).toUpperCase() ?? '?'}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-poppins text-lg font-semibold text-foreground">{userData?.displayName}</p>
+                <p className="flex items-center gap-1.5 truncate text-sm text-muted-foreground"><Mail className="h-3.5 w-3.5" /> {userData?.email}</p>
+                {userData?.phone && <p className="flex items-center gap-1.5 text-sm text-muted-foreground"><Phone className="h-3.5 w-3.5" /> {userData.phone}</p>}
+                <span className={`mt-1.5 inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${ROLE_BADGE[role]}`}>{role}</span>
               </div>
-              <span className="text-xl font-semibold text-foreground font-['Poppins']">ezLaundry</span>
-            </Link>
-
-            <div className="flex items-center gap-4">
-              {/* <Link to={getDashboardLink()}>
-                <Button variant="ghost" className="text-muted-foreground">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Dashboard
-                </Button>
-              </Link> */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleLogout}
-                className="text-muted-foreground hover:text-red-500 hover:bg-red-50"
-              >
-                <LogOut className="w-5 h-5" />
+              <Button size="icon" variant="ghost" onClick={openEdit} aria-label="Edit profile" className="shrink-0 rounded-xl">
+                <Pencil className="h-4 w-4" />
               </Button>
             </div>
-          </div>
+          </StaggerItem>
+          {role === 'customer' && <StaggerItem><LoyaltyCard uid={userData?.uid} /></StaggerItem>}
+          {role === 'rider' && <StaggerItem><RiderStatsCard uid={userData?.uid} /></StaggerItem>}
+          <StaggerItem>
+            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+              {settings.map(s => (
+                <div
+                  key={s.label}
+                  onClick={s.onClick}
+                  className={`flex items-center gap-3 border-b border-border px-4 py-3.5 last:border-0 ${s.onClick ? 'cursor-pointer transition-colors hover:bg-muted/60' : ''}`}
+                >
+                  <s.icon className="h-5 w-5 text-muted-foreground" />
+                  <span className="flex-1 text-sm font-medium text-foreground">{s.label}</span>
+                  {s.control ?? <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+                </div>
+              ))}
+              <button onClick={handleLogout} className="flex w-full items-center gap-3 px-4 py-3.5 text-left text-destructive transition-colors hover:bg-destructive/5">
+                <LogOut className="h-5 w-5" />
+                <span className="text-sm font-medium">Log out</span>
+              </button>
+            </div>
+          </StaggerItem>
+        </Stagger>
+
+        {role === 'customer' && (
+          <Stagger>
+            <StaggerItem><AddressManager /></StaggerItem>
+          </Stagger>
+        )}
+      </div>
+
+      <ResponsiveModal
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        title="Edit profile"
+        footer={
+          <Button onClick={saveProfile} disabled={saving} className="h-12 w-full rounded-xl">
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save changes'}
+          </Button>
+        }
+      >
+        <div className="space-y-4 pb-2">
+          <div><Label htmlFor="pf-name">Full name</Label><Input id="pf-name" className="mt-1" value={name} onChange={e => setName(e.target.value)} /></div>
+          <div><Label htmlFor="pf-phone">Phone</Label><Input id="pf-phone" className="mt-1" type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+60 12-345 6789" /></div>
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-[800px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          {/* Profile Header */}
-          <div className="text-center mb-8">
-            <Avatar className={`w-24 h-24 ${getRoleColor()} mx-auto mb-4`}>
-              <AvatarFallback className={`${getRoleColor()} text-white text-2xl font-semibold`}>
-                {userData?.displayName?.split(' ').map(n => n[0]).join('') || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            <h1 className="text-2xl font-semibold text-foreground font-['Poppins']">
-              {userData?.displayName}
-            </h1>
-            <p className="text-muted-foreground capitalize">{userData?.role}</p>
-            <p className="text-sm text-muted-foreground">{userData?.email}</p>
-          </div>
-
-          {/* Messages */}
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3"
-            >
-              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-              <p className="text-red-700">{error}</p>
-            </motion.div>
-          )}
-
-          {success && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3"
-            >
-              <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-              <p className="text-green-700">{success}</p>
-            </motion.div>
-          )}
-
-          {/* Profile Form */}
-          <form onSubmit={handleUpdateProfile}>
-            <Tabs defaultValue="personal" className="w-full">
-              <TabsList className={`grid w-full mb-6 ${userData?.role === 'customer' ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                <TabsTrigger value="personal">
-                  <User className="w-4 h-4 mr-2" />
-                  Personal Info
-                </TabsTrigger>
-                {userData?.role === 'customer' && (
-                  <TabsTrigger value="address">
-                    <MapPin className="w-4 h-4 mr-2" />
-                    Address
-                  </TabsTrigger>
-                )}
-              </TabsList>
-
-              <TabsContent value="personal">
-                <Card className="border-none shadow-sm">
-                  <CardHeader>
-                    <CardTitle className="text-lg font-semibold text-foreground">
-                      Personal Information
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div>
-                      <Label htmlFor="displayName" className="text-foreground font-medium">
-                        <User className="w-4 h-4 inline mr-2" />
-                        Full Name
-                      </Label>
-                      <Input
-                        id="displayName"
-                        type="text"
-                        value={displayName}
-                        onChange={(e) => setDisplayName(e.target.value)}
-                        required
-                        className="mt-2 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="email" className="text-foreground font-medium">
-                        Email Address
-                      </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={userData?.email}
-                        disabled
-                        className="mt-2 h-12 rounded-xl border-border bg-background text-muted-foreground"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="phone" className="text-foreground font-medium">
-                        <Phone className="w-4 h-4 inline mr-2" />
-                        Phone Number
-                      </Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        required
-                        className="mt-2 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
-                      />
-                    </div>
-
-                    <Button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full h-12 bg-primary hover:bg-navy text-white rounded-full font-medium"
-                    >
-                      {loading ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Saving...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="w-4 h-4 mr-2" />
-                          Save Changes
-                        </>
-                      )}
-                    </Button>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {userData?.role === 'customer' && (
-                <TabsContent value="address">
-                  <Card className="border-none shadow-sm">
-                    <CardHeader>
-                      <CardTitle className="text-lg font-semibold text-foreground">
-                        <MapPin className="w-5 h-5 inline mr-2" />
-                        Default Address
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      <div>
-                        <Label htmlFor="street" className="text-foreground font-medium">
-                          Street Address *
-                        </Label>
-                        <Input
-                          id="street"
-                          name="street"
-                          type="text"
-                          placeholder="e.g., Jalan PJU 8/1"
-                          value={address.street}
-                          onChange={handleAddressChange}
-                          required
-                          className="mt-2 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="unit" className="text-foreground font-medium">
-                            Unit/Floor
-                          </Label>
-                          <Input
-                            id="unit"
-                            name="unit"
-                            type="text"
-                            placeholder="e.g., Unit 5-2"
-                            value={address.unit}
-                            onChange={handleAddressChange}
-                            className="mt-2 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="building" className="text-foreground font-medium">
-                            Building/Block *
-                          </Label>
-                          <Input
-                            id="building"
-                            name="building"
-                            type="text"
-                            placeholder="e.g., Perdana Exclusive"
-                            value={address.building}
-                            onChange={handleAddressChange}
-                            required
-                            className="mt-2 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="area" className="text-foreground font-medium">
-                            Area
-                          </Label>
-                          <Input
-                            id="area"
-                            name="area"
-                            type="text"
-                            value={address.area}
-                            onChange={handleAddressChange}
-                            className="mt-2 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="postcode" className="text-foreground font-medium">
-                            Postcode *
-                          </Label>
-                          <Input
-                            id="postcode"
-                            name="postcode"
-                            type="text"
-                            placeholder="e.g., 47820"
-                            value={address.postcode}
-                            onChange={handleAddressChange}
-                            required
-                            className="mt-2 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="city" className="text-foreground font-medium">
-                          City
-                        </Label>
-                        <Input
-                          id="city"
-                          name="city"
-                          type="text"
-                          value={address.city}
-                          onChange={handleAddressChange}
-                          className="mt-2 h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
-                        />
-                      </div>
-
-                      <Button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full h-12 bg-primary hover:bg-navy text-white rounded-full font-medium"
-                      >
-                        {loading ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Saving...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="w-4 h-4 mr-2" />
-                            Save Address
-                          </>
-                        )}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              )}
-            </Tabs>
-          </form>
-        </motion.div>
-      </main>
-    </div>
+      </ResponsiveModal>
+    </>
   );
 }

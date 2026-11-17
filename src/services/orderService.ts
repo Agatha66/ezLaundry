@@ -2,7 +2,7 @@ import { collection, doc, setDoc, getDoc, getDocs, query, where, updateDoc, serv
 import { db } from '@/lib/firebase';
 import { mockOrdersStore } from '@/lib/mockFirestore';
 import { chatService } from './chatService';
-import type { Order, OrderStatus, StatusHistoryItem } from '@/types';
+import type { Order, OrderRating, OrderStatus, StatusHistoryItem } from '@/types';
 import { statusFlow, statusLabels } from '@/lib/orderStatus';
 
 const isDemoMode = import.meta.env.VITE_FIREBASE_API_KEY === 'demo-key' || 
@@ -308,6 +308,42 @@ export const orderService = {
     }
 
     await notifyStatusChange(orderId, newStatus, note);
+  },
+
+  // Save the customer's rating for a delivered/completed order (once)
+  async rateOrder(orderId: string, rating: Omit<OrderRating, 'createdAt'>): Promise<void> {
+    const order = await this.getOrder(orderId);
+    if (!order) throw new Error('Order not found');
+    if (!['delivered', 'completed'].includes(order.status)) throw new Error('Only delivered orders can be rated');
+    if (order.rating) throw new Error('This order has already been rated');
+
+    const full: OrderRating = cleanUndefined({ ...rating, createdAt: new Date().toISOString() }) as OrderRating;
+    if (isDemoMode) {
+      await mockOrdersStore.add({ ...order, rating: full, updatedAt: new Date() });
+    } else {
+      await updateDoc(doc(db, ORDERS_COLLECTION, orderId), { rating: full, updatedAt: serverTimestamp() });
+    }
+  },
+
+  // Rider confirms payment was collected (simulated payment)
+  async markPaymentReceived(orderId: string, riderId: string): Promise<void> {
+    const order = await this.getOrder(orderId);
+    if (!order) throw new Error('Order not found');
+    if (order.riderId && order.riderId !== riderId) throw new Error('Only the assigned rider can confirm payment');
+    if (order.paymentStatus === 'paid') return;
+
+    const paymentReceivedAt = new Date().toISOString();
+    if (isDemoMode) {
+      await mockOrdersStore.add({ ...order, paymentStatus: 'paid', paymentReceivedAt, updatedAt: new Date() });
+    } else {
+      await updateDoc(doc(db, ORDERS_COLLECTION, orderId), { paymentStatus: 'paid', paymentReceivedAt, updatedAt: serverTimestamp() });
+    }
+    try {
+      const chat = await chatService.getChatByOrderId(orderId);
+      if (chat) await chatService.sendSystemMessage(chat.id, `Payment received · RM${order.totalAmount}`);
+    } catch (e) {
+      console.error('[Order] Failed to send payment message:', e);
+    }
   },
 
   // Cancel order (customer only, before pickup)

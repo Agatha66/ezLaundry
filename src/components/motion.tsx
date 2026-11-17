@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { animate, motion, useInView, type HTMLMotionProps } from 'framer-motion';
+import { animate, motion, useReducedMotion, type HTMLMotionProps } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 export const EASE_OUT = [0.22, 1, 0.36, 1] as const;
@@ -59,7 +59,7 @@ export function Pressable({ className, children, ...rest }: HTMLMotionProps<'div
   );
 }
 
-/** Animated number that counts up when it scrolls into view or its value changes. */
+/** Animated number that counts up on mount and whenever its value changes. */
 export function CountUp({
   value,
   prefix = '',
@@ -75,21 +75,32 @@ export function CountUp({
 }) {
   const ref = useRef<HTMLSpanElement>(null);
   const from = useRef(0);
-  const inView = useInView(ref, { once: true });
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
-    if (!inView || !ref.current) return;
+    if (!ref.current) return;
     const node = ref.current;
+    const format = (v: number) =>
+      `${prefix}${v.toLocaleString('en-MY', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}${suffix}`;
+    if (reduceMotion) {
+      from.current = value;
+      node.textContent = format(value);
+      return;
+    }
     const controls = animate(from.current, value, {
       duration: 0.9,
       ease: EASE_OUT,
       onUpdate: v => {
-        node.textContent = `${prefix}${v.toLocaleString('en-MY', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}${suffix}`;
+        from.current = v;
+        node.textContent = format(v);
+      },
+      onComplete: () => {
+        from.current = value;
+        node.textContent = format(value);
       },
     });
-    from.current = value;
     return () => controls.stop();
-  }, [value, inView, prefix, suffix, decimals]);
+  }, [value, prefix, suffix, decimals, reduceMotion]);
 
   return (
     <span ref={ref} className={cn('tabular-nums', className)}>

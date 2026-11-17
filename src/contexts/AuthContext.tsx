@@ -21,6 +21,8 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, displayName: string, role?: UserRole, additionalData?: { phone?: string; address?: Address }) => Promise<void>;
   logout: () => Promise<void>;
+  /** Save profile fields and refresh `userData`. */
+  updateProfile: (updates: Partial<User>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -82,6 +84,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await authService.logout();
   };
 
+  const updateProfile = async (updates: Partial<User>) => {
+    if (!userData) throw new Error('Not signed in');
+    await authService.updateUserData(userData.uid, updates);
+    setUserData(prev => (prev ? { ...prev, ...updates } : prev));
+  };
+
   const value = {
     currentUser,
     userData,
@@ -89,6 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     register,
     logout,
+    updateProfile,
   };
 
   return (

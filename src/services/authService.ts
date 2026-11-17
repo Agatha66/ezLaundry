@@ -123,6 +123,7 @@ export const authService = {
           role: data.role || 'customer',
           phone: data.phone,
           address: data.address,
+          addresses: data.addresses,
           createdAt: data.createdAt,
         };
       }

@@ -1,47 +1,127 @@
-import { toast } from 'sonner';
-import { useConfirm } from '@/components/ConfirmDialog';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { 
-  ArrowLeft, 
-  Package, 
-  MapPin, 
-  Phone,
-  FileText,
-  Camera,
-  User,
-  Calendar,
-  CreditCard,
-  Clock,
-  MessageCircle,
-  Loader2
-} from 'lucide-react';
+import { Calendar, Camera, Clock, FileText, Loader2, MapPin, MessageCircle, Package, Phone, Star, XCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { TopBar } from '@/components/shell/TopBar';
+import { Stagger, StaggerItem } from '@/components/motion';
+import { Skeleton } from '@/components/Skeletons';
+import { useConfirm } from '@/components/ConfirmDialog';
+import { OrderTimeline } from '@/components/order/OrderTimeline';
+import { Receipt } from '@/components/order/Receipt';
+import { RateRiderModal } from '@/components/order/RateRiderModal';
+import { CHAT_STATUSES, SERVICE_EMOJI, SERVICE_NAMES, canRate, trackIndex, TRACK_STEPS } from '@/components/order/orderMeta';
 import { useAuth } from '@/contexts/AuthContext';
-import { orderService, statusLabels } from '@/services/orderService';
+import { orderService } from '@/services/orderService';
+import { statusLabels } from '@/lib/orderStatus';
+import { formatAddress } from '@/lib/addresses';
+import { toDate } from '@/lib/dates';
+import { cn } from '@/lib/utils';
 import type { Order } from '@/types';
+
+function Card({ title, icon: Icon, children, className }: { title?: string; icon?: typeof Package; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={cn('rounded-2xl border border-border bg-card p-5 shadow-sm', className)}>
+      {title && (
+        <h3 className="mb-4 flex items-center gap-2 font-semibold text-foreground">
+          {Icon && <Icon className="h-5 w-5 text-primary" />} {title}
+        </h3>
+      )}
+      {children}
+    </div>
+  );
+}
+
+function Person({ name, phone, label }: { name: string; phone?: string; label: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-amber-300 to-pink-400 font-poppins text-lg font-semibold text-white">
+        {name.charAt(0).toUpperCase()}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="truncate font-semibold text-foreground">{name}</p>
+        {phone && <p className="text-sm text-muted-foreground">{phone}</p>}
+      </div>
+      {phone && (
+        <a href={`tel:${phone}`} aria-label={`Call ${name}`} className="grid h-10 w-10 place-items-center rounded-xl border border-border text-primary transition-colors hover:bg-primary/10">
+          <Phone className="h-4 w-4" />
+        </a>
+      )}
+    </div>
+  );
+}
 
 export function OrderDetail() {
   const navigate = useNavigate();
   const { orderId } = useParams<{ orderId: string }>();
   const { userData } = useAuth();
+  const confirm = useConfirm();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
-  const confirm = useConfirm();
+  const [rating, setRating] = useState<Order | null>(null);
+
+  useEffect(() => {
+    if (!orderId) return;
+    let alive = true;
+    orderService
+      .getOrder(orderId)
+      .then(o => { if (alive) setOrder(o); })
+      .catch(e => console.error('Error loading order:', e))
+      .finally(() => { if (alive) setLoading(false); });
+    const unsubscribe = orderService.subscribeToOrder(orderId, o => { if (o) setOrder(o); });
+    return () => { alive = false; unsubscribe(); };
+  }, [orderId]);
+
+  const isCustomer = userData?.role === 'customer';
+  const back = isCustomer ? '/orders' : '/jobs';
+
+  if (loading) {
+    return (
+      <>
+        <TopBar title="Order details" back={back} />
+        <div className="grid gap-5 lg:grid-cols-[1.2fr_1fr]">
+          <Skeleton className="h-[480px] rounded-2xl" />
+          <div className="space-y-5"><Skeleton className="h-28 rounded-2xl" /><Skeleton className="h-56 rounded-2xl" /></div>
+        </div>
+      </>
+    );
+  }
+
+  if (!order) {
+    return (
+      <>
+        <TopBar title="Order details" back={back} />
+        <div className="rounded-3xl border border-dashed border-border bg-card p-12 text-center">
+          <Package className="mx-auto mb-3 h-12 w-12 text-muted-foreground/40" />
+          <p className="text-muted-foreground">We couldn't find this order.</p>
+          <Button onClick={() => navigate(back)} className="mt-5 rounded-xl">Go back</Button>
+        </div>
+      </>
+    );
+  }
+
+  const status = statusLabels[order.status];
+  const canChat = !!order.riderId && CHAT_STATUSES.includes(order.status);
+  const canCancel = isCustomer && ['pending', 'accepted'].includes(order.status);
+  const showRate = isCustomer && canRate(order);
+  const pickup = toDate(order.pickupDate);
+  const pct = order.status === 'cancelled' ? 0 : Math.round((trackIndex(order.status) / (TRACK_STEPS.length - 1)) * 100);
 
   const handleCancel = async () => {
-    if (!order || !userData) return;
-    const ok = await confirm({ title: 'Cancel this order?', description: `Order ${order.id} will be cancelled. This can't be undone.`, confirmText: 'Cancel order', cancelText: 'Keep order', destructive: true });
+    const ok = await confirm({
+      title: 'Cancel this order?',
+      description: `Order #${order.id.slice(-4)} will be cancelled. This can't be undone.`,
+      confirmText: 'Cancel order',
+      cancelText: 'Keep order',
+      destructive: true,
+    });
     if (!ok) return;
     setCancelling(true);
     try {
       await orderService.cancelOrder(order.id, order.customerId);
-      const updated = await orderService.getOrder(order.id);
-      setOrder(updated);
+      setOrder(await orderService.getOrder(order.id));
       toast.success('Order cancelled');
     } catch (e) {
       console.error('Failed to cancel order:', e);
@@ -51,334 +131,141 @@ export function OrderDetail() {
     }
   };
 
-  useEffect(() => {
-    if (!orderId) return;
-
-    const loadOrder = async () => {
-      try {
-        const orderData = await orderService.getOrder(orderId);
-        setOrder(orderData);
-      } catch (error) {
-        console.error('Error loading order:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadOrder();
-
-    // Subscribe to order updates
-    const unsubscribe = orderService.subscribeToOrder(orderId, (updatedOrder) => {
-      if (updatedOrder) {
-        setOrder(updatedOrder);
-      }
-    });
-
-    return () => unsubscribe();
-  }, [orderId]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!order) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-muted-foreground">Order not found</p>
-          <Button 
-            onClick={() => navigate(userData?.role === 'customer' ? '/orders' : '/jobs')} 
-            className="mt-4 bg-primary"
-          >
-            Go Back
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  const statusInfo = statusLabels[order.status];
-  const serviceNames: Record<string, string> = {
-    'wash-fold': 'Wash & Fold',
-    'wash-iron': 'Wash & Iron',
-    'dry-clean': 'Dry Clean',
-  };
-
-  const isCustomer = userData?.role === 'customer';
-  const canChat = order.riderId && ['accepted', 'picking-up', 'picked-up', 'to-laundry', 'at-laundry', 'washing', 'washed', 'delivering', 'delivered', 'completed'].includes(order.status);
-  const canCancel = isCustomer && ['pending', 'accepted'].includes(order.status);
-
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card shadow-sm sticky top-0 z-40">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate(-1)}
-                className="text-muted-foreground"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <h1 className="text-xl font-semibold text-foreground font-['Poppins']">Order Details</h1>
-            </div>
-            <Badge className={statusInfo.color}>
-              <span className="mr-1">{statusInfo.icon}</span>
-              {statusInfo.label}
-            </Badge>
-          </div>
-        </div>
-      </header>
+    <>
+      <TopBar
+        title={`Order #${order.id.slice(-4)}`}
+        subtitle={`${SERVICE_EMOJI[order.serviceType]} ${SERVICE_NAMES[order.serviceType]}`}
+        back={back}
+        actions={
+          <span className={cn('hidden rounded-full px-3 py-1 text-xs font-semibold sm:inline-flex', status?.color)}>
+            {status?.icon} {status?.label}
+          </span>
+        }
+      />
 
-      {/* Content */}
-      <main className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
-        >
-          {/* Order ID & Service */}
-          <div className="bg-card rounded-xl p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Order ID</p>
-                <p className="text-lg font-semibold text-foreground">#{order.id}</p>
+      <div className="grid items-start gap-5 lg:grid-cols-[1.2fr_1fr]">
+        <Stagger className="space-y-5">
+          <StaggerItem>
+            <Card>
+              <div className="mb-5 flex items-center justify-between">
+                <h3 className="font-semibold text-foreground">Tracking</h3>
+                {order.status !== 'cancelled' && (
+                  <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">{pct}%</span>
+                )}
               </div>
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">Service</p>
-                <p className="text-lg font-semibold text-foreground">{serviceNames[order.serviceType]}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Calendar className="w-4 h-4" />
-              <span>Pickup: {new Date(order.pickupDate).toLocaleDateString()}</span>
-              <span className="mx-2">•</span>
-              <Clock className="w-4 h-4" />
-              <span className="capitalize">{order.preferredTimeSlot}</span>
-            </div>
-          </div>
+              <OrderTimeline order={order} />
+            </Card>
+          </StaggerItem>
 
-          {/* Pricing */}
-          <div className="bg-card rounded-xl p-5 shadow-sm">
-            <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-primary" />
-              Pricing
-            </h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Estimated Price</span>
-                <span className="text-foreground">RM{order.estimatedPrice}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Delivery Fee</span>
-                <span className="text-foreground">RM{order.deliveryFee}</span>
-              </div>
-              {order.finalPrice && order.finalPrice !== order.estimatedPrice && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Final Price</span>
-                  <span className="text-foreground">RM{order.finalPrice}</span>
-                </div>
-              )}
-              <div className="flex justify-between pt-2 border-t border-background">
-                <span className="font-semibold text-foreground">Total</span>
-                <span className="text-lg font-bold text-primary">RM{order.totalAmount}</span>
-              </div>
-            </div>
-          </div>
+          {order.deliveryPhoto && (
+            <StaggerItem>
+              <Card title="Delivery photo" icon={Camera}>
+                <img src={order.deliveryPhoto} alt="Delivery proof" className="max-h-72 w-full rounded-xl border border-border object-cover" />
+              </Card>
+            </StaggerItem>
+          )}
+        </Stagger>
 
-          {/* Items */}
-          <div className="bg-card rounded-xl p-5 shadow-sm">
-            <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-              <Package className="w-5 h-5 text-primary" />
-              Items
-            </h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Weight</span>
-                <span className="text-foreground">{order.weight || order.estimatedWeight} kg</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Items Declared</span>
-                <span className="text-foreground">{order.declaredItemCount} items</span>
-              </div>
-              {order.actualItemCount !== undefined && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Items Verified</span>
-                  <span className="text-green-600 font-medium">{order.actualItemCount} items ✓</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Rider Info (for customer) or Customer Info (for rider) */}
-          {isCustomer && order.riderName ? (
-            <div className="bg-card rounded-xl p-5 shadow-sm">
-              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                <User className="w-5 h-5 text-primary" />
-                Rider Information
-              </h3>
-              <div className="flex items-center gap-4">
-                <Avatar className="w-12 h-12 bg-primary">
-                  <AvatarFallback className="bg-primary text-white">
-                    {order.riderName.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium text-foreground">{order.riderName}</p>
-                  {order.riderPhone && (
-                    <p className="text-sm text-muted-foreground flex items-center gap-1">
-                      <Phone className="w-4 h-4" />
-                      {order.riderPhone}
+        <Stagger className="space-y-5">
+          <StaggerItem>
+            <Card>
+              {isCustomer ? (
+                order.riderName ? (
+                  <Person label="Your rider" name={order.riderName} phone={order.riderPhone} />
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                    <p className="text-sm text-muted-foreground">
+                      {order.status === 'cancelled' ? 'No rider assigned' : 'Finding a rider near you…'}
                     </p>
+                  </div>
+                )
+              ) : (
+                <Person label="Customer" name={order.customerName} phone={order.customerPhone} />
+              )}
+              {(canChat || canCancel || showRate) && (
+                <div className="mt-4 flex gap-2">
+                  {canChat && (
+                    <Button onClick={() => navigate(`/chat/${order.id}`)} className="h-11 flex-1 rounded-xl">
+                      <MessageCircle className="h-4 w-4" /> Chat
+                    </Button>
+                  )}
+                  {showRate && (
+                    <Button onClick={() => setRating(order)} variant="outline" className="h-11 flex-1 rounded-xl border-amber-400/60 text-amber-600 hover:bg-amber-400/10 dark:text-amber-300">
+                      <Star className="h-4 w-4" /> Rate rider
+                    </Button>
+                  )}
+                  {canCancel && (
+                    <Button onClick={handleCancel} disabled={cancelling} variant="outline" className="h-11 flex-1 rounded-xl border-destructive/40 text-destructive hover:bg-destructive/10">
+                      {cancelling ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />} Cancel
+                    </Button>
+                  )}
+                </div>
+              )}
+              {order.rating && (
+                <div className="mt-4 rounded-xl bg-amber-400/10 p-3">
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map(n => (
+                      <Star key={n} className={cn('h-4 w-4', n <= order.rating!.stars ? 'fill-amber-400 text-amber-400' : 'text-border')} />
+                    ))}
+                    <span className="ml-1 text-xs text-muted-foreground">{isCustomer ? 'Your review' : 'Customer review'}</span>
+                  </div>
+                  {order.rating.tags.length > 0 && <p className="mt-1 text-xs text-muted-foreground">{order.rating.tags.join(' · ')}</p>}
+                  {order.rating.comment && <p className="mt-1 text-sm text-foreground">“{order.rating.comment}”</p>}
+                </div>
+              )}
+            </Card>
+          </StaggerItem>
+
+          <StaggerItem>
+            <Card title="Pickup" icon={Calendar}>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center gap-2 text-foreground">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  {pickup?.toLocaleDateString('en-MY', { weekday: 'short', day: 'numeric', month: 'short' })} · <span className="capitalize">{order.preferredTimeSlot}</span>
+                </div>
+                <div className="flex items-start gap-2 text-foreground">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                  {formatAddress(order.customerAddress)}
+                </div>
+                <div className="flex items-center gap-2 text-foreground">
+                  <Package className="h-4 w-4 text-muted-foreground" />
+                  {order.declaredItemCount} items declared
+                  {order.actualItemCount !== undefined && (
+                    <span className="font-medium text-emerald-600 dark:text-emerald-400">· {order.actualItemCount} verified ✓</span>
                   )}
                 </div>
               </div>
-            </div>
-          ) : !isCustomer && (
-            <div className="bg-card rounded-xl p-5 shadow-sm">
-              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                <User className="w-5 h-5 text-primary" />
-                Customer Information
-              </h3>
-              <div className="flex items-center gap-4">
-                <Avatar className="w-12 h-12 bg-primary">
-                  <AvatarFallback className="bg-primary text-white">
-                    {order.customerName.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium text-foreground">{order.customerName}</p>
-                  <p className="text-sm text-muted-foreground flex items-center gap-1">
-                    <Phone className="w-4 h-4" />
-                    {order.customerPhone}
-                  </p>
+            </Card>
+          </StaggerItem>
+
+          <StaggerItem>
+            <Receipt order={order} />
+          </StaggerItem>
+
+          {(order.specialInstructions || order.pickupNotes) && (
+            <StaggerItem>
+              <Card title="Notes" icon={FileText}>
+                <div className="space-y-2 text-sm">
+                  {order.specialInstructions && (
+                    <p className="rounded-xl bg-violet-500/10 p-3 text-foreground"><span className="font-medium">Customer:</span> {order.specialInstructions}</p>
+                  )}
+                  {order.pickupNotes && (
+                    <p className="rounded-xl bg-amber-500/10 p-3 text-foreground"><span className="font-medium">Rider:</span> {order.pickupNotes}</p>
+                  )}
                 </div>
-              </div>
-            </div>
+              </Card>
+            </StaggerItem>
           )}
+        </Stagger>
+      </div>
 
-          {/* Pickup Notes */}
-          {order.pickupNotes && (
-            <div className="bg-card rounded-xl p-5 shadow-sm">
-              <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                <FileText className="w-5 h-5 text-primary" />
-                Pickup Notes
-              </h3>
-              <div className="p-3 bg-yellow-50 rounded-lg">
-                <p className="text-sm text-foreground">{order.pickupNotes}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Special Instructions */}
-          {order.specialInstructions && (
-            <div className="bg-card rounded-xl p-5 shadow-sm">
-              <h3 className="font-semibold text-foreground mb-3">Special Instructions</h3>
-              <div className="p-3 bg-purple-50 rounded-lg">
-                <p className="text-sm text-foreground">{order.specialInstructions}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Delivery Photo */}
-          {order.deliveryPhoto && (
-            <div className="bg-card rounded-xl p-5 shadow-sm">
-              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                <Camera className="w-5 h-5 text-primary" />
-                Delivery Photo
-              </h3>
-              <div className="rounded-xl overflow-hidden border border-border">
-                <img
-                  src={order.deliveryPhoto}
-                  alt="Delivery proof"
-                  className="w-full h-auto max-h-64 object-cover"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Photo taken by rider at delivery
-              </p>
-            </div>
-          )}
-
-          {/* Status History */}
-          <div className="bg-card rounded-xl p-5 shadow-sm">
-            <h3 className="font-semibold text-foreground mb-4">Status History</h3>
-            <div className="space-y-4">
-              {order.statusHistory.map((item, index) => (
-                <div key={index} className="flex items-start gap-3">
-                  <div className={`w-3 h-3 rounded-full mt-1.5 ${
-                    index === order.statusHistory.length - 1 
-                      ? 'bg-primary' 
-                      : 'bg-green-500'
-                  }`} />
-                  <div className="flex-1">
-                    <p className="text-sm text-foreground font-medium">
-                      {statusLabels[item.status].label}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(item.timestamp).toLocaleString()}
-                    </p>
-                    {item.note && (
-                      <p className="text-xs text-muted-foreground mt-1">{item.note}</p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Delivery Address */}
-          <div className="bg-card rounded-xl p-5 shadow-sm">
-            <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-primary" />
-              Delivery Address
-            </h3>
-            <div className="flex items-start gap-3">
-              <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-              <div className="text-sm">
-                <p className="text-foreground font-medium">{order.customerAddress.building}</p>
-                <p className="text-muted-foreground">{order.customerAddress.street}</p>
-                {order.customerAddress.unit && (
-                  <p className="text-muted-foreground">{order.customerAddress.unit}</p>
-                )}
-                <p className="text-muted-foreground">
-                  {order.customerAddress.area}, {order.customerAddress.city}
-                </p>
-                <p className="text-muted-foreground">{order.customerAddress.postcode}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-3">
-            {canChat && (
-              <Button
-                onClick={() => navigate(`/chat/${order.id}`)}
-                className="flex-1 bg-primary hover:bg-navy"
-              >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Chat
-              </Button>
-            )}
-            {canCancel && (
-              <Button
-                onClick={handleCancel}
-                disabled={cancelling}
-                className="flex-1 bg-red-500 hover:bg-red-600 text-white"
-              >
-                {cancelling ? 'Cancelling...' : 'Cancel Order'}
-              </Button>
-            )}
-          </div>
-        </motion.div>
-      </main>
-    </div>
+      <RateRiderModal
+        order={rating}
+        onOpenChange={o => { if (!o) setRating(null); }}
+        onRated={async () => setOrder(await orderService.getOrder(order.id))}
+      />
+    </>
   );
 }
